@@ -57,9 +57,6 @@ export function setAuthCookies(
   return response;
 }
 
-/**
- * Clears both auth cookies (logout).
- */
 export function clearAuthCookies(response: NextResponse): NextResponse {
   response.cookies.delete("accessToken");
   response.cookies.delete("refreshToken");

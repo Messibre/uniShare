@@ -16,7 +16,7 @@ enum Role {
 
 enum OwnerType {
   PLATFORM
-  EndUser
+  USER
     @@schema("uniShare")
 
 }

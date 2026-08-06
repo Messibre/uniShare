@@ -19,7 +19,28 @@ export const loginSchema = z.object({
   email: z.email("Invalid email address"),
   password: z.string().min(1, "Password is required"),
 });
+// Item schemas
+export const createItemSchema = z.object({
+  name: z.string().min(3, "Name must be at least 3 characters"),
+  description: z.string().optional(),
+  category: z.string().min(1, "Category is required"),
+  pricePerDay: z.number().positive("Price must be greater than 0"),
+  deposit: z.number().optional(),
+  imageUrl: z.string().url("Invalid image URL").optional(),
+});
+
+export const updateItemSchema = z.object({
+  name: z.string().min(3).optional(),
+  description: z.string().optional(),
+  category: z.string().optional(),
+  pricePerDay: z.number().positive().optional(),
+  deposit: z.number().optional(),
+  imageUrl: z.string().url().optional(),
+  status: z.enum(["AVAILABLE", "MAINTENANCE", "REMOVED"]).optional(),
+});
 
 // Types inferred from the schemas
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
+export type CreateItemInput = z.infer<typeof createItemSchema>;
+export type UpdateItemInput = z.infer<typeof updateItemSchema>;

@@ -1,0 +1,192 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+   schemas  = [ "uniShare"] 
+}
+
+enum Role {
+  STUDENT
+  ADMIN
+  @@schema("uniShare")
+}
+
+enum OwnerType {
+  PLATFORM
+  USER
+    @@schema("uniShare")
+
+}
+
+enum ItemStatus {
+  AVAILABLE
+  RENTED
+  MAINTENANCE
+  REMOVED
+
+    @@schema("uniShare")
+
+}
+
+enum RentalStatus {
+  PENDING
+  CONFIRMED
+  ACTIVE
+  RETURNED
+  OVERDUE
+  CANCELLED
+
+    @@schema("uniShare")
+
+}
+
+enum PaymentType {
+  RENTAL_FEE
+  DEPOSIT
+  REFUND
+
+    @@schema("uniShare")
+
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+
+    @@schema("uniShare")
+
+}
+
+model EndUser {
+  id                   String         @id @default(cuid())
+  fullName             String
+  email                String         @unique
+  passwordHash         String
+  role                 Role           @default(STUDENT)
+  isIdVerified         Boolean        @default(false)
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
+
+  items                Item[]         // Items this EndUser owns (if ownerType = EndUser)
+  rentalsAsRenter      Rental[]       @relation("RenterRentals")
+  rentalsAsOwner       Rental[]       @relation("OwnerRentals") // Items they listed that are rented
+  refreshTokens        RefreshToken[]
+  identityVerification IdentityVerification?
+  payments             Payment[]      // Payments made by this EndUser
+
+  @@map("EndUsers")
+    @@schema("uniShare")
+
+}
+
+model RefreshToken {
+  id         String   @id @default(cuid())
+  token      String   @unique
+  EndUserId     String
+  EndUser       EndUser     @relation(fields: [EndUserId], references: [id], onDelete: Cascade)
+  expiresAt  DateTime
+  revoked    Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  @@map("refresh_tokens")
+    @@schema("uniShare")
+
+}
+
+model Item {
+  id          String     @id @default(cuid())
+  name        String
+  description String?
+  category    String
+  ownerType   OwnerType
+  ownerId     String?    // If ownerType = EndUser, this is the EndUserId; if PLATFORM, null
+  owner       EndUser?      @relation(fields: [ownerId], references: [id])
+  status      ItemStatus @default(AVAILABLE)
+  imageUrl    String?    // Simple URL field for now (stretch goal: file upload)
+  pricePerDay Float      // Rental price in ETB per day
+  deposit     Float?     // Refundable deposit amount (optional)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  // Relations
+  rentals     Rental[]
+
+  @@map("items")
+    @@schema("uniShare")
+
+}
+
+model Rental {
+  id           String       @id @default(cuid())
+  itemId       String
+  item         Item         @relation(fields: [itemId], references: [id])
+  renterId     String
+  renter       EndUser         @relation("RenterRentals", fields: [renterId], references: [id])
+  ownerId      String       // Denormalized: the owner of the item at rental time (for fast queries)
+  owner        EndUser         @relation("OwnerRentals", fields: [ownerId], references: [id])
+  startDate    DateTime
+  endDate      DateTime
+  totalPrice   Float        // Rental fee + deposit, computed at creation
+  status       RentalStatus @default(PENDING)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  // Relations
+  statusLogs   RentalStatusLog[]
+  payments     Payment[]
+
+  @@map("rentals")
+    @@schema("uniShare")
+
+}
+
+model RentalStatusLog {
+  id         String       @id @default(cuid())
+  rentalId   String
+  rental     Rental       @relation(fields: [rentalId], references: [id], onDelete: Cascade)
+  oldStatus  RentalStatus?
+  newStatus  RentalStatus
+  note       String?      // Optional note (e.g., "Item damaged on return")
+  createdAt  DateTime     @default(now())
+
+  @@map("rental_status_logs")
+    @@schema("uniShare")
+
+}
+
+model Payment {
+  id           String         @id @default(cuid())
+  rentalId     String
+  rental       Rental         @relation(fields: [rentalId], references: [id])
+  EndUserId       String
+  EndUser         EndUser           @relation(fields: [EndUserId], references: [id])
+  txRef        String         @unique // Chapa transaction reference
+  amount       Float
+  type         PaymentType
+  status       PaymentStatus  @default(PENDING)
+  metadata     Json?          // Extra data from Chapa (e.g., `ref_id`, `payment_method`)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@map("payments")
+    @@schema("uniShare")
+
+}
+
+model IdentityVerification {
+  id           String   @id @default(cuid())
+  EndUserId       String   @unique
+  EndUser         EndUser     @relation(fields: [EndUserId], references: [id], onDelete: Cascade)
+  provider     String   // "FAYDA"
+  externalId   String   // The unique ID from Fayda
+  verifiedAt   DateTime @default(now())
+  createdAt    DateTime @default(now())
+
+  @@map("identity_verifications")
+    @@schema("uniShare")
+
+}

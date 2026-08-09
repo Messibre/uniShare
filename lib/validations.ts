@@ -39,8 +39,22 @@ export const updateItemSchema = z.object({
   status: z.enum(["AVAILABLE", "MAINTENANCE", "REMOVED"]).optional(),
 });
 
+// Rental schemas
+export const createRentalSchema = z.object({
+  itemId: z.string().min(1, "Item ID is required"),
+  startDate: z.string().datetime("Invalid start date"),
+  endDate: z.string().datetime("Invalid end date"),
+});
+
+export const updateRentalStatusSchema = z.object({
+  status: z.enum(["CONFIRMED", "ACTIVE", "RETURNED", "CANCELLED"]),
+  note: z.string().optional(),
+});
+
 // Types inferred from the schemas
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type CreateItemInput = z.infer<typeof createItemSchema>;
 export type UpdateItemInput = z.infer<typeof updateItemSchema>;
+export type CreateRentalInput = z.infer<typeof createRentalSchema>;
+export type UpdateRentalStatusInput = z.infer<typeof updateRentalStatusSchema>;

@@ -1,3 +1,4 @@
+import { Currency } from "lucide-react";
 import { z } from "zod";
 
 // Password regex: at least 8 characters, at least one letter and one number
@@ -51,6 +52,38 @@ export const updateRentalStatusSchema = z.object({
   note: z.string().optional(),
 });
 
+export const createChapaSession = z.object({
+  amount: z.number().positive("amount must be greater than 0"),
+  Currency: z.string(),
+  merchant_reference: z.string().min(1, "merchant id is required"),
+  customer: z.object({
+    first_name: z.string(),
+    last_name: z.string(),
+    email: z.email(),
+    phone_number: z.string(),
+  }),
+  meta: z.object({
+    user_id: z.string(),
+    rental_id: z.string(),
+  }),
+});
+// Chapa Payment Schemas
+export const initializePaymentSchema = z.object({
+  rentalId: z.string().min(1, "Rental ID is required"),
+});
+
+export const chapaWebhookSchema = z.object({
+  event: z.string(),
+  status: z.string(),
+  merchant_reference: z.string(), // Our tx_ref
+  chapa_reference: z.string(),
+  amount: z.string(), // Chapa sends as string
+  currency: z.string(),
+  payment_method: z.string().optional(),
+  created_at: z.string(),
+  updated_at: z.string().optional(),
+});
+
 // Types inferred from the schemas
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
@@ -58,3 +91,7 @@ export type CreateItemInput = z.infer<typeof createItemSchema>;
 export type UpdateItemInput = z.infer<typeof updateItemSchema>;
 export type CreateRentalInput = z.infer<typeof createRentalSchema>;
 export type UpdateRentalStatusInput = z.infer<typeof updateRentalStatusSchema>;
+export type CreateChapaSession = z.infer<typeof createChapaSession>;
+
+export type InitializePaymentInput = z.infer<typeof initializePaymentSchema>;
+export type ChapaWebhookInput = z.infer<typeof chapaWebhookSchema>;

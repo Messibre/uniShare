@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth-guard";
 import { createRentalSchema } from "@/lib/validations";
+import { RentalStatus } from "@/lib/generated/prisma";
 
 export async function POST(req: NextRequest) {
   try {
@@ -70,6 +71,7 @@ export async function POST(req: NextRequest) {
       where: {
         itemId: item.id,
         status: { in: ["PENDING", "CONFIRMED", "ACTIVE"] },
+        deletedAt: null,
         OR: [
           {
             AND: [{ startDate: { lte: start } }, { endDate: { gte: start } }],
@@ -132,52 +134,95 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
 export async function GET(req: NextRequest) {
   try {
     const userId = req.headers.get("x-user-id");
-
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const rentals = await prisma.rental.findMany({
-      where: {
-        OR: [{ renterId: userId }, { ownerId: userId }],
-      },
-      include: {
-        item: {
-          include: {
-            owner: {
-              select: {
-                id: true,
-                fullName: true,
-                email: true,
+    const url = new URL(req.url);
+    const page = Math.max(1, parseInt(url.searchParams.get("page") || "1"));
+    const limit = Math.min(
+      100,
+      Math.max(1, parseInt(url.searchParams.get("limit") || "10")),
+    );
+    const skip = (page - 1) * limit;
+
+    const status = url.searchParams.get("status") as RentalStatus | null;
+    const startDate = url.searchParams.get("startDate");
+    const endDate = url.searchParams.get("endDate");
+    const category = url.searchParams.get("category");
+    const sortBy = url.searchParams.get("sortBy") || "createdAt";
+    const sortOrder =
+      url.searchParams.get("sortOrder") === "asc" ? "asc" : "desc";
+
+    const where: any = {
+      OR: [{ renterId: userId }, { ownerId: userId }],
+      // Exclude soft-deleted rentals
+      deletedAt: null,
+    };
+
+    if (status) {
+      where.status = status;
+    }
+
+    if (startDate || endDate) {
+      where.startDate = {};
+      if (startDate) where.startDate.gte = new Date(startDate);
+      if (endDate) where.startDate.lte = new Date(endDate);
+    }
+
+    if (category) {
+      where.item = {
+        category: category,
+      };
+    }
+
+    const orderBy: any = {};
+    orderBy[sortBy] = sortOrder;
+
+    const [rentals, total] = await Promise.all([
+      prisma.rental.findMany({
+        where,
+        include: {
+          item: {
+            include: {
+              owner: {
+                select: { id: true, fullName: true, email: true },
               },
             },
           },
-        },
-        renter: {
-          select: {
-            id: true,
-            fullName: true,
-            email: true,
+          renter: {
+            select: { id: true, fullName: true, email: true },
+          },
+          owner: {
+            select: { id: true, fullName: true, email: true },
+          },
+          statusLogs: {
+            orderBy: { createdAt: "asc" },
           },
         },
-        owner: {
-          select: {
-            id: true,
-            fullName: true,
-            email: true,
-          },
-        },
-        statusLogs: {
-          orderBy: { createdAt: "asc" },
+        orderBy,
+        skip,
+        take: limit,
+      }),
+      prisma.rental.count({ where }),
+    ]);
+
+    return NextResponse.json(
+      {
+        rentals,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages: Math.ceil(total / limit),
         },
       },
-      orderBy: { createdAt: "desc" },
-    });
-
-    return NextResponse.json({ rentals }, { status: 200 });
+      { status: 200 },
+    );
   } catch (error) {
     console.error("GET /api/rentals error:", error);
     return NextResponse.json(

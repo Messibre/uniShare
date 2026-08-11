@@ -3,78 +3,6 @@ import prisma from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth-guard";
 import { updateRentalStatusSchema } from "@/lib/validations";
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { id: string } },
-) {
-  try {
-    const { id } = await params;
-
-    const user = await requireAuth(req);
-
-    const rental = await prisma.rental.findUnique({
-      where: { id },
-      include: {
-        item: {
-          include: {
-            owner: {
-              select: {
-                id: true,
-                fullName: true,
-                email: true,
-              },
-            },
-          },
-        },
-        renter: {
-          select: {
-            id: true,
-            fullName: true,
-            email: true,
-          },
-        },
-        owner: {
-          select: {
-            id: true,
-            fullName: true,
-            email: true,
-          },
-        },
-        statusLogs: {
-          orderBy: { createdAt: "asc" },
-        },
-        payments: true,
-      },
-    });
-
-    if (!rental) {
-      return NextResponse.json({ error: "Rental not found" }, { status: 404 });
-    }
-
-    if (
-      rental.renterId !== user.id &&
-      rental.ownerId !== user.id &&
-      user.role !== "ADMIN"
-    ) {
-      return NextResponse.json(
-        { error: "Not authorized to view this rental" },
-        { status: 403 },
-      );
-    }
-
-    return NextResponse.json({ rental }, { status: 200 });
-  } catch (error: any) {
-    if (error.message === "Unauthorized") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-    console.error("GET /api/rentals/[id] error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
-  }
-}
-
 export async function PATCH(
   req: NextRequest,
   { params }: { params: { id: string } },
@@ -93,10 +21,18 @@ export async function PATCH(
       return NextResponse.json({ error: "Rental not found" }, { status: 404 });
     }
 
+    if (rental.deletedAt !== null) {
+      return NextResponse.json(
+        { error: "Rental has been deleted" },
+        { status: 404 },
+      );
+    }
+
     const isOwner = rental.ownerId === user.id;
+    const isRenter = rental.renterId === user.id;
     const isAdmin = user.role === "ADMIN";
 
-    if (!isOwner && !isAdmin) {
+    if (!isOwner && !isRenter && !isAdmin) {
       return NextResponse.json(
         { error: "Not authorized to update this rental" },
         { status: 403 },
@@ -115,13 +51,30 @@ export async function PATCH(
 
     const { status: newStatus, note } = parsed.data;
 
+    if (isRenter && !isOwner && !isAdmin) {
+      // Renter can only cancel
+      if (newStatus !== "CANCELLED") {
+        return NextResponse.json(
+          { error: "Renter can only cancel the rental" },
+          { status: 403 },
+        );
+      }
+
+      if (!["PENDING", "CONFIRMED"].includes(rental.status)) {
+        return NextResponse.json(
+          { error: "Rental cannot be cancelled at this stage" },
+          { status: 400 },
+        );
+      }
+    }
+
     const validTransitions: Record<string, string[]> = {
       PENDING: ["CONFIRMED", "CANCELLED"],
       CONFIRMED: ["ACTIVE", "CANCELLED"],
       ACTIVE: ["RETURNED", "OVERDUE"],
-      RETURNED: [], // Terminal state
+      RETURNED: [],
       OVERDUE: ["RETURNED"],
-      CANCELLED: [], // Terminal state
+      CANCELLED: [],
     };
 
     if (!validTransitions[rental.status]?.includes(newStatus)) {
@@ -131,10 +84,8 @@ export async function PATCH(
       );
     }
 
-    if (newStatus === "CONFIRMED") {
-      // Check if payment was successful (we'll implement this in Phase 7)
-      // For now, we allow it
-    }
+    // CONFIRMED: Check if payment is completed (we'll implement this in Phase 7)
+    // For now, we allow it.
 
     if (newStatus === "ACTIVE" && rental.status !== "CONFIRMED") {
       return NextResponse.json(
@@ -158,6 +109,7 @@ export async function PATCH(
       where: { id },
       data: {
         status: newStatus,
+        // If returning, set endDate to now (if not already set)
         ...(newStatus === "RETURNED" ? { endDate: new Date() } : {}),
       },
     });
@@ -186,13 +138,17 @@ export async function PATCH(
     });
 
     return NextResponse.json(
-      { rental: updatedRental, message: `Status updated to ${newStatus}` },
+      {
+        rental: updatedRental,
+        message: `Status updated to ${newStatus}`,
+      },
       { status: 200 },
     );
   } catch (error: any) {
     if (error.message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
     console.error("PATCH /api/rentals/[id]/status error:", error);
     return NextResponse.json(
       { error: "Internal server error" },

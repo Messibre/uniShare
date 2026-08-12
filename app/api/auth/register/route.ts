@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { fullName, email, password } = parsed.data;
+    const { fullName, email, phone, password } = parsed.data;
 
     const existingUser = await prisma.endUser.findUnique({
       where: { email },
@@ -35,6 +35,7 @@ export async function POST(req: NextRequest) {
       data: {
         fullName,
         email,
+        phone,
         passwordHash,
         role: "STUDENT",
         isIdVerified: false,
@@ -60,6 +61,7 @@ export async function POST(req: NextRequest) {
           id: newUser.id,
           fullName: newUser.fullName,
           email: newUser.email,
+          phone: newUser.phone,
           role: newUser.role,
           isIdVerified: newUser.isIdVerified,
         },

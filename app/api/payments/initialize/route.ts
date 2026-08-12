@@ -80,7 +80,7 @@ export async function POST(req: NextRequest) {
     const payment = await prisma.payment.create({
       data: {
         rentalId: rental.id,
-        userId: user.id,
+        EndUserId: user.id,
         amount: rental.totalPrice,
         txRef,
         type: "RENTAL_FEE",

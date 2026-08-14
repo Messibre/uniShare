@@ -3,7 +3,6 @@ import prisma from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth-guard";
 import { initializePaymentSchema } from "@/lib/validations";
 import { initializeChapaPayment } from "@/lib/chapa";
-import { randomUUID } from "crypto";
 
 export async function POST(req: NextRequest) {
   try {
@@ -65,7 +64,6 @@ export async function POST(req: NextRequest) {
           { status: 409 },
         );
       }
-
       return NextResponse.json(
         {
           error: "Payment already in progress",
@@ -82,30 +80,33 @@ export async function POST(req: NextRequest) {
         rentalId: rental.id,
         EndUserId: user.id,
         amount: rental.totalPrice,
-        txRef,
+        txRef: txRef,
         type: "RENTAL_FEE",
         status: "PENDING",
       },
     });
 
-    const idempotencyKey = randomUUID();
+    const appUrl = process.env.APP_BASE_URL || "http://localhost:3000";
 
     const chapaResponse = await initializeChapaPayment({
       amount: rental.totalPrice,
       currency: "ETB",
-      merchant_reference: txRef,
-      customer: {
-        first_name: user.fullName.split(" ")[0],
-        last_name: user.fullName.split(" ").slice(1).join(" ") || "User",
-        email: user.email,
-        phone_number: user.phone || "+251900000000",
+      tx_ref: txRef,
+      email: user.email,
+      first_name: user.fullName.split(" ")[0],
+      last_name: user.fullName.split(" ").slice(1).join(" ") || "User",
+      phone_number: user.phone || "+251900000000",
+      callback_url: `${appUrl}/api/payments/webhook`,
+      return_url: `${appUrl}/api/payments/callback?tx_ref=${txRef}`,
+      customization: {
+        title: "UniShare",
+        description: `Rental- ${rental.item.name}`,
       },
       meta: {
         rental_id: rental.id,
         user_id: user.id,
         payment_id: payment.id,
       },
-      idempotencyKey,
     });
 
     await prisma.payment.update({
@@ -113,8 +114,7 @@ export async function POST(req: NextRequest) {
       data: {
         metadata: {
           checkout_url: chapaResponse.checkout_url,
-          expires_at: chapaResponse.expires_at,
-          idempotency_key: idempotencyKey,
+          tx_ref: chapaResponse.tx_ref,
         },
       },
     });

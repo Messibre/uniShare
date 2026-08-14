@@ -1,70 +1,78 @@
 import { randomUUID } from "crypto";
 
-const CHAPA_BASE_URL = "https://api.chapa.global/v2";
+const CHAPA_BASE_URL = "https://api.chapa.co/v1";
 const CHAPA_SECRET_KEY = process.env.CHAPA_SECRET_KEY!;
-
-export interface ChapaCustomer {
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone_number: string;
-}
 
 export interface InitializePaymentParams {
   amount: number;
   currency: string;
-  merchant_reference: string; // Our tx_ref
-  customer: ChapaCustomer;
+  tx_ref: string; //  unique reference
+  email: string;
+  first_name: string;
+  last_name: string;
+  phone_number: string;
+  callback_url: string;
+  return_url: string;
+  customization?: {
+    title?: string;
+    description?: string;
+    logo?: string;
+  };
   meta?: Record<string, any>;
-  idempotencyKey?: string; // Unique per attempt (prevents double charges)
 }
 
 export interface InitializePaymentResponse {
   checkout_url: string;
-  expires_at: string;
+  tx_ref: string;
 }
 
 export interface VerifyPaymentResponse {
   status: "success" | "failed" | "pending" | "cancelled";
   amount: string;
   currency: string;
-  merchant_reference: string;
-  chapa_reference: string;
+  tx_ref: string;
   payment_method?: string;
 }
 
+/**
+ * Initialize a payment
+ */
 export async function initializeChapaPayment(
   params: InitializePaymentParams,
 ): Promise<InitializePaymentResponse> {
   const {
     amount,
     currency,
-    merchant_reference,
-    customer,
+    tx_ref,
+    email,
+    first_name,
+    last_name,
+    phone_number,
+    callback_url,
+    return_url,
+    customization,
     meta,
-    idempotencyKey,
   } = params;
 
-  // Generate an idempotency key if not provided
-  // This ensures retries don't create duplicate charges
-  const idempotencyKeyToUse = idempotencyKey || randomUUID();
-
-  const response = await fetch(`${CHAPA_BASE_URL}/payments/hosted`, {
+  const response = await fetch(`${CHAPA_BASE_URL}/transaction/initialize`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${CHAPA_SECRET_KEY}`,
       "Content-Type": "application/json",
-      "Idempotency-Key": idempotencyKeyToUse, // ← CRITICAL!
     },
     body: JSON.stringify({
-      amount,
+      amount: amount.toString(),
       currency,
-      merchant_reference,
-      customer: {
-        first_name: customer.first_name,
-        last_name: customer.last_name,
-        email: customer.email,
-        phone_number: customer.phone_number,
+      tx_ref,
+      email,
+      first_name,
+      last_name,
+      phone_number,
+      callback_url,
+      return_url,
+      customization: customization || {
+        title: "UniShare",
+        description: "campus rental payment",
       },
       meta: meta || {},
     }),
@@ -72,23 +80,26 @@ export async function initializeChapaPayment(
 
   const data = await response.json();
 
-  if (!response.ok || data.status !== "success") {
-    console.error("Chapa initialization failed:", data);
+  if (data.status !== "success") {
+    console.error("Chapa v1 initialization failed:", data);
     throw new Error(data.message || "Failed to initialize payment");
   }
 
   return {
     checkout_url: data.data.checkout_url,
-    expires_at: data.data.expires_at,
+    tx_ref: data.data.tx_ref,
   };
 }
 
+/**
+ * Verify a payment
+ */
 export async function verifyChapaPayment(
-  merchantReference: string,
+  txRef: string,
 ): Promise<VerifyPaymentResponse | null> {
   try {
     const response = await fetch(
-      `${CHAPA_BASE_URL}/payments/${merchantReference}/verify`,
+      `${CHAPA_BASE_URL}/transaction/verify/${txRef}`,
       {
         headers: {
           Authorization: `Bearer ${CHAPA_SECRET_KEY}`,
@@ -98,8 +109,8 @@ export async function verifyChapaPayment(
 
     const data = await response.json();
 
-    if (!response.ok || data.status !== "success") {
-      console.error("Chapa verification failed:", data);
+    if (data.status !== "success") {
+      console.error("Chapa v1 verification failed:", data);
       return null;
     }
 
@@ -107,35 +118,32 @@ export async function verifyChapaPayment(
       status: data.data.status,
       amount: data.data.amount,
       currency: data.data.currency,
-      merchant_reference: data.data.merchant_reference,
-      chapa_reference: data.data.chapa_reference,
+      tx_ref: data.data.tx_ref,
       payment_method: data.data.payment_method,
     };
   } catch (error) {
-    console.error("Error verifying Chapa payment:", error);
+    console.error("Error verifying Chapa v1 payment:", error);
     return null;
   }
 }
 
+/**
+ * Check if payment is valid
+ */
 export function isPaymentValid(
   verification: VerifyPaymentResponse,
   expectedAmount: number,
   expectedCurrency: string = "ETB",
 ): boolean {
-  // Chapa sends amount as string, parse it
-  const verifiedAmount = parseFloat(verification.amount);
-
-  // Check 1: Payment status must be success
   if (verification.status !== "success") {
     return false;
   }
 
-  // Check 2: Amount must match exactly (no rounding errors)
+  const verifiedAmount = parseFloat(verification.amount);
   if (verifiedAmount !== expectedAmount) {
     return false;
   }
 
-  // Check 3: Currency must match
   if (verification.currency !== expectedCurrency) {
     return false;
   }

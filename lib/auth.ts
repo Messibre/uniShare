@@ -1,8 +1,9 @@
 import jwt from "jsonwebtoken";
 import { NextResponse } from "next/server";
+import { env } from "./env";
 
-const ACCESS_SECRET = process.env.JWT_ACCESS_SECRET!;
-const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET!;
+const ACCESS_SECRET = env.JWT_ACCESS_SECRET;
+const REFRESH_SECRET = env.JWT_REFRESH_SECRET;
 
 // Token expiration times
 const ACCESS_EXPIRY = "15m"; // 15 minutes

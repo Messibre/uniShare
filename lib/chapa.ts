@@ -1,7 +1,7 @@
-import { randomUUID } from "crypto";
+import { env } from "./env";
 
 const CHAPA_BASE_URL = "https://api.chapa.co/v1";
-const CHAPA_SECRET_KEY = process.env.CHAPA_SECRET_KEY!;
+const CHAPA_SECRET_KEY = env.CHAPA_SECRET_KEY;
 
 export interface InitializePaymentParams {
   amount: number;

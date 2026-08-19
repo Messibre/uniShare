@@ -41,6 +41,7 @@ export async function GET(req: NextRequest) {
           id: user.id,
           fullName: user.fullName,
           email: user.email,
+          phone: user.phone,
           role: user.role,
           isIdVerified: user.isIdVerified,
         },

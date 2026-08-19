@@ -65,6 +65,7 @@ model EndUser {
   id                   String         @id @default(cuid())
   fullName             String
   email                String         @unique
+  phone                String?
   passwordHash         String
   role                 Role           @default(STUDENT)
   isIdVerified         Boolean        @default(false)
@@ -132,6 +133,7 @@ model Rental {
   endDate      DateTime
   totalPrice   Float        // Rental fee + deposit, computed at creation
   status       RentalStatus @default(PENDING)
+  deletedAt    DateTime?
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 

@@ -34,7 +34,9 @@ describe("getCurrentUser()", () => {
     mockedVerify.mockImplementation(() => {
       throw new Error("invalid token");
     });
-    const req = makeRequest("/api/whatever", { cookies: { accessToken: "bad" } });
+    const req = makeRequest("/api/whatever", {
+      cookies: { accessToken: "bad" },
+    });
     const user = await getCurrentUser(req);
     expect(user).toBeNull();
   });
@@ -42,7 +44,9 @@ describe("getCurrentUser()", () => {
   it("returns null when the token is valid but the user no longer exists", async () => {
     mockedVerify.mockReturnValue({ userId: "ghost", role: "STUDENT" });
     mockedFindUnique.mockResolvedValue(null);
-    const req = makeRequest("/api/whatever", { cookies: { accessToken: "good" } });
+    const req = makeRequest("/api/whatever", {
+      cookies: { accessToken: "good" },
+    });
     const user = await getCurrentUser(req);
     expect(user).toBeNull();
   });
@@ -50,7 +54,9 @@ describe("getCurrentUser()", () => {
   it("returns the user when the token is valid and the user exists", async () => {
     mockedVerify.mockReturnValue({ userId: dbUser.id, role: dbUser.role });
     mockedFindUnique.mockResolvedValue(dbUser as any);
-    const req = makeRequest("/api/whatever", { cookies: { accessToken: "good" } });
+    const req = makeRequest("/api/whatever", {
+      cookies: { accessToken: "good" },
+    });
     const user = await getCurrentUser(req);
     expect(user).toEqual(dbUser);
   });
@@ -58,7 +64,9 @@ describe("getCurrentUser()", () => {
   it("swallows a database error and returns null rather than throwing", async () => {
     mockedVerify.mockReturnValue({ userId: dbUser.id, role: dbUser.role });
     mockedFindUnique.mockRejectedValue(new Error("db down"));
-    const req = makeRequest("/api/whatever", { cookies: { accessToken: "good" } });
+    const req = makeRequest("/api/whatever", {
+      cookies: { accessToken: "good" },
+    });
     const user = await getCurrentUser(req);
     expect(user).toBeNull();
   });
@@ -68,7 +76,9 @@ describe("requireAuth()", () => {
   it("resolves with the user when authenticated", async () => {
     mockedVerify.mockReturnValue({ userId: dbUser.id, role: dbUser.role });
     mockedFindUnique.mockResolvedValue(dbUser as any);
-    const req = makeRequest("/api/whatever", { cookies: { accessToken: "good" } });
+    const req = makeRequest("/api/whatever", {
+      cookies: { accessToken: "good" },
+    });
     await expect(requireAuth(req)).resolves.toEqual(dbUser);
   });
 
@@ -83,14 +93,18 @@ describe("requireAdmin()", () => {
     const admin = { ...dbUser, role: "ADMIN" };
     mockedVerify.mockReturnValue({ userId: admin.id, role: admin.role });
     mockedFindUnique.mockResolvedValue(admin as any);
-    const req = makeRequest("/api/whatever", { cookies: { accessToken: "good" } });
+    const req = makeRequest("/api/whatever", {
+      cookies: { accessToken: "good" },
+    });
     await expect(requireAdmin(req)).resolves.toEqual(admin);
   });
 
   it("throws 'Forbidden' when the authenticated user is not an ADMIN", async () => {
     mockedVerify.mockReturnValue({ userId: dbUser.id, role: "STUDENT" });
     mockedFindUnique.mockResolvedValue(dbUser as any);
-    const req = makeRequest("/api/whatever", { cookies: { accessToken: "good" } });
+    const req = makeRequest("/api/whatever", {
+      cookies: { accessToken: "good" },
+    });
     await expect(requireAdmin(req)).rejects.toThrow("Forbidden");
   });
 

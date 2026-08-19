@@ -10,13 +10,13 @@ const PUBLIC_ROUTES = [
   "/api/payments/webhook", // Chapa webhook
 ];
 
-// Routes where GET is public, but other methods are protected
 const PUBLIC_GET_ROUTES = ["/api/items"];
 
 export const config = {
   matcher: [
     // Apply to all routes except static files
     "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/api/admin/:path*",
   ],
 };
 
@@ -24,12 +24,11 @@ export async function proxy(request: NextRequest) {
   const path = request.nextUrl.pathname;
   const method = request.method;
 
-  // 1. Allow public routes (no auth needed)
   if (PUBLIC_ROUTES.some((route) => new RegExp(`^${route}$`).test(path))) {
     return NextResponse.next();
   }
 
-  // 2. For /api/items: allow GET, but protect POST/PATCH/DELETE
+  //  For /api/items: allow GET, but protect POST/PATCH/DELETE
   if (
     PUBLIC_GET_ROUTES.some((route) => path.startsWith(route)) &&
     method === "GET"
@@ -37,7 +36,6 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // 3. All other routes require authentication
   const accessToken = request.cookies.get("accessToken")?.value;
 
   if (!accessToken) {

@@ -1,8 +1,12 @@
 import { describe, it, expect, vi } from "vitest";
+import prismaMock from "@/tests/lib/__mocks__/prisma";
 
-vi.mock("@/lib/prisma");
+vi.mock("@/lib/prisma", () => ({
+  default: prismaMock,
+}));
 vi.mock("@/lib/auth", async () => {
-  const actual = await vi.importActual<typeof import("@/lib/auth")>("@/lib/auth");
+  const actual =
+    await vi.importActual<typeof import("@/lib/auth")>("@/lib/auth");
   return { ...actual, verifyRefreshToken: vi.fn() };
 });
 
@@ -60,7 +64,10 @@ describe("POST /api/auth/refresh", () => {
 
   it("returns 401 when the stored token has been revoked", async () => {
     mockedVerify.mockReturnValue({ userId: "user_1", role: "STUDENT" });
-    mockedFindUnique.mockResolvedValue({ ...storedToken, revoked: true } as any);
+    mockedFindUnique.mockResolvedValue({
+      ...storedToken,
+      revoked: true,
+    } as any);
     const req = makeRequest("/api/auth/refresh", {
       method: "POST",
       cookies: { refreshToken: "rt_123" },
@@ -107,7 +114,9 @@ describe("POST /api/auth/refresh", () => {
     expect(mockedCreate).toHaveBeenCalledTimes(1);
 
     const setCookie = String(
-      res.headers.getSetCookie ? res.headers.getSetCookie() : res.headers.get("set-cookie"),
+      res.headers.getSetCookie
+        ? res.headers.getSetCookie()
+        : res.headers.get("set-cookie"),
     );
     expect(setCookie).toContain("accessToken=");
     expect(setCookie).toContain("refreshToken=");

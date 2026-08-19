@@ -1,6 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import prismaMock from "@/tests/lib/__mocks__/prisma";
 
-vi.mock("@/lib/prisma");
+vi.mock("@/lib/prisma", () => ({
+  default: prismaMock,
+}));
 vi.mock("@/lib/auth", () => ({
   verifyAccessToken: vi.fn(),
 }));

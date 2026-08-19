@@ -1,11 +1,13 @@
 import { vi } from "vitest";
 
-const prismaMock = {
+export const prismaMock = {
   endUser: {
     findUnique: vi.fn(),
     create: vi.fn(),
     update: vi.fn(),
     updateMany: vi.fn(),
+    count: vi.fn(),
+    findMany: vi.fn(),
   },
   refreshToken: {
     findUnique: vi.fn(),
@@ -18,6 +20,7 @@ const prismaMock = {
     findMany: vi.fn(),
     create: vi.fn(),
     update: vi.fn(),
+    count: vi.fn(),
   },
   rental: {
     findUnique: vi.fn(),

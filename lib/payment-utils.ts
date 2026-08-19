@@ -25,7 +25,6 @@ export async function confirmRentalAfterPayment(rentalId: string) {
 
   return rental;
 }
-
 export async function handleSuccessfulPayment(
   txRef: string,
   chapaReference: string,
@@ -35,15 +34,8 @@ export async function handleSuccessfulPayment(
     include: { rental: true },
   });
 
-  if (!payment) {
-    console.error(`Payment record not found for txRef: ${txRef}`);
-    return null;
-  }
-
-  if (payment.status === "SUCCESS") {
-    console.log(`Payment ${txRef} already processed – skipping`);
-    return payment;
-  }
+  if (!payment) return null;
+  if (payment.status === "SUCCESS") return payment;
 
   const updatedPayment = await prisma.payment.update({
     where: { id: payment.id },
@@ -56,7 +48,9 @@ export async function handleSuccessfulPayment(
     },
   });
 
-  await confirmRentalAfterPayment(payment.rentalId);
+  if (payment.rentalId) {
+    await confirmRentalAfterPayment(payment.rentalId);
+  }
 
   return updatedPayment;
 }

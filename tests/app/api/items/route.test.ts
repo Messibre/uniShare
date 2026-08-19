@@ -1,6 +1,9 @@
 import { describe, it, expect, vi } from "vitest";
+import prismaMock from "@/tests/lib/__mocks__/prisma";
 
-vi.mock("@/lib/prisma");
+vi.mock("@/lib/prisma", () => ({
+  default: prismaMock,
+}));
 vi.mock("@/lib/auth-guard", () => ({
   requireAuth: vi.fn(),
 }));
@@ -21,7 +24,9 @@ describe("GET /api/items", () => {
     await GET(req);
 
     expect(mockedFindMany).toHaveBeenCalledWith(
-      expect.objectContaining({ where: expect.objectContaining({ status: "AVAILABLE" }) }),
+      expect.objectContaining({
+        where: expect.objectContaining({ status: "AVAILABLE" }),
+      }),
     );
   });
 
@@ -39,7 +44,9 @@ describe("GET /api/items", () => {
 
   it("applies category filter when provided", async () => {
     mockedFindMany.mockResolvedValue([]);
-    const req = makeRequest("/api/items", { searchParams: { category: "Electronics" } });
+    const req = makeRequest("/api/items", {
+      searchParams: { category: "Electronics" },
+    });
     await GET(req);
 
     const call = mockedFindMany.mock.calls[0][0] as any;
@@ -97,7 +104,10 @@ describe("POST /api/items", () => {
   });
 
   it("returns 403 when the authenticated user is not ID-verified", async () => {
-    mockedRequireAuth.mockResolvedValue({ id: "u1", isIdVerified: false } as any);
+    mockedRequireAuth.mockResolvedValue({
+      id: "u1",
+      isIdVerified: false,
+    } as any);
     const req = makeRequest("/api/items", { method: "POST", body: validBody });
     const res = await POST(req);
     expect(res.status).toBe(403);
@@ -106,7 +116,10 @@ describe("POST /api/items", () => {
   });
 
   it("returns 400 when the body fails schema validation", async () => {
-    mockedRequireAuth.mockResolvedValue({ id: "u1", isIdVerified: true } as any);
+    mockedRequireAuth.mockResolvedValue({
+      id: "u1",
+      isIdVerified: true,
+    } as any);
     const req = makeRequest("/api/items", {
       method: "POST",
       body: { name: "ab", category: "", pricePerDay: -5 },
@@ -116,7 +129,10 @@ describe("POST /api/items", () => {
   });
 
   it("creates an item owned by the authenticated user with status AVAILABLE", async () => {
-    mockedRequireAuth.mockResolvedValue({ id: "u1", isIdVerified: true } as any);
+    mockedRequireAuth.mockResolvedValue({
+      id: "u1",
+      isIdVerified: true,
+    } as any);
     mockedCreate.mockResolvedValue({ id: "item_new", ...validBody } as any);
 
     const req = makeRequest("/api/items", { method: "POST", body: validBody });
@@ -135,7 +151,10 @@ describe("POST /api/items", () => {
   });
 
   it("defaults deposit to 0 when omitted", async () => {
-    mockedRequireAuth.mockResolvedValue({ id: "u1", isIdVerified: true } as any);
+    mockedRequireAuth.mockResolvedValue({
+      id: "u1",
+      isIdVerified: true,
+    } as any);
     mockedCreate.mockResolvedValue({} as any);
     const req = makeRequest("/api/items", { method: "POST", body: validBody });
     await POST(req);
@@ -144,7 +163,10 @@ describe("POST /api/items", () => {
   });
 
   it("preserves an explicit deposit value of 0 (falsy but valid)", async () => {
-    mockedRequireAuth.mockResolvedValue({ id: "u1", isIdVerified: true } as any);
+    mockedRequireAuth.mockResolvedValue({
+      id: "u1",
+      isIdVerified: true,
+    } as any);
     mockedCreate.mockResolvedValue({} as any);
     const req = makeRequest("/api/items", {
       method: "POST",
@@ -156,7 +178,10 @@ describe("POST /api/items", () => {
   });
 
   it("returns 500 on unexpected database errors", async () => {
-    mockedRequireAuth.mockResolvedValue({ id: "u1", isIdVerified: true } as any);
+    mockedRequireAuth.mockResolvedValue({
+      id: "u1",
+      isIdVerified: true,
+    } as any);
     mockedCreate.mockRejectedValue(new Error("db exploded"));
     const req = makeRequest("/api/items", { method: "POST", body: validBody });
     const res = await POST(req);

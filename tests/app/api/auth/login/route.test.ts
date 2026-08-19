@@ -1,6 +1,9 @@
 import { describe, it, expect, vi } from "vitest";
+import prismaMock from "@/tests/lib/__mocks__/prisma";
 
-vi.mock("@/lib/prisma");
+vi.mock("@/lib/prisma", () => ({
+  default: prismaMock,
+}));
 vi.mock("@/lib/bcrypt", () => ({
   comparePassword: vi.fn(),
 }));
@@ -111,7 +114,9 @@ describe("POST /api/auth/login", () => {
     });
 
     const setCookie = String(
-      res.headers.getSetCookie ? res.headers.getSetCookie() : res.headers.get("set-cookie"),
+      res.headers.getSetCookie
+        ? res.headers.getSetCookie()
+        : res.headers.get("set-cookie"),
     );
     expect(setCookie).toContain("accessToken=");
     expect(setCookie).toContain("refreshToken=");

@@ -1,6 +1,9 @@
 import { describe, it, expect, vi } from "vitest";
+import prismaMock from "@/tests/lib/__mocks__/prisma";
 
-vi.mock("@/lib/prisma");
+vi.mock("@/lib/prisma", () => ({
+  default: prismaMock,
+}));
 vi.mock("@/lib/auth-guard", () => ({
   requireAuth: vi.fn(),
 }));
@@ -41,15 +44,24 @@ describe("POST /api/payments/initialize", () => {
   it("returns 401 when unauthenticated", async () => {
     mockedRequireAuth.mockRejectedValue(new Error("Unauthorized"));
     const res = await POST(
-      makeRequest("/api/payments/initialize", { method: "POST", body: { rentalId: "r1" } }),
+      makeRequest("/api/payments/initialize", {
+        method: "POST",
+        body: { rentalId: "r1" },
+      }),
     );
     expect(res.status).toBe(401);
   });
 
   it("returns 403 when the user isn't ID-verified", async () => {
-    mockedRequireAuth.mockResolvedValue({ ...verifiedUser, isIdVerified: false } as any);
+    mockedRequireAuth.mockResolvedValue({
+      ...verifiedUser,
+      isIdVerified: false,
+    } as any);
     const res = await POST(
-      makeRequest("/api/payments/initialize", { method: "POST", body: { rentalId: "r1" } }),
+      makeRequest("/api/payments/initialize", {
+        method: "POST",
+        body: { rentalId: "r1" },
+      }),
     );
     expect(res.status).toBe(403);
   });
@@ -57,7 +69,10 @@ describe("POST /api/payments/initialize", () => {
   it("returns 400 when the body fails validation", async () => {
     mockedRequireAuth.mockResolvedValue(verifiedUser as any);
     const res = await POST(
-      makeRequest("/api/payments/initialize", { method: "POST", body: { rentalId: "" } }),
+      makeRequest("/api/payments/initialize", {
+        method: "POST",
+        body: { rentalId: "" },
+      }),
     );
     expect(res.status).toBe(400);
   });
@@ -66,25 +81,40 @@ describe("POST /api/payments/initialize", () => {
     mockedRequireAuth.mockResolvedValue(verifiedUser as any);
     mockedRentalFindUnique.mockResolvedValue(null);
     const res = await POST(
-      makeRequest("/api/payments/initialize", { method: "POST", body: { rentalId: "missing" } }),
+      makeRequest("/api/payments/initialize", {
+        method: "POST",
+        body: { rentalId: "missing" },
+      }),
     );
     expect(res.status).toBe(404);
   });
 
   it("returns 403 when the caller isn't the renter on the rental", async () => {
     mockedRequireAuth.mockResolvedValue(verifiedUser as any);
-    mockedRentalFindUnique.mockResolvedValue({ ...pendingRental, renterId: "someone_else" } as any);
+    mockedRentalFindUnique.mockResolvedValue({
+      ...pendingRental,
+      renterId: "someone_else",
+    } as any);
     const res = await POST(
-      makeRequest("/api/payments/initialize", { method: "POST", body: { rentalId: "rental_1" } }),
+      makeRequest("/api/payments/initialize", {
+        method: "POST",
+        body: { rentalId: "rental_1" },
+      }),
     );
     expect(res.status).toBe(403);
   });
 
   it("returns 400 when the rental is not PENDING", async () => {
     mockedRequireAuth.mockResolvedValue(verifiedUser as any);
-    mockedRentalFindUnique.mockResolvedValue({ ...pendingRental, status: "CONFIRMED" } as any);
+    mockedRentalFindUnique.mockResolvedValue({
+      ...pendingRental,
+      status: "CONFIRMED",
+    } as any);
     const res = await POST(
-      makeRequest("/api/payments/initialize", { method: "POST", body: { rentalId: "rental_1" } }),
+      makeRequest("/api/payments/initialize", {
+        method: "POST",
+        body: { rentalId: "rental_1" },
+      }),
     );
     expect(res.status).toBe(400);
     const body = await res.json();
@@ -94,9 +124,15 @@ describe("POST /api/payments/initialize", () => {
   it("returns 409 when a SUCCESS payment already exists", async () => {
     mockedRequireAuth.mockResolvedValue(verifiedUser as any);
     mockedRentalFindUnique.mockResolvedValue(pendingRental as any);
-    mockedPaymentFindFirst.mockResolvedValue({ id: "pay_old", status: "SUCCESS" } as any);
+    mockedPaymentFindFirst.mockResolvedValue({
+      id: "pay_old",
+      status: "SUCCESS",
+    } as any);
     const res = await POST(
-      makeRequest("/api/payments/initialize", { method: "POST", body: { rentalId: "rental_1" } }),
+      makeRequest("/api/payments/initialize", {
+        method: "POST",
+        body: { rentalId: "rental_1" },
+      }),
     );
     expect(res.status).toBe(409);
     const body = await res.json();
@@ -106,9 +142,15 @@ describe("POST /api/payments/initialize", () => {
   it("returns 409 with the existing paymentId when one is still PENDING", async () => {
     mockedRequireAuth.mockResolvedValue(verifiedUser as any);
     mockedRentalFindUnique.mockResolvedValue(pendingRental as any);
-    mockedPaymentFindFirst.mockResolvedValue({ id: "pay_pending", status: "PENDING" } as any);
+    mockedPaymentFindFirst.mockResolvedValue({
+      id: "pay_pending",
+      status: "PENDING",
+    } as any);
     const res = await POST(
-      makeRequest("/api/payments/initialize", { method: "POST", body: { rentalId: "rental_1" } }),
+      makeRequest("/api/payments/initialize", {
+        method: "POST",
+        body: { rentalId: "rental_1" },
+      }),
     );
     expect(res.status).toBe(409);
     const body = await res.json();
@@ -127,7 +169,10 @@ describe("POST /api/payments/initialize", () => {
     mockedPaymentUpdate.mockResolvedValue({} as any);
 
     const res = await POST(
-      makeRequest("/api/payments/initialize", { method: "POST", body: { rentalId: "rental_1" } }),
+      makeRequest("/api/payments/initialize", {
+        method: "POST",
+        body: { rentalId: "rental_1" },
+      }),
     );
 
     expect(res.status).toBe(200);
@@ -137,14 +182,22 @@ describe("POST /api/payments/initialize", () => {
   });
 
   it("splits fullName into first/last name for Chapa, defaulting last name to 'User'", async () => {
-    mockedRequireAuth.mockResolvedValue({ ...verifiedUser, fullName: "Cher" } as any);
+    mockedRequireAuth.mockResolvedValue({
+      ...verifiedUser,
+      fullName: "Cher",
+    } as any);
     mockedRentalFindUnique.mockResolvedValue(pendingRental as any);
     mockedPaymentFindFirst.mockResolvedValue(null);
     mockedPaymentCreate.mockResolvedValue({ id: "pay_new" } as any);
     mockedInitChapa.mockResolvedValue({ checkout_url: "url", tx_ref: "tx" });
     mockedPaymentUpdate.mockResolvedValue({} as any);
 
-    await POST(makeRequest("/api/payments/initialize", { method: "POST", body: { rentalId: "rental_1" } }));
+    await POST(
+      makeRequest("/api/payments/initialize", {
+        method: "POST",
+        body: { rentalId: "rental_1" },
+      }),
+    );
 
     const call = mockedInitChapa.mock.calls[0][0];
     expect(call.first_name).toBe("Cher");
@@ -152,14 +205,22 @@ describe("POST /api/payments/initialize", () => {
   });
 
   it("falls back to a placeholder phone number when the user has none", async () => {
-    mockedRequireAuth.mockResolvedValue({ ...verifiedUser, phone: null } as any);
+    mockedRequireAuth.mockResolvedValue({
+      ...verifiedUser,
+      phone: null,
+    } as any);
     mockedRentalFindUnique.mockResolvedValue(pendingRental as any);
     mockedPaymentFindFirst.mockResolvedValue(null);
     mockedPaymentCreate.mockResolvedValue({ id: "pay_new" } as any);
     mockedInitChapa.mockResolvedValue({ checkout_url: "url", tx_ref: "tx" });
     mockedPaymentUpdate.mockResolvedValue({} as any);
 
-    await POST(makeRequest("/api/payments/initialize", { method: "POST", body: { rentalId: "rental_1" } }));
+    await POST(
+      makeRequest("/api/payments/initialize", {
+        method: "POST",
+        body: { rentalId: "rental_1" },
+      }),
+    );
 
     const call = mockedInitChapa.mock.calls[0][0];
     expect(call.phone_number).toBe("+251900000000");
@@ -173,7 +234,10 @@ describe("POST /api/payments/initialize", () => {
     mockedInitChapa.mockRejectedValue(new Error("Chapa unreachable"));
 
     const res = await POST(
-      makeRequest("/api/payments/initialize", { method: "POST", body: { rentalId: "rental_1" } }),
+      makeRequest("/api/payments/initialize", {
+        method: "POST",
+        body: { rentalId: "rental_1" },
+      }),
     );
     expect(res.status).toBe(500);
   });
@@ -182,7 +246,10 @@ describe("POST /api/payments/initialize", () => {
     mockedRequireAuth.mockResolvedValue(verifiedUser as any);
     mockedRentalFindUnique.mockRejectedValue(new Error("db down"));
     const res = await POST(
-      makeRequest("/api/payments/initialize", { method: "POST", body: { rentalId: "rental_1" } }),
+      makeRequest("/api/payments/initialize", {
+        method: "POST",
+        body: { rentalId: "rental_1" },
+      }),
     );
     expect(res.status).toBe(500);
   });

@@ -3,9 +3,11 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 const sendMock = vi.fn().mockResolvedValue({ id: "email_1" });
 
 vi.mock("resend", () => ({
-  Resend: vi.fn().mockImplementation(() => ({
-    emails: { send: sendMock },
-  })),
+  Resend: class {
+    emails = {
+      send: sendMock,
+    };
+  },
 }));
 
 describe("email helpers", () => {
@@ -17,6 +19,7 @@ describe("email helpers", () => {
     it("logs the email instead of calling Resend", async () => {
       vi.resetModules();
       vi.stubEnv("NODE_ENV", "development");
+
       const { sendPaymentConfirmationEmail } = await import("@/lib/email");
 
       const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});

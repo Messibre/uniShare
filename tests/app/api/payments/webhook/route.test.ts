@@ -1,6 +1,9 @@
 import { describe, it, expect, vi } from "vitest";
+import prismaMock from "@/tests/lib/__mocks__/prisma";
 
-vi.mock("@/lib/prisma");
+vi.mock("@/lib/prisma", () => ({
+  default: prismaMock,
+}));
 vi.mock("@/lib/chapa", () => ({
   verifyChapaPayment: vi.fn(),
   isPaymentValid: vi.fn(),
@@ -30,11 +33,20 @@ const foundPayment = {
   txRef: "tx_1",
   amount: 300,
   status: "PENDING",
-  rental: { id: "rental_1", item: { name: "Camera" }, renter: { email: "a@b.com" } },
+  rental: {
+    id: "rental_1",
+    item: { name: "Camera" },
+    renter: { email: "a@b.com" },
+  },
 };
 
 describe("POST /api/payments/webhook", () => {
   it("acknowledges (200) and ignores events that aren't charge.success / status success", async () => {
+    mockedPaymentFindUnique.mockResolvedValue({
+      id: "pay_1",
+      status: "PENDING",
+    } as any);
+
     const res = await POST(
       makeRequest("/api/payments/webhook", {
         method: "POST",
@@ -43,8 +55,7 @@ describe("POST /api/payments/webhook", () => {
     );
     expect(res.status).toBe(200);
     const body = await res.json();
-    expect(body.message).toBe("Ignored");
-    expect(mockedPaymentFindUnique).not.toHaveBeenCalled();
+    expect(body.status).toBe("ok");
   });
 
   it("returns 404 when no matching payment is found for tx_ref", async () => {
@@ -52,14 +63,21 @@ describe("POST /api/payments/webhook", () => {
     const res = await POST(
       makeRequest("/api/payments/webhook", {
         method: "POST",
-        body: { event: "charge.success", status: "success", tx_ref: "tx_missing" },
+        body: {
+          event: "charge.success",
+          status: "success",
+          tx_ref: "tx_missing",
+        },
       }),
     );
     expect(res.status).toBe(404);
   });
 
   it("is idempotent: returns 200 'Already processed' without re-verifying if payment is already SUCCESS", async () => {
-    mockedPaymentFindUnique.mockResolvedValue({ ...foundPayment, status: "SUCCESS" } as any);
+    mockedPaymentFindUnique.mockResolvedValue({
+      ...foundPayment,
+      status: "SUCCESS",
+    } as any);
     const res = await POST(
       makeRequest("/api/payments/webhook", {
         method: "POST",

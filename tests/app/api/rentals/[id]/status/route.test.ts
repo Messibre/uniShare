@@ -1,6 +1,10 @@
 import { describe, it, expect, vi } from "vitest";
+import prismaMock from "@/tests/lib/__mocks__/prisma";
 
-vi.mock("@/lib/prisma");
+vi.mock("@/lib/prisma", () => ({
+  default: prismaMock,
+}));
+
 vi.mock("@/lib/auth-guard", () => ({
   requireAuth: vi.fn(),
 }));
@@ -31,7 +35,10 @@ function rental(overrides: Partial<Record<string, any>> = {}) {
 
 function setUp(rentalRecord: any) {
   mockedFindUnique.mockResolvedValue(rentalRecord);
-  mockedRentalUpdate.mockResolvedValue({ ...rentalRecord, status: rentalRecord.status } as any);
+  mockedRentalUpdate.mockResolvedValue({
+    ...rentalRecord,
+    status: rentalRecord.status,
+  } as any);
   mockedItemUpdate.mockResolvedValue({} as any);
   mockedStatusLogCreate.mockResolvedValue({} as any);
 }
@@ -40,57 +47,92 @@ describe("PATCH /api/rentals/[id]/status", () => {
   it("returns 401 when unauthenticated", async () => {
     mockedRequireAuth.mockRejectedValue(new Error("Unauthorized"));
     const res = await PATCH(
-      makeRequest("/api/rentals/rental_1/status", { method: "PATCH", body: { status: "CONFIRMED" } }),
+      makeRequest("/api/rentals/rental_1/status", {
+        method: "PATCH",
+        body: { status: "CONFIRMED" },
+      }),
       ctx({ id: "rental_1" }),
     );
     expect(res.status).toBe(401);
   });
 
   it("returns 404 when the rental doesn't exist", async () => {
-    mockedRequireAuth.mockResolvedValue({ id: "owner_1", role: "STUDENT" } as any);
+    mockedRequireAuth.mockResolvedValue({
+      id: "owner_1",
+      role: "STUDENT",
+    } as any);
     mockedFindUnique.mockResolvedValue(null);
     const res = await PATCH(
-      makeRequest("/api/rentals/missing/status", { method: "PATCH", body: { status: "CONFIRMED" } }),
+      makeRequest("/api/rentals/missing/status", {
+        method: "PATCH",
+        body: { status: "CONFIRMED" },
+      }),
       ctx({ id: "missing" }),
     );
     expect(res.status).toBe(404);
   });
 
   it("returns 404 when the rental has been soft-deleted", async () => {
-    mockedRequireAuth.mockResolvedValue({ id: "owner_1", role: "STUDENT" } as any);
-    mockedFindUnique.mockResolvedValue(rental({ deletedAt: new Date() }) as any);
+    mockedRequireAuth.mockResolvedValue({
+      id: "owner_1",
+      role: "STUDENT",
+    } as any);
+    mockedFindUnique.mockResolvedValue(
+      rental({ deletedAt: new Date() }) as any,
+    );
     const res = await PATCH(
-      makeRequest("/api/rentals/rental_1/status", { method: "PATCH", body: { status: "CONFIRMED" } }),
+      makeRequest("/api/rentals/rental_1/status", {
+        method: "PATCH",
+        body: { status: "CONFIRMED" },
+      }),
       ctx({ id: "rental_1" }),
     );
     expect(res.status).toBe(404);
   });
 
   it("returns 403 when the caller is a stranger", async () => {
-    mockedRequireAuth.mockResolvedValue({ id: "stranger", role: "STUDENT" } as any);
+    mockedRequireAuth.mockResolvedValue({
+      id: "stranger",
+      role: "STUDENT",
+    } as any);
     mockedFindUnique.mockResolvedValue(rental() as any);
     const res = await PATCH(
-      makeRequest("/api/rentals/rental_1/status", { method: "PATCH", body: { status: "CANCELLED" } }),
+      makeRequest("/api/rentals/rental_1/status", {
+        method: "PATCH",
+        body: { status: "CANCELLED" },
+      }),
       ctx({ id: "rental_1" }),
     );
     expect(res.status).toBe(403);
   });
 
   it("returns 400 when the body fails schema validation", async () => {
-    mockedRequireAuth.mockResolvedValue({ id: "owner_1", role: "STUDENT" } as any);
+    mockedRequireAuth.mockResolvedValue({
+      id: "owner_1",
+      role: "STUDENT",
+    } as any);
     mockedFindUnique.mockResolvedValue(rental() as any);
     const res = await PATCH(
-      makeRequest("/api/rentals/rental_1/status", { method: "PATCH", body: { status: "NOT_REAL" } }),
+      makeRequest("/api/rentals/rental_1/status", {
+        method: "PATCH",
+        body: { status: "NOT_REAL" },
+      }),
       ctx({ id: "rental_1" }),
     );
     expect(res.status).toBe(400);
   });
 
   it("restricts a pure renter to only requesting CANCELLED", async () => {
-    mockedRequireAuth.mockResolvedValue({ id: "renter_1", role: "STUDENT" } as any);
+    mockedRequireAuth.mockResolvedValue({
+      id: "renter_1",
+      role: "STUDENT",
+    } as any);
     mockedFindUnique.mockResolvedValue(rental() as any);
     const res = await PATCH(
-      makeRequest("/api/rentals/rental_1/status", { method: "PATCH", body: { status: "CONFIRMED" } }),
+      makeRequest("/api/rentals/rental_1/status", {
+        method: "PATCH",
+        body: { status: "CONFIRMED" },
+      }),
       ctx({ id: "rental_1" }),
     );
     expect(res.status).toBe(403);
@@ -99,10 +141,16 @@ describe("PATCH /api/rentals/[id]/status", () => {
   });
 
   it("blocks a renter from cancelling once the rental is ACTIVE", async () => {
-    mockedRequireAuth.mockResolvedValue({ id: "renter_1", role: "STUDENT" } as any);
+    mockedRequireAuth.mockResolvedValue({
+      id: "renter_1",
+      role: "STUDENT",
+    } as any);
     mockedFindUnique.mockResolvedValue(rental({ status: "ACTIVE" }) as any);
     const res = await PATCH(
-      makeRequest("/api/rentals/rental_1/status", { method: "PATCH", body: { status: "CANCELLED" } }),
+      makeRequest("/api/rentals/rental_1/status", {
+        method: "PATCH",
+        body: { status: "CANCELLED" },
+      }),
       ctx({ id: "rental_1" }),
     );
     expect(res.status).toBe(400);
@@ -111,10 +159,16 @@ describe("PATCH /api/rentals/[id]/status", () => {
   });
 
   it("allows a renter to cancel a PENDING rental", async () => {
-    mockedRequireAuth.mockResolvedValue({ id: "renter_1", role: "STUDENT" } as any);
+    mockedRequireAuth.mockResolvedValue({
+      id: "renter_1",
+      role: "STUDENT",
+    } as any);
     setUp(rental({ status: "PENDING" }));
     const res = await PATCH(
-      makeRequest("/api/rentals/rental_1/status", { method: "PATCH", body: { status: "CANCELLED" } }),
+      makeRequest("/api/rentals/rental_1/status", {
+        method: "PATCH",
+        body: { status: "CANCELLED" },
+      }),
       ctx({ id: "rental_1" }),
     );
     expect(res.status).toBe(200);
@@ -127,10 +181,16 @@ describe("PATCH /api/rentals/[id]/status", () => {
     ["CANCELLED", "ACTIVE"],
     ["ACTIVE", "CONFIRMED"],
   ])("rejects the invalid transition %s -> %s", async (from, to) => {
-    mockedRequireAuth.mockResolvedValue({ id: "owner_1", role: "STUDENT" } as any);
+    mockedRequireAuth.mockResolvedValue({
+      id: "owner_1",
+      role: "STUDENT",
+    } as any);
     mockedFindUnique.mockResolvedValue(rental({ status: from }) as any);
     const res = await PATCH(
-      makeRequest("/api/rentals/rental_1/status", { method: "PATCH", body: { status: to } }),
+      makeRequest("/api/rentals/rental_1/status", {
+        method: "PATCH",
+        body: { status: to },
+      }),
       ctx({ id: "rental_1" }),
     );
     expect(res.status).toBe(400);
@@ -139,11 +199,17 @@ describe("PATCH /api/rentals/[id]/status", () => {
   });
 
   it("allows the owner to confirm a PENDING rental and marks the item RENTED", async () => {
-    mockedRequireAuth.mockResolvedValue({ id: "owner_1", role: "STUDENT" } as any);
+    mockedRequireAuth.mockResolvedValue({
+      id: "owner_1",
+      role: "STUDENT",
+    } as any);
     setUp(rental({ status: "PENDING" }));
 
     const res = await PATCH(
-      makeRequest("/api/rentals/rental_1/status", { method: "PATCH", body: { status: "CONFIRMED" } }),
+      makeRequest("/api/rentals/rental_1/status", {
+        method: "PATCH",
+        body: { status: "CONFIRMED" },
+      }),
       ctx({ id: "rental_1" }),
     );
 
@@ -157,23 +223,35 @@ describe("PATCH /api/rentals/[id]/status", () => {
   it("requires CONFIRMED before allowing ACTIVE", async () => {
     // valid enum transition-wise but state guard should still block anything
     // that isn't literally CONFIRMED -> ACTIVE (covered by transitions table too)
-    mockedRequireAuth.mockResolvedValue({ id: "owner_1", role: "STUDENT" } as any);
+    mockedRequireAuth.mockResolvedValue({
+      id: "owner_1",
+      role: "STUDENT",
+    } as any);
     mockedFindUnique.mockResolvedValue(rental({ status: "CONFIRMED" }) as any);
     setUp(rental({ status: "CONFIRMED" }));
 
     const res = await PATCH(
-      makeRequest("/api/rentals/rental_1/status", { method: "PATCH", body: { status: "ACTIVE" } }),
+      makeRequest("/api/rentals/rental_1/status", {
+        method: "PATCH",
+        body: { status: "ACTIVE" },
+      }),
       ctx({ id: "rental_1" }),
     );
     expect(res.status).toBe(200);
   });
 
   it("allows RETURNED from ACTIVE and stamps a new endDate", async () => {
-    mockedRequireAuth.mockResolvedValue({ id: "owner_1", role: "STUDENT" } as any);
+    mockedRequireAuth.mockResolvedValue({
+      id: "owner_1",
+      role: "STUDENT",
+    } as any);
     setUp(rental({ status: "ACTIVE" }));
 
     await PATCH(
-      makeRequest("/api/rentals/rental_1/status", { method: "PATCH", body: { status: "RETURNED" } }),
+      makeRequest("/api/rentals/rental_1/status", {
+        method: "PATCH",
+        body: { status: "RETURNED" },
+      }),
       ctx({ id: "rental_1" }),
     );
 
@@ -183,22 +261,34 @@ describe("PATCH /api/rentals/[id]/status", () => {
   });
 
   it("allows RETURNED from OVERDUE as well", async () => {
-    mockedRequireAuth.mockResolvedValue({ id: "owner_1", role: "STUDENT" } as any);
+    mockedRequireAuth.mockResolvedValue({
+      id: "owner_1",
+      role: "STUDENT",
+    } as any);
     setUp(rental({ status: "OVERDUE" }));
 
     const res = await PATCH(
-      makeRequest("/api/rentals/rental_1/status", { method: "PATCH", body: { status: "RETURNED" } }),
+      makeRequest("/api/rentals/rental_1/status", {
+        method: "PATCH",
+        body: { status: "RETURNED" },
+      }),
       ctx({ id: "rental_1" }),
     );
     expect(res.status).toBe(200);
   });
 
   it("frees the item back to AVAILABLE on RETURNED", async () => {
-    mockedRequireAuth.mockResolvedValue({ id: "owner_1", role: "STUDENT" } as any);
+    mockedRequireAuth.mockResolvedValue({
+      id: "owner_1",
+      role: "STUDENT",
+    } as any);
     setUp(rental({ status: "ACTIVE" }));
 
     await PATCH(
-      makeRequest("/api/rentals/rental_1/status", { method: "PATCH", body: { status: "RETURNED" } }),
+      makeRequest("/api/rentals/rental_1/status", {
+        method: "PATCH",
+        body: { status: "RETURNED" },
+      }),
       ctx({ id: "rental_1" }),
     );
 
@@ -209,11 +299,17 @@ describe("PATCH /api/rentals/[id]/status", () => {
   });
 
   it("frees the item back to AVAILABLE on CANCELLED", async () => {
-    mockedRequireAuth.mockResolvedValue({ id: "renter_1", role: "STUDENT" } as any);
+    mockedRequireAuth.mockResolvedValue({
+      id: "renter_1",
+      role: "STUDENT",
+    } as any);
     setUp(rental({ status: "PENDING" }));
 
     await PATCH(
-      makeRequest("/api/rentals/rental_1/status", { method: "PATCH", body: { status: "CANCELLED" } }),
+      makeRequest("/api/rentals/rental_1/status", {
+        method: "PATCH",
+        body: { status: "CANCELLED" },
+      }),
       ctx({ id: "rental_1" }),
     );
 
@@ -224,7 +320,10 @@ describe("PATCH /api/rentals/[id]/status", () => {
   });
 
   it("writes a status log with the provided note", async () => {
-    mockedRequireAuth.mockResolvedValue({ id: "owner_1", role: "STUDENT" } as any);
+    mockedRequireAuth.mockResolvedValue({
+      id: "owner_1",
+      role: "STUDENT",
+    } as any);
     setUp(rental({ status: "PENDING" }));
 
     await PATCH(
@@ -241,11 +340,17 @@ describe("PATCH /api/rentals/[id]/status", () => {
   });
 
   it("falls back to an auto-generated note when none is provided", async () => {
-    mockedRequireAuth.mockResolvedValue({ id: "owner_1", role: "STUDENT" } as any);
+    mockedRequireAuth.mockResolvedValue({
+      id: "owner_1",
+      role: "STUDENT",
+    } as any);
     setUp(rental({ status: "PENDING" }));
 
     await PATCH(
-      makeRequest("/api/rentals/rental_1/status", { method: "PATCH", body: { status: "CONFIRMED" } }),
+      makeRequest("/api/rentals/rental_1/status", {
+        method: "PATCH",
+        body: { status: "CONFIRMED" },
+      }),
       ctx({ id: "rental_1" }),
     );
 
@@ -254,21 +359,33 @@ describe("PATCH /api/rentals/[id]/status", () => {
   });
 
   it("allows an ADMIN to perform any valid transition regardless of ownership", async () => {
-    mockedRequireAuth.mockResolvedValue({ id: "admin_1", role: "ADMIN" } as any);
+    mockedRequireAuth.mockResolvedValue({
+      id: "admin_1",
+      role: "ADMIN",
+    } as any);
     setUp(rental({ status: "PENDING" }));
 
     const res = await PATCH(
-      makeRequest("/api/rentals/rental_1/status", { method: "PATCH", body: { status: "CANCELLED" } }),
+      makeRequest("/api/rentals/rental_1/status", {
+        method: "PATCH",
+        body: { status: "CANCELLED" },
+      }),
       ctx({ id: "rental_1" }),
     );
     expect(res.status).toBe(200);
   });
 
   it("returns 500 on unexpected database errors", async () => {
-    mockedRequireAuth.mockResolvedValue({ id: "owner_1", role: "STUDENT" } as any);
+    mockedRequireAuth.mockResolvedValue({
+      id: "owner_1",
+      role: "STUDENT",
+    } as any);
     mockedFindUnique.mockRejectedValue(new Error("db down"));
     const res = await PATCH(
-      makeRequest("/api/rentals/rental_1/status", { method: "PATCH", body: { status: "CONFIRMED" } }),
+      makeRequest("/api/rentals/rental_1/status", {
+        method: "PATCH",
+        body: { status: "CONFIRMED" },
+      }),
       ctx({ id: "rental_1" }),
     );
     expect(res.status).toBe(500);

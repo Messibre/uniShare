@@ -1,6 +1,9 @@
 import { describe, it, expect, vi } from "vitest";
+import prismaMock from "@/tests/lib/__mocks__/prisma";
 
-vi.mock("@/lib/prisma");
+vi.mock("@/lib/prisma", () => ({
+  default: prismaMock,
+}));
 vi.mock("@/lib/bcrypt", () => ({
   hashPassword: vi.fn(),
 }));
@@ -34,7 +37,10 @@ describe("POST /api/auth/register", () => {
 
   it("returns 409 when the email is already registered", async () => {
     mockedFindUnique.mockResolvedValue({ id: "existing" } as any);
-    const req = makeRequest("/api/auth/register", { method: "POST", body: validBody });
+    const req = makeRequest("/api/auth/register", {
+      method: "POST",
+      body: validBody,
+    });
     const res = await POST(req);
     expect(res.status).toBe(409);
     const body = await res.json();
@@ -54,7 +60,10 @@ describe("POST /api/auth/register", () => {
     } as any);
     mockedTokenCreate.mockResolvedValue({} as any);
 
-    const req = makeRequest("/api/auth/register", { method: "POST", body: validBody });
+    const req = makeRequest("/api/auth/register", {
+      method: "POST",
+      body: validBody,
+    });
     const res = await POST(req);
 
     expect(res.status).toBe(201);
@@ -84,11 +93,16 @@ describe("POST /api/auth/register", () => {
     } as any);
     mockedTokenCreate.mockResolvedValue({} as any);
 
-    const req = makeRequest("/api/auth/register", { method: "POST", body: validBody });
+    const req = makeRequest("/api/auth/register", {
+      method: "POST",
+      body: validBody,
+    });
     const res = await POST(req);
 
     const setCookie = String(
-      res.headers.getSetCookie ? res.headers.getSetCookie() : res.headers.get("set-cookie"),
+      res.headers.getSetCookie
+        ? res.headers.getSetCookie()
+        : res.headers.get("set-cookie"),
     );
     expect(setCookie).toContain("accessToken=");
   });
@@ -98,7 +112,10 @@ describe("POST /api/auth/register", () => {
     mockedHash.mockResolvedValue("hashed-password");
     mockedCreate.mockRejectedValue(new Error("db exploded"));
 
-    const req = makeRequest("/api/auth/register", { method: "POST", body: validBody });
+    const req = makeRequest("/api/auth/register", {
+      method: "POST",
+      body: validBody,
+    });
     const res = await POST(req);
     expect(res.status).toBe(500);
   });

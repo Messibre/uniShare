@@ -1,8 +1,12 @@
 import { describe, it, expect, vi } from "vitest";
+import prismaMock from "@/tests/lib/__mocks__/prisma";
 
-vi.mock("@/lib/prisma");
+vi.mock("@/lib/prisma", () => ({
+  default: prismaMock,
+}));
 vi.mock("@/lib/auth", async () => {
-  const actual = await vi.importActual<typeof import("@/lib/auth")>("@/lib/auth");
+  const actual =
+    await vi.importActual<typeof import("@/lib/auth")>("@/lib/auth");
   return { ...actual, verifyAccessToken: vi.fn() };
 });
 
@@ -34,7 +38,9 @@ describe("GET /api/auth/me", () => {
     mockedVerify.mockImplementation(() => {
       throw new Error("bad token");
     });
-    const req = makeRequest("/api/auth/me", { cookies: { accessToken: "bad" } });
+    const req = makeRequest("/api/auth/me", {
+      cookies: { accessToken: "bad" },
+    });
     const res = await GET(req);
     expect(res.status).toBe(401);
     const body = await res.json();
@@ -44,7 +50,9 @@ describe("GET /api/auth/me", () => {
   it("returns 404 when the token is valid but the user no longer exists", async () => {
     mockedVerify.mockReturnValue({ userId: "ghost", role: "STUDENT" });
     mockedFindUnique.mockResolvedValue(null);
-    const req = makeRequest("/api/auth/me", { cookies: { accessToken: "good" } });
+    const req = makeRequest("/api/auth/me", {
+      cookies: { accessToken: "good" },
+    });
     const res = await GET(req);
     expect(res.status).toBe(404);
   });
@@ -52,7 +60,9 @@ describe("GET /api/auth/me", () => {
   it("returns the user profile on success", async () => {
     mockedVerify.mockReturnValue({ userId: dbUser.id, role: dbUser.role });
     mockedFindUnique.mockResolvedValue(dbUser as any);
-    const req = makeRequest("/api/auth/me", { cookies: { accessToken: "good" } });
+    const req = makeRequest("/api/auth/me", {
+      cookies: { accessToken: "good" },
+    });
     const res = await GET(req);
 
     expect(res.status).toBe(200);
@@ -63,7 +73,9 @@ describe("GET /api/auth/me", () => {
   it("returns 500 when the database throws unexpectedly", async () => {
     mockedVerify.mockReturnValue({ userId: dbUser.id, role: dbUser.role });
     mockedFindUnique.mockRejectedValue(new Error("db down"));
-    const req = makeRequest("/api/auth/me", { cookies: { accessToken: "good" } });
+    const req = makeRequest("/api/auth/me", {
+      cookies: { accessToken: "good" },
+    });
     const res = await GET(req);
     expect(res.status).toBe(500);
   });

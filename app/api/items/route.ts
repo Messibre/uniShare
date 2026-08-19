@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
     const available = url.searchParams.get("available") === "true";
 
     const where: any = {
-      status: "AVAILABLE", // Only show available items to the public
+      status: "AVAILABLE",
     };
 
     if (search) {
@@ -63,10 +63,8 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    // 1. Check authentication and get user from DB
     const user = await requireAuth(req);
 
-    // 2. Check if user is verified
     if (!user.isIdVerified) {
       return NextResponse.json(
         { error: "Must verify your ID before listing items" },
@@ -74,7 +72,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 3. Parse and validate request body
     const body = await req.json();
     const parsed = createItemSchema.safeParse(body);
 
@@ -85,22 +82,37 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { name, description, category, pricePerDay, deposit, imageUrl } =
-      parsed.data;
+    const {
+      name,
+      description,
+      category,
+      pricePerDay,
+      deposit,
+      imageUrl,
+      ownerType,
+    } = parsed.data;
 
-    // 4. Create the item
+    if (ownerType === "PLATFORM" && user.role !== "ADMIN") {
+      return NextResponse.json(
+        { error: "Only admins can create platform-owned items" },
+        { status: 403 },
+      );
+    }
+
+    const itemData = {
+      name,
+      description,
+      category,
+      pricePerDay,
+      deposit: deposit || 0,
+      imageUrl,
+      ownerType: ownerType as OwnerType,
+      ownerId: ownerType === "PLATFORM" ? null : user.id,
+      status: "AVAILABLE" as ItemStatus,
+    };
+
     const item = await prisma.item.create({
-      data: {
-        name,
-        description,
-        category,
-        pricePerDay,
-        deposit: deposit || 0,
-        imageUrl,
-        ownerType: "USER",
-        ownerId: user.id,
-        status: "AVAILABLE",
-      },
+      data: itemData,
     });
 
     return NextResponse.json({ item }, { status: 201 });

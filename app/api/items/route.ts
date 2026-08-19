@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth-guard";
 import { createItemSchema } from "@/lib/validations";
+import { OwnerType, ItemStatus } from "@/lib/generated/prisma";
 
 export async function GET(req: NextRequest) {
   try {

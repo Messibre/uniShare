@@ -48,7 +48,9 @@ describe("PATCH /api/admin/users/[id]/verify – Verify User", () => {
       },
     );
 
-    const response = await PATCH(req, { params: { id: "user-123" } });
+    const response = await PATCH(req, {
+      params: Promise.resolve({ id: "user-123" }),
+    });
     const data = await response.json();
 
     expect(response.status).toBe(200);
@@ -76,7 +78,9 @@ describe("PATCH /api/admin/users/[id]/verify – Verify User", () => {
       },
     );
 
-    const response = await PATCH(req, { params: { id: "user-123" } });
+    const response = await PATCH(req, {
+      params: Promise.resolve({ id: "user-123" }),
+    });
     const data = await response.json();
 
     expect(response.status).toBe(200);
@@ -95,7 +99,9 @@ describe("PATCH /api/admin/users/[id]/verify – Verify User", () => {
       },
     );
 
-    const response = await PATCH(req, { params: { id: "user-123" } });
+    const response = await PATCH(req, {
+      params: Promise.resolve({ id: "user-123" }),
+    });
     const data = await response.json();
 
     expect(response.status).toBe(400);
@@ -115,7 +121,9 @@ describe("PATCH /api/admin/users/[id]/verify – Verify User", () => {
       },
     );
 
-    const response = await PATCH(req, { params: { id: "user-123" } });
+    const response = await PATCH(req, {
+      params: Promise.resolve({ id: "user-123" }),
+    });
     const data = await response.json();
 
     expect(response.status).toBe(400);
@@ -136,7 +144,9 @@ describe("PATCH /api/admin/users/[id]/verify – Verify User", () => {
       },
     );
 
-    const response = await PATCH(req, { params: { id: "user-123" } });
+    const response = await PATCH(req, {
+      params: Promise.resolve({ id: "user-123" }),
+    });
     const data = await response.json();
 
     expect(response.status).toBe(403);
@@ -158,7 +168,9 @@ describe("PATCH /api/admin/users/[id]/verify – Verify User", () => {
       },
     );
 
-    const response = await PATCH(req, { params: { id: "user-999" } });
+    const response = await PATCH(req, {
+      params: Promise.resolve({ id: "user-123" }),
+    });
     const data = await response.json();
 
     expect(response.status).toBe(500);

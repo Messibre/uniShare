@@ -84,7 +84,7 @@ model EndUser {
 
 }
 
-model Refreshn Token {
+model RefreshToken  {
   id         String   @id @default(cuid())
   token      String   @unique
   EndUserId     String

@@ -13,12 +13,16 @@
     "isolatedModules": true,
     "jsx": "react-jsx",
     "incremental": true,
+    "types": ["vitest/globals"],
+
     "plugins": [
       {
         "name": "next"
       }
     ],
     "paths": {
+      "@/test/*": ["./tests/test/*"],
+      "@/tests/*": ["./tests/*"],
       "@/*": ["./*"]
     }
   },
@@ -29,7 +33,8 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts",
-    "app/api/auth/logout"
+    "app/api/auth/logout",
+    "vitest.config.ts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "lib/generated/**"]
 }

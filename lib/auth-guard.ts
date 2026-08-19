@@ -18,6 +18,7 @@ export async function getCurrentUser(req: NextRequest) {
         fullName: true,
         email: true,
         role: true,
+        phone: true,
         isIdVerified: true,
         createdAt: true,
       },

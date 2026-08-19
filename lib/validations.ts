@@ -29,6 +29,7 @@ export const createItemSchema = z.object({
   pricePerDay: z.number().positive("Price must be greater than 0"),
   deposit: z.number().optional(),
   imageUrl: z.string().url("Invalid image URL").optional(),
+  ownerType: z.enum(["PLATFORM", "USER"]).default("USER"),
 });
 
 export const updateItemSchema = z.object({

@@ -1,8 +1,8 @@
 import { jwtVerify, SignJWT } from "jose";
+import { env } from "./env";
 
-const accessSecret = new TextEncoder().encode(process.env.JWT_ACCESS_SECRET!);
-const refreshSecret = new TextEncoder().encode(process.env.JWT_REFRESH_SECRET!);
-
+const accessSecret = new TextEncoder().encode(env.JWT_ACCESS_SECRET);
+const refreshSecret = new TextEncoder().encode(env.JWT_REFRESH_SECRET);
 interface TokenPayload {
   userId: string;
   role: string;

@@ -162,3 +162,44 @@ export async function sendPaymentFailedEmail({
     html,
   });
 }
+
+export async function sendPasswordResetEmail({
+  email,
+  fullName,
+  resetLink,
+}: {
+  email: string;
+  fullName: string;
+  resetLink: string;
+}) {
+  const subject = "Reset Your UniShare Password";
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <style>
+          body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; }
+          h1 { color: #FF6347; }
+          .card { border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin: 20px 0; }
+          .btn { background: #FF6347; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; }
+        </style>
+      </head>
+      <body>
+        <h1> Reset Your Password</h1>
+        <p>Hi ${fullName},</p>
+        <p>We received a request to reset your password for your UniShare account.</p>
+        <div class="card">
+          <p>Click the button below to reset your password. This link expires in 1 hour.</p>
+          <a href="${resetLink}" class="btn">Reset Password</a>
+        </div>
+        <p>If you didn't request this, please ignore this email.</p>
+        <p style="color: #6b7280; font-size: 14px; margin-top: 40px;">
+          This is an automated message from UniShare.
+        </p>
+      </body>
+    </html>
+  `;
+
+  await sendEmail({ to: email, subject, html });
+}

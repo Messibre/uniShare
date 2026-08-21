@@ -69,6 +69,7 @@ model EndUser {
   passwordHash         String
   role                 Role           @default(STUDENT)
   isIdVerified         Boolean        @default(false)
+  deletedAt            DateTime?  
   createdAt            DateTime       @default(now())
   updatedAt            DateTime       @updatedAt
 
@@ -191,4 +192,16 @@ model IdentityVerification {
   @@map("identity_verifications")
     @@schema("uniShare")
 
+}
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  email     String
+  token     String   @unique
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@map("password_reset_tokens")
+
+   @@schema("uniShare")
 }

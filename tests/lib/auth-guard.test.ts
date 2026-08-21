@@ -11,7 +11,7 @@ vi.mock("@/lib/auth", () => ({
 import prisma from "@/lib/prisma";
 import { verifyAccessToken } from "@/lib/auth";
 import { getCurrentUser, requireAuth, requireAdmin } from "@/lib/auth-guard";
-import { makeRequest } from "@/test/helpers";
+import { makeRequest } from "@/tests/test/helpers";
 
 const mockedVerify = vi.mocked(verifyAccessToken);
 const mockedFindUnique = vi.mocked(prisma.endUser.findUnique);

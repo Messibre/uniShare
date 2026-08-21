@@ -33,7 +33,7 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts",
-    "app/api/auth/logout",
+    "app/api/v1/auth/logout",
     "vitest.config.ts"
   ],
   "exclude": ["node_modules", "lib/generated/**"]

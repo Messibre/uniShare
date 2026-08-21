@@ -39,6 +39,12 @@ export const prismaMock = {
     create: vi.fn(),
     update: vi.fn(),
   },
+  passwordResetToken: {
+    deleteMany: vi.fn(),
+    findUnique: vi.fn(),
+    update: vi.fn(),
+    create: vi.fn(),
+  },
 };
 
 export default prismaMock;

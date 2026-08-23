@@ -5,7 +5,7 @@ interface User {
   id: string;
   fullName: string;
   email: string;
-  role: string;
+  role: "STUDENT" | "ADMIN";
   isIdVerified: boolean;
   phone?: string;
 }

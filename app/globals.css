@@ -27,6 +27,18 @@
   --animate-accordion-up: accordion-up 0.2s ease-out;
 }
 
+@utility border-border {
+  border-color: var(--border);
+}
+
+@utility bg-background {
+  background-color: var(--background);
+}
+
+@utility text-foreground {
+  color: var(--foreground);
+}
+
 @layer base {
   :root {
     /* Surface Colors – Light Mode */
@@ -88,7 +100,9 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border;
+    border-color: var(--border);
+    outline-color: var(--ring);
   }
   body {
     @apply bg-background text-foreground font-sans antialiased;

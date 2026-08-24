@@ -25,16 +25,18 @@ export async function apiClient<T = any>(
 ): Promise<T> {
   const { params, body, headers, ...rest } = options;
 
-  const url = new URL(`${API_BASE}${API_VERSION}${path}`);
+  let url = `${API_VERSION}${path}`;
   if (params) {
+    const searchParams = new URLSearchParams();
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
-        url.searchParams.set(key, String(value));
+        searchParams.set(key, String(value));
       }
     });
+    url += `?${searchParams.toString()}`;
   }
 
-  const response = await fetch(url.toString(), {
+  const response = await fetch(url, {
     ...rest,
     credentials: "include",
     headers: {
@@ -44,25 +46,20 @@ export async function apiClient<T = any>(
     body: body ? JSON.stringify(body) : undefined,
   });
 
-  // Handle 204 No Content
-  if (response.status === 204) {
-    return {} as T;
-  }
-
-  let errorData;
+  let responseData: any;
   try {
-    errorData = await response.json();
+    responseData = await response.json();
   } catch {
-    errorData = { message: response.statusText || "Unknown error" };
+    responseData = { message: response.statusText || "Unknown error" };
   }
 
   if (!response.ok) {
     throw new ApiError(
       response.status,
-      errorData.message || errorData.error || "Request failed",
-      errorData,
+      responseData.message || responseData.error || "Request failed",
+      responseData,
     );
   }
 
-  return response.json();
+  return responseData;
 }

@@ -3,14 +3,15 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "UniShare – Campus Rental Platform",
-  description:
-    "Rent and list academic and everyday campus gear with your university community.",
-  keywords: "campus rental, student marketplace, Ethiopia, campus gear",
-  authors: [{ name: "UniShare Team" }],
+  description: "Rent and list academic and everyday campus gear.",
 };
 
 export default function RootLayout({
@@ -19,8 +20,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+    <html lang="en" suppressHydrationWarning className={inter.variable}>
+      <body className="font-sans">
         <Providers>{children}</Providers>
       </body>
     </html>

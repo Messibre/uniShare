@@ -6,7 +6,7 @@ import { verifyAccessTokenEdge } from "@/lib/auth-edge";
 const PUBLIC_ROUTES = [
   "/login",
   "/register",
-  "/api/auth/(.*)", // All auth routes
+  "/api/v1/auth/(.*)", // All auth routes
   "/api/payments/webhook", // Chapa webhook
 ];
 

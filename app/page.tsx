@@ -1,13 +1,23 @@
-import Image from "next/image";
-import { Button } from "@/components/ui/button";
+"use client";
 
-export default function Home() {
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/lib/stores/auth-store";
+import { ROUTES } from "@/lib/utils/constants";
+
+export default function RootPage() {
+  const router = useRouter();
+  const { isAuthenticated, isLoading } = useAuthStore();
+
+  useEffect(() => {
+    if (!isLoading) {
+      router.replace(isAuthenticated ? ROUTES.DASHBOARD : ROUTES.LOGIN);
+    }
+  }, [isAuthenticated, isLoading, router]);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main>
-        <h1>Wellcome to UniShare</h1>
-        <Button>Get Started</Button>
-      </main>
+    <div className="flex min-h-screen items-center justify-center">
+      <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
     </div>
   );
 }

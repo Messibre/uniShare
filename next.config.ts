@@ -6,9 +6,9 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       {
-        source: "/api/:path*",
-        destination: "/api/v1/:path*",
-        permanent: true, // 301 redirect
+        source: "/api/:path((?!v1/).*)",
+        destination: "/api/v1/:path",
+        permanent: true,
       },
     ];
   },

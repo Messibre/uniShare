@@ -1,10 +1,12 @@
 import Link from "next/link";
 
+const CURRENT_YEAR = new Date().getFullYear();
+
 export function Footer() {
   return (
     <footer className="w-full border-t border-outline-variant bg-surface py-6 mt-auto">
       <div className="container max-w-[--spacing-container-max] mx-auto px-md lg:px-lg flex flex-col md:flex-row justify-between items-center gap-4 text-body-sm text-on-surface-variant">
-        <p>© {new Date().getFullYear()} UniShare. All rights reserved.</p>
+        <p>© {CURRENT_YEAR} UniShare. All rights reserved.</p>
         <div className="flex gap-6">
           <Link href="#" className="hover:text-primary transition-colors">
             Privacy

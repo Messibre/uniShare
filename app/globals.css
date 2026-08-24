@@ -2,8 +2,8 @@
 @import "tw-animate-css";
 
 @theme {
-  /* ----- Typography (Inter) ----- */
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  /* Typography (Inter from next/font) */
+  --font-sans: var(--font-inter, "Inter", ui-sans-serif, system-ui, sans-serif);
 
   --text-h1: 40px;
   --text-h1--line-height: 1.1;
@@ -40,7 +40,7 @@
   --text-label-sm--line-height: 1;
   --text-label-sm--font-weight: 600;
 
-  /* ----- Spacing (8px grid) ----- */
+  /* Spacing */
   --spacing-xs: 4px;
   --spacing-sm: 8px;
   --spacing-md: 16px;
@@ -49,7 +49,25 @@
   --spacing-gutter: 16px;
   --spacing-container-max: 1280px;
 
-  /* ----- Radius ----- */
+  /* Container / max-width scale (used by max-w-*, min-w-*, w-*).
+     Defined explicitly so these utilities don't silently fall back
+     to --spacing-* (which uses the same xs/sm/md/lg/xl names for a
+     completely different, much smaller, padding/margin scale). */
+  --container-3xs: 16rem;
+  --container-2xs: 18rem;
+  --container-xs: 20rem;
+  --container-sm: 24rem;
+  --container-md: 28rem;
+  --container-lg: 32rem;
+  --container-xl: 36rem;
+  --container-2xl: 42rem;
+  --container-3xl: 48rem;
+  --container-4xl: 56rem;
+  --container-5xl: 64rem;
+  --container-6xl: 72rem;
+  --container-7xl: 80rem;
+
+  /* Radius */
   --radius-sm: 0.25rem;
   --radius-default: 0.5rem;
   --radius-md: 0.75rem;
@@ -57,64 +75,80 @@
   --radius-xl: 1.5rem;
   --radius-full: 9999px;
 
-  /* ----- Custom Utilities (Tailwind v4) ----- */
-  @utility bg-surface {
-    background-color: var(--surface);
-  }
-  @utility bg-surface-dim {
-    background-color: var(--surface-dim);
-  }
-  @utility bg-surface-container {
-    background-color: var(--surface-container);
-  }
-  @utility bg-surface-container-low {
-    background-color: var(--surface-container-low);
-  }
-  @utility bg-surface-container-high {
-    background-color: var(--surface-container-high);
-  }
-  @utility bg-surface-container-highest {
-    background-color: var(--surface-container-highest);
-  }
-  @utility text-on-surface {
-    color: var(--on-surface);
-  }
-  @utility text-on-surface-variant {
-    color: var(--on-surface-variant);
-  }
-  @utility border-outline {
-    border-color: var(--outline);
-  }
-  @utility border-outline-variant {
-    border-color: var(--outline-variant);
-  }
-  @utility bg-primary {
-    background-color: var(--primary);
-  }
-  @utility bg-primary-container {
-    background-color: var(--primary-container);
-  }
-  @utility text-primary {
-    color: var(--primary);
-  }
-  @utility text-primary-container {
-    color: var(--primary-container);
-  }
-  @utility text-on-primary-container {
-    color: var(--on-primary-container);
-  }
-  @utility border-primary {
-    border-color: var(--primary);
-  }
-  @utility ring-primary {
-    ring-color: var(--primary);
-  }
+  /* Color aliases (for Tailwind v4) */
+  --color-primary: var(--primary);
+  --color-primary-container: var(--primary-container);
+  --color-secondary: var(--secondary);
+  --color-secondary-container: var(--secondary-container);
+  --color-error: var(--error);
+  --color-error-container: var(--error-container);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+}
+
+/* ===== CUSTOM UTILITIES ===== */
+@utility bg-surface {
+  background-color: var(--surface);
+}
+@utility bg-surface-dim {
+  background-color: var(--surface-dim);
+}
+@utility bg-surface-bright {
+  background-color: var(--surface-bright);
+}
+@utility bg-surface-container {
+  background-color: var(--surface-container);
+}
+@utility bg-surface-container-low {
+  background-color: var(--surface-container-low);
+}
+@utility bg-surface-container-high {
+  background-color: var(--surface-container-high);
+}
+@utility bg-surface-container-highest {
+  background-color: var(--surface-container-highest);
+}
+@utility bg-surface-container-lowest {
+  background-color: var(--surface-container-lowest);
+}
+@utility text-on-surface {
+  color: var(--on-surface);
+}
+@utility text-on-surface-variant {
+  color: var(--on-surface-variant);
+}
+@utility border-outline {
+  border-color: var(--outline);
+}
+@utility border-outline-variant {
+  border-color: var(--outline-variant);
+}
+@utility bg-primary {
+  background-color: var(--primary);
+}
+@utility bg-primary-container {
+  background-color: var(--primary-container);
+}
+@utility text-primary {
+  color: var(--primary);
+}
+@utility text-primary-container {
+  color: var(--primary-container);
+}
+@utility text-on-primary-container {
+  color: var(--on-primary-container);
+}
+@utility border-primary {
+  border-color: var(--primary);
 }
 
 @layer base {
   /* ===== LIGHT MODE ===== */
   :root {
-    /* Surface Colors */
+    /* UniShare Design Tokens */
     --surface: #f8f9ff;
     --surface-dim: #cbdbf5;
     --surface-bright: #f8f9ff;
@@ -124,63 +158,72 @@
     --surface-container-high: #dce9ff;
     --surface-container-highest: #d3e4fe;
 
-    /* On-Surface */
     --on-surface: #0b1c30;
     --on-surface-variant: #5a413c;
     --inverse-surface: #213145;
     --inverse-on-surface: #eaf1ff;
 
-    /* Outlines */
     --outline: #8e706b;
     --outline-variant: #e2bfb8;
 
-    /* Primary (Tomato) */
     --primary: #b12c16;
     --on-primary: #ffffff;
     --primary-container: #ff6347;
     --on-primary-container: #630900;
     --inverse-primary: #ffb4a5;
 
-    /* Secondary */
     --secondary: #006591;
     --on-secondary: #ffffff;
     --secondary-container: #39b8fd;
     --on-secondary-container: #004666;
 
-    /* Tertiary */
     --tertiary: #006a6a;
     --on-tertiary: #ffffff;
     --tertiary-container: #00a7a8;
     --on-tertiary-container: #003535;
 
-    /* Error */
     --error: #ba1a1a;
     --on-error: #ffffff;
     --error-container: #ffdad6;
     --on-error-container: #93000a;
 
-    /* Fixed (for dark mode compatibility) */
     --primary-fixed: #ffdad3;
     --primary-fixed-dim: #ffb4a5;
     --on-primary-fixed: #3f0400;
     --on-primary-fixed-variant: #8f1100;
 
-    /* Surface Tint */
     --surface-tint: #b12c16;
-
-    /* Background */
     --background: #f8f9ff;
     --on-background: #0b1c30;
 
-    /* Elevation Shadows */
     --shadow-level-1:
       0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
     --shadow-level-2: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+
+    /* ===== SHADCN STANDARD VARIABLES (Mapped to your design) ===== */
+    --background: var(--surface);
+    --foreground: var(--on-surface);
+    --card: var(--surface-container-lowest);
+    --card-foreground: var(--on-surface);
+    --popover: var(--surface-container-lowest);
+    --popover-foreground: var(--on-surface);
+    --primary-foreground: var(--on-primary);
+    --secondary-foreground: var(--on-secondary);
+    --muted: var(--surface-container-low);
+    --muted-foreground: var(--on-surface-variant);
+    --accent: var(--secondary-container);
+    --accent-foreground: var(--on-secondary);
+    --destructive: var(--error);
+    --destructive-foreground: var(--on-error);
+    --border: var(--outline);
+    --input: var(--outline);
+    --ring: var(--primary);
+    --radius: 0.5rem;
   }
 
-  /* ===== DARK MODE (OKLCH) ===== */
+  /* ===== DARK MODE ===== */
   .dark {
-    /* Surface Colors */
+    /* UniShare Design Tokens */
     --surface: oklch(0.17 0.03 250);
     --surface-dim: oklch(0.12 0.03 250);
     --surface-bright: oklch(0.22 0.03 250);
@@ -190,131 +233,248 @@
     --surface-container-high: oklch(0.24 0.03 250);
     --surface-container-highest: oklch(0.29 0.03 250);
 
-    /* On-Surface */
     --on-surface: oklch(0.95 0.01 250);
     --on-surface-variant: oklch(0.8 0.02 250);
     --inverse-surface: #dae2fd;
     --inverse-on-surface: #283044;
 
-    /* Outlines */
     --outline: oklch(0.35 0.03 250);
     --outline-variant: #5a413c;
 
-    /* Primary (Tomato) */
     --primary: #ffb4a5;
     --on-primary: #650900;
     --primary-container: #ff6347;
     --on-primary-container: #630900;
     --inverse-primary: #b12c16;
 
-    /* Secondary */
     --secondary: #89ceff;
     --on-secondary: #00344d;
     --secondary-container: #00a2e6;
     --on-secondary-container: #00344e;
 
-    /* Tertiary */
     --tertiary: #5ad9d9;
     --on-tertiary: #003737;
     --tertiary-container: #00a7a7;
     --on-tertiary-container: #003535;
 
-    /* Error */
     --error: #ffb4ab;
     --on-error: #690005;
     --error-container: #93000a;
     --on-error-container: #ffdad6;
 
-    /* Fixed */
     --primary-fixed: #ffdad3;
     --primary-fixed-dim: #ffb4a5;
     --on-primary-fixed: #3f0400;
     --on-primary-fixed-variant: #8f1100;
 
-    /* Surface Tint */
     --surface-tint: #ffb4a5;
-
-    /* Background */
     --background: #0b1326;
     --on-background: #dae2fd;
 
-    /* Elevation Shadows (Dark) */
     --shadow-level-1:
       0 1px 3px 0 rgba(0, 0, 0, 0.5), 0 1px 2px -1px rgba(0, 0, 0, 0.5);
     --shadow-level-2: 0 10px 15px -3px rgba(0, 0, 0, 0.7);
+
+    /* ===== SHADCN STANDARD VARIABLES (Mapped to your design) ===== */
+    --background: var(--surface);
+    --foreground: var(--on-surface);
+    --card: var(--surface-container-lowest);
+    --card-foreground: var(--on-surface);
+    --popover: var(--surface-container-lowest);
+    --popover-foreground: var(--on-surface);
+    --primary-foreground: var(--on-primary);
+    --secondary-foreground: var(--on-secondary);
+    --muted: var(--surface-container-low);
+    --muted-foreground: var(--on-surface-variant);
+    --accent: var(--secondary-container);
+    --accent-foreground: var(--on-secondary);
+    --destructive: var(--error);
+    --destructive-foreground: var(--on-error);
+    --border: var(--outline);
+    --input: var(--outline);
+    --ring: var(--primary);
+    --radius: 0.5rem;
   }
 
+  /* ===== BASE STYLES ===== */
   * {
-    @apply border-outline-variant;
+    border-color: var(--border);
   }
 
   body {
-    @apply bg-surface text-on-surface font-sans antialiased;
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Typography */
   h1 {
-    @apply text-h1;
+    font-size: var(--text-h1);
+    line-height: var(--text-h1--line-height);
+    letter-spacing: var(--text-h1--letter-spacing);
+    font-weight: var(--text-h1--font-weight);
   }
   h2 {
-    @apply text-h2;
+    font-size: var(--text-h2);
+    line-height: var(--text-h2--line-height);
+    letter-spacing: var(--text-h2--letter-spacing);
+    font-weight: var(--text-h2--font-weight);
   }
   h3 {
-    @apply text-h3;
+    font-size: var(--text-h3);
+    line-height: var(--text-h3--line-height);
+    font-weight: var(--text-h3--font-weight);
   }
   p {
-    @apply text-body-md;
+    font-size: var(--text-body-md);
+    line-height: var(--text-body-md--line-height);
+    font-weight: var(--text-body-md--font-weight);
   }
   label {
-    @apply text-label-md text-on-surface-variant;
+    font-size: var(--text-label-md);
+    line-height: var(--text-label-md--line-height);
+    letter-spacing: var(--text-label-md--letter-spacing);
+    font-weight: var(--text-label-md--font-weight);
+    color: var(--on-surface-variant);
   }
 
-  /* Links */
   a {
-    @apply text-primary hover:underline transition-colors;
+    color: var(--primary);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  a:hover {
+    text-decoration: underline;
   }
 
-  /* Inputs (Base styles) */
+  /* ===== INPUTS ===== */
   input,
   textarea,
   select {
-    @apply bg-surface-container-low border border-outline rounded-md px-md py-sm text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all;
+    background-color: var(--surface-container-low);
+    border: 1px solid var(--outline);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--text-body-md);
+    line-height: var(--text-body-md--line-height);
+    font-weight: var(--text-body-md--font-weight);
+    color: var(--on-surface);
+    width: 100%;
+    transition:
+      border-color 0.2s,
+      ring 0.2s;
+  }
+  input:focus,
+  textarea:focus,
+  select:focus {
+    outline: none;
+    border-color: var(--primary);
+    ring: 2px solid var(--primary);
+    --ring-opacity: 0.2;
+  }
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--on-surface-variant);
   }
 }
 
+/* ===== COMPONENTS ===== */
 @layer components {
-  /* Card (Level 1) */
+  /* Card */
   .card {
-    @apply bg-surface-container-lowest border border-outline-variant rounded-xl p-lg shadow-[--shadow-level-1] hover:shadow-[--shadow-level-2] transition-shadow duration-200;
+    background-color: var(--surface-container-lowest);
+    border: 1px solid var(--outline-variant);
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-level-1);
+    transition:
+      box-shadow 0.2s,
+      transform 0.2s;
+  }
+  .card:hover {
+    box-shadow: var(--shadow-level-2);
   }
 
-  /* Status Chip */
+  /* Status Chips */
   .status-chip {
-    @apply inline-flex items-center justify-center h-6 px-3 rounded-full text-label-sm font-label-sm backdrop-blur-sm;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 24px;
+    padding: 0 12px;
+    border-radius: 9999px;
+    font-size: var(--text-label-sm);
+    line-height: var(--text-label-sm--line-height);
+    font-weight: 600;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
   }
   .status-chip.available {
-    @apply bg-primary-container/15 text-primary-container border border-primary-container/20;
+    background-color: var(--primary-container);
+    opacity: 0.15;
+    color: var(--primary-container);
+    border: 1px solid var(--primary-container);
+    border-opacity: 0.2;
   }
   .status-chip.rented {
-    @apply bg-secondary-container/15 text-secondary border border-secondary/20;
+    background-color: var(--secondary-container);
+    opacity: 0.15;
+    color: var(--secondary);
+    border: 1px solid var(--secondary);
+    border-opacity: 0.2;
   }
   .status-chip.pending {
-    @apply bg-yellow-500/15 text-yellow-600 border border-yellow-500/20 dark:text-yellow-400;
+    background-color: #eab308;
+    opacity: 0.15;
+    color: #ca8a04;
+    border: 1px solid #eab308;
+    border-opacity: 0.2;
+  }
+  .dark .status-chip.pending {
+    background-color: #eab308;
+    opacity: 0.15;
+    color: #facc15;
+    border: 1px solid #eab308;
+    border-opacity: 0.2;
   }
   .status-chip.active {
-    @apply bg-green-500/15 text-green-600 border border-green-500/20 dark:text-green-400;
+    background-color: #22c55e;
+    opacity: 0.15;
+    color: #16a34a;
+    border: 1px solid #22c55e;
+    border-opacity: 0.2;
+  }
+  .dark .status-chip.active {
+    background-color: #22c55e;
+    opacity: 0.15;
+    color: #4ade80;
+    border: 1px solid #22c55e;
+    border-opacity: 0.2;
   }
   .status-chip.overdue {
-    @apply bg-error/15 text-error border border-error/20;
+    background-color: var(--error);
+    opacity: 0.15;
+    color: var(--error);
+    border: 1px solid var(--error);
+    border-opacity: 0.2;
   }
   .status-chip.returned {
-    @apply bg-outline/15 text-on-surface-variant border border-outline/20;
+    background-color: var(--outline);
+    opacity: 0.15;
+    color: var(--on-surface-variant);
+    border: 1px solid var(--outline);
+    border-opacity: 0.2;
   }
   .status-chip.cancelled {
-    @apply bg-error/15 text-error border border-error/20;
+    background-color: var(--error);
+    opacity: 0.15;
+    color: var(--error);
+    border: 1px solid var(--error);
+    border-opacity: 0.2;
   }
 
-  /* Glass Panel (for filters etc) */
+  /* Glass Panel */
   .glass-panel {
     background: rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(12px);

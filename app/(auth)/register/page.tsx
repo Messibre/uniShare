@@ -77,7 +77,7 @@ export default function RegisterPage() {
 
   return (
     <GuestRoute>
-      <div className="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-[--shadow-level-1] p-6 lg:p-8 space-y-6">
+      <div className="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-[var(--shadow-level-1)] p-6 lg:p-8 space-y-6">
         <div className="text-center space-y-1">
           <h1 className="text-h2 font-h2 text-primary">Create Account</h1>
           <p className="text-body-sm text-on-surface-variant">
@@ -86,60 +86,40 @@ export default function RegisterPage() {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {/* Full Name */}
           <div className="space-y-1.5">
-            <Label
-              htmlFor="fullName"
-              className="text-label-md text-on-surface-variant"
-            >
-              Full Name
-            </Label>
+            <Label htmlFor="fullName">Full Name</Label>
             <Input
               id="fullName"
               type="text"
               placeholder="Your full name"
               autoComplete="name"
               {...register("fullName")}
-              className="bg-surface-container-low border-outline focus:border-primary focus:ring-2 focus:ring-primary/20"
-              aria-describedby={errors.fullName ? "fullName-error" : undefined}
             />
             {errors.fullName && (
-              <p id="fullName-error" className="text-label-sm text-error mt-1">
+              <p className="text-label-sm text-error mt-1">
                 {errors.fullName.message}
               </p>
             )}
           </div>
 
-          {/* Email */}
           <div className="space-y-1.5">
-            <Label
-              htmlFor="email"
-              className="text-label-md text-on-surface-variant"
-            >
-              Email
-            </Label>
+            <Label htmlFor="email">Email</Label>
             <Input
               id="email"
               type="email"
               placeholder="student@university.edu"
               autoComplete="email"
               {...register("email")}
-              className="bg-surface-container-low border-outline focus:border-primary focus:ring-2 focus:ring-primary/20"
-              aria-describedby={errors.email ? "email-error" : undefined}
             />
             {errors.email && (
-              <p id="email-error" className="text-label-sm text-error mt-1">
+              <p className="text-label-sm text-error mt-1">
                 {errors.email.message}
               </p>
             )}
           </div>
 
-          {/* Phone (optional) */}
           <div className="space-y-1.5">
-            <Label
-              htmlFor="phone"
-              className="text-label-md text-on-surface-variant"
-            >
+            <Label htmlFor="phone">
               Phone Number{" "}
               <span className="text-label-sm text-on-surface-variant">
                 (optional)
@@ -151,18 +131,11 @@ export default function RegisterPage() {
               placeholder="+251900000000"
               autoComplete="tel"
               {...register("phone")}
-              className="bg-surface-container-low border-outline focus:border-primary focus:ring-2 focus:ring-primary/20"
             />
           </div>
 
-          {/* Password */}
           <div className="space-y-1.5">
-            <Label
-              htmlFor="password"
-              className="text-label-md text-on-surface-variant"
-            >
-              Password
-            </Label>
+            <Label htmlFor="password">Password</Label>
             <div className="relative">
               <Input
                 id="password"
@@ -170,15 +143,11 @@ export default function RegisterPage() {
                 placeholder="••••••••"
                 autoComplete="new-password"
                 {...register("password")}
-                className="bg-surface-container-low border-outline focus:border-primary focus:ring-2 focus:ring-primary/20 pr-10"
-                aria-describedby={
-                  errors.password ? "password-error" : undefined
-                }
               />
               <button
                 type="button"
-                onClick={() => setShowPassword((prev) => !prev)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary transition-colors"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary"
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? (
@@ -189,20 +158,14 @@ export default function RegisterPage() {
               </button>
             </div>
             {errors.password && (
-              <p id="password-error" className="text-label-sm text-error mt-1">
+              <p className="text-label-sm text-error mt-1">
                 {errors.password.message}
               </p>
             )}
           </div>
 
-          {/* Confirm Password */}
           <div className="space-y-1.5">
-            <Label
-              htmlFor="confirmPassword"
-              className="text-label-md text-on-surface-variant"
-            >
-              Confirm Password
-            </Label>
+            <Label htmlFor="confirmPassword">Confirm Password</Label>
             <div className="relative">
               <Input
                 id="confirmPassword"
@@ -210,15 +173,11 @@ export default function RegisterPage() {
                 placeholder="••••••••"
                 autoComplete="new-password"
                 {...register("confirmPassword")}
-                className="bg-surface-container-low border-outline focus:border-primary focus:ring-2 focus:ring-primary/20 pr-10"
-                aria-describedby={
-                  errors.confirmPassword ? "confirmPassword-error" : undefined
-                }
               />
               <button
                 type="button"
-                onClick={() => setShowConfirmPassword((prev) => !prev)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary transition-colors"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary"
                 aria-label={
                   showConfirmPassword ? "Hide password" : "Show password"
                 }
@@ -231,19 +190,15 @@ export default function RegisterPage() {
               </button>
             </div>
             {errors.confirmPassword && (
-              <p
-                id="confirmPassword-error"
-                className="text-label-sm text-error mt-1"
-              >
+              <p className="text-label-sm text-error mt-1">
                 {errors.confirmPassword.message}
               </p>
             )}
           </div>
 
-          {/* Submit Button */}
           <Button
             type="submit"
-            className="w-full bg-primary-container text-on-primary-container hover:bg-primary hover:text-white transition-all shadow-sm"
+            className="w-full bg-primary-container text-on-primary-container hover:bg-primary hover:text-white"
             disabled={registerMutation.isPending}
           >
             {registerMutation.isPending ? (
@@ -267,7 +222,7 @@ export default function RegisterPage() {
           Already have an account?{" "}
           <Link
             href={ROUTES.LOGIN}
-            className="text-primary font-semibold hover:underline focus:outline-none focus:ring-2 focus:ring-primary/20 rounded-sm"
+            className="text-primary font-semibold hover:underline"
           >
             Sign In
           </Link>

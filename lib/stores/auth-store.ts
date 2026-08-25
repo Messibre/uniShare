@@ -8,6 +8,7 @@ interface User {
   role: "STUDENT" | "ADMIN";
   isIdVerified: boolean;
   phone?: string;
+  createdAt?: string;
 }
 
 interface AuthState {

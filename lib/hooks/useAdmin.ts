@@ -173,3 +173,29 @@ export function useCreatePlatformItem() {
     },
   });
 }
+export function useAdminDeleteUser() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (userId: string) => {
+      await apiClient(`/admin/users/${userId}`, { method: "DELETE" });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: adminKeys.users() });
+      queryClient.invalidateQueries({ queryKey: adminKeys.stats() });
+    },
+  });
+}
+
+export function useAdminDeleteItem() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (itemId: string) => {
+      await apiClient(`/admin/items/${itemId}`, { method: "DELETE" });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: adminKeys.stats() });
+      // Invalidate both admin items and public items
+      queryClient.invalidateQueries({ queryKey: ["items", "list"] });
+    },
+  });
+}

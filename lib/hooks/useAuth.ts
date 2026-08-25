@@ -182,3 +182,20 @@ export function useDeleteAccount() {
     },
   });
 }
+export function useChangePassword() {
+  return useMutation({
+    mutationFn: async ({
+      currentPassword,
+      newPassword,
+    }: {
+      currentPassword: string;
+      newPassword: string;
+    }) => {
+      const response = await apiClient<{ message: string }>("/auth/password", {
+        method: "PATCH",
+        body: { currentPassword, newPassword },
+      });
+      return response;
+    },
+  });
+}

@@ -3,20 +3,21 @@ import type { NextRequest } from "next/server";
 import { verifyAccessTokenEdge } from "@/lib/auth-edge";
 import { rateLimit } from "@/lib/rate-limit";
 import { createRequestLogger } from "@/lib/logger";
-import { ipAddress } from "@vercel/functions";
 
-// Public routes
 const PUBLIC_ROUTES = [
   "/login",
   "/register",
-  "/api/v1/auth/(.*)",
-  "/api/payments/webhook",
-  "/api/health",
+  "/api/v1/auth/(.*)", // All auth routes
+  "/api/payments/webhook", // Chapa webhook
+  "/api/health", // Health check (unversioned)
 ];
+
+// Routes where GET is public, but other methods are protected
 const PUBLIC_GET_ROUTES = ["/api/v1/items"];
 
 export const config = {
   matcher: [
+    // Apply to all routes except static files
     "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
     "/api/admin/:path*",
   ],
@@ -27,13 +28,8 @@ export async function proxy(request: NextRequest) {
   const method = request.method;
   const logger = createRequestLogger(request);
 
-  const ip = ipAddress(request) || "anonymous";
-
-  // ---- 1. LOGGING ----
   logger.info({ type: "request_start" }, `Incoming ${method} ${path}`);
 
-  // ---- 2. RATE LIMITING ----
-  // Apply rate limiting only to API routes
   if (path.startsWith("/api/")) {
     const { success, limit, remaining, reset, headers } =
       await rateLimit(request);
@@ -51,13 +47,11 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  // ---- 3. AUTH CHECKS ----
-  // Public routes
   if (PUBLIC_ROUTES.some((route) => new RegExp(`^${route}$`).test(path))) {
     return NextResponse.next();
   }
 
-  // GET /api/v1/items is public
+  // Allow GET /api/v1/items (public browse)
   if (
     PUBLIC_GET_ROUTES.some((route) => path.startsWith(route)) &&
     method === "GET"
@@ -65,8 +59,8 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Authenticated routes
   const accessToken = request.cookies.get("accessToken")?.value;
+
   if (!accessToken) {
     logger.warn({ type: "auth_failed" }, `Missing token for ${path}`);
     return handleUnauthorized(request);
@@ -74,6 +68,8 @@ export async function proxy(request: NextRequest) {
 
   try {
     const payload = await verifyAccessTokenEdge(accessToken);
+
+    // Attach user info to headers for route handlers
     const requestHeaders = new Headers(request.headers);
     requestHeaders.set("x-user-id", payload.userId);
     requestHeaders.set("x-user-role", payload.role);
@@ -82,7 +78,11 @@ export async function proxy(request: NextRequest) {
       { type: "auth_success", userId: payload.userId },
       `Authenticated ${path}`,
     );
-    return NextResponse.next({ request: { headers: requestHeaders } });
+    return NextResponse.next({
+      request: {
+        headers: requestHeaders,
+      },
+    });
   } catch (error) {
     logger.error(
       { type: "auth_error", error: String(error) },
@@ -99,6 +99,7 @@ function handleUnauthorized(request: NextRequest) {
       { status: 401 },
     );
   }
+
   const loginUrl = new URL("/login", request.url);
   loginUrl.searchParams.set("redirect", request.nextUrl.pathname);
   return NextResponse.redirect(loginUrl);

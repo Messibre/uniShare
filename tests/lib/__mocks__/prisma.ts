@@ -45,6 +45,8 @@ export const prismaMock = {
     update: vi.fn(),
     create: vi.fn(),
   },
+  $transaction: vi.fn(),
+  $queryRaw: vi.fn(),
 };
 
 export default prismaMock;

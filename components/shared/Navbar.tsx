@@ -20,11 +20,10 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ROUTES } from "@/lib/utils/constants";
 import { getInitials } from "@/lib/utils/format";
 
@@ -117,16 +116,15 @@ export function Navbar() {
                 }
               />
               <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel className="font-normal">
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none text-on-surface">
-                      {user.fullName}
-                    </p>
-                    <p className="text-xs leading-none text-on-surface-variant">
-                      {user.email}
-                    </p>
-                  </div>
-                </DropdownMenuLabel>
+                {/* ✅ FIX: Use plain div for user info, not DropdownMenuLabel */}
+                <div className="px-2 py-1.5">
+                  <p className="text-sm font-medium leading-none text-on-surface">
+                    {user.fullName}
+                  </p>
+                  <p className="text-xs leading-none text-on-surface-variant mt-1">
+                    {user.email}
+                  </p>
+                </div>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   render={
@@ -173,7 +171,7 @@ export function Navbar() {
       </div>
 
       {/* Mobile Bottom Navigation */}
-      <div className="lg:hidden fixed bottom-0 left-0 w-full z-50 bg-surface border-t border-outline-variant flex justify-around items-center px-md h-16 shadow-[0_-1px_3px_0_rgba(0,0,0,0.1)]">
+      <div className="lg:hidden fixed top-0 left-0 w-full z-50 bg-surface border-t border-outline-variant flex justify-around items-center px-md h-16 shadow-[0_-1px_3px_0_rgba(0,0,0,0.1)]">
         {navLinks.map(({ href, label, icon: Icon }) => {
           const isActive = pathname === href || pathname.startsWith(href + "/");
           return (

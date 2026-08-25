@@ -15,6 +15,8 @@ interface Rental {
   id: string;
   status: string;
   totalPrice: number;
+  startDate: string;
+  endDate: string;
   item: { id: string; name: string; owner: { id: string; fullName: string } };
   renter: { id: string; fullName: string; email: string };
   owner: { id: string; fullName: string; email: string };

@@ -1,23 +1,25 @@
-"use client";
-
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useAuthStore } from "@/lib/stores/auth-store";
+import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
+import { verifyAccessToken } from "@/lib/auth";
 import { ROUTES } from "@/lib/utils/constants";
+import { HeroPage } from "@/components/hero/HeroPage";
 
-export default function RootPage() {
-  const router = useRouter();
-  const { isAuthenticated, isLoading } = useAuthStore();
+export default async function RootPage() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("accessToken")?.value;
 
-  useEffect(() => {
-    if (!isLoading) {
-      router.replace(isAuthenticated ? ROUTES.DASHBOARD : ROUTES.LOGIN);
+  if (token) {
+    try {
+      const payload = verifyAccessToken(token);
+      if (payload) {
+        redirect(ROUTES.DASHBOARD);
+      }
+    } catch (error) {
+      console.warn("Token validation failed on root page:", {
+        error: error instanceof Error ? error.message : error,
+      });
     }
-  }, [isAuthenticated, isLoading, router]);
+  }
 
-  return (
-    <div className="flex min-h-screen items-center justify-center">
-      <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-    </div>
-  );
+  return <HeroPage />;
 }

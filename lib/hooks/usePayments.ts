@@ -18,25 +18,6 @@ export const paymentKeys = {
   detail: (txRef: string) => [...paymentKeys.details(), txRef] as const,
 };
 
-export function useInitializePayment() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (rentalId: string) => {
-      const response = await apiClient<InitializePaymentResponse>(
-        "/payments/initialize",
-        {
-          method: "POST",
-          body: { rentalId },
-        },
-      );
-      return response;
-    },
-
-    onSuccess: (data, rentalId) => {},
-  });
-}
-
 export function useVerifyPayment(txRef: string) {
   return useQuery({
     queryKey: paymentKeys.detail(txRef),
@@ -49,5 +30,19 @@ export function useVerifyPayment(txRef: string) {
     enabled: !!txRef,
     retry: 3,
     staleTime: 30 * 1000,
+  });
+}
+export function useInitializePayment() {
+  return useMutation({
+    mutationFn: async (rentalId: string) => {
+      const response = await apiClient<{ checkout_url: string }>(
+        "/payments/initialize",
+        {
+          method: "POST",
+          body: { rentalId },
+        },
+      );
+      return response;
+    },
   });
 }

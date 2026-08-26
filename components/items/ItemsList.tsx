@@ -1,13 +1,25 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import { useItems } from "@/lib/hooks/useItems";
 import { ITEM_CATEGORIES } from "@/lib/utils/constants";
 import { formatCurrency } from "@/lib/utils/format";
-import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 
-export function ItemsList() {
+interface ItemsListProps {
+  initialData: {
+    items: any[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+    };
+  };
+}
+
+export function ItemsList({ initialData }: ItemsListProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -15,13 +27,17 @@ export function ItemsList() {
   const search = searchParams.get("search") || "";
   const category = searchParams.get("category") || "";
 
-  const { data } = useItems({
-    search: search || undefined,
-    category: category || undefined,
-    page,
-    limit: 12,
-    available: true,
-  });
+  // Use the hook with initialData (server‑fetched data)
+  const { data } = useItems(
+    {
+      search: search || undefined,
+      category: category || undefined,
+      page,
+      limit: 12,
+      available: true,
+    },
+    { initialData }, // Pre‑fills the cache, SEO safe
+  );
 
   const items = data?.items || [];
   const pagination = data?.pagination;
@@ -69,7 +85,7 @@ export function ItemsList() {
         </select>
       </div>
 
-      {/* Results count */}
+      {/* Result count */}
       <div className="flex justify-between items-center">
         <span className="text-body-sm text-on-surface-variant">
           {pagination?.total || 0} items

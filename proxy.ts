@@ -18,7 +18,7 @@ const PUBLIC_GET_ROUTES = ["/api/v1/items"];
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$|opengraph-image|twitter-image|sitemap|robots).*)",
     "/api/admin/:path*",
   ],
 };

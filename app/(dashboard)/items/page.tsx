@@ -1,8 +1,20 @@
 import { Suspense } from "react";
-import { ItemsList } from "@/components/items/ItemsList";
 import ItemsLoading from "./loading";
+import { ItemsList } from "@/components/items/ItemsList";
 
-export default function ItemsPage() {
+// Server-side data fetching (SEO friendly)
+async function getInitialItems() {
+  const baseUrl = process.env.APP_BASE_URL || "http://localhost:3000";
+  const res = await fetch(`${baseUrl}/api/v1/items?limit=12`, {
+    cache: "no-store", // For dynamic content; use "force-cache" if static
+  });
+  if (!res.ok) throw new Error("Failed to fetch items");
+  return res.json();
+}
+
+export default async function ItemsPage() {
+  const initialData = await getInitialItems();
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4">
@@ -13,7 +25,7 @@ export default function ItemsPage() {
       </div>
 
       <Suspense fallback={<ItemsLoading />}>
-        <ItemsList />
+        <ItemsList initialData={initialData} />
       </Suspense>
     </div>
   );

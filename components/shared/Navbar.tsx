@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -10,12 +11,16 @@ import {
   Settings,
   LayoutDashboard,
   Home,
+  Menu,
+  X,
+  Shield,
 } from "lucide-react";
 import { useAuthStore } from "@/lib/stores/auth-store";
 import { useLogout } from "@/lib/hooks/useAuth";
 import { ThemeToggle } from "./ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,7 +28,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { ROUTES } from "@/lib/utils/constants";
 import { getInitials } from "@/lib/utils/format";
 
@@ -32,6 +42,7 @@ export function Navbar() {
   const router = useRouter();
   const { user, isAuthenticated } = useAuthStore();
   const { mutate: logout } = useLogout();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -39,13 +50,21 @@ export function Navbar() {
   };
 
   const navLinks = [
-    { href: ROUTES.ITEMS, label: "Browse", icon: Home },
-    { href: ROUTES.DASHBOARD, label: "Dashboard", icon: LayoutDashboard },
+    { href: ROUTES.ITEMS, label: "Browse", icon: Home, public: true },
+    {
+      href: ROUTES.DASHBOARD,
+      label: "Dashboard",
+      icon: LayoutDashboard,
+      public: false, // Only shown when authenticated
+    },
   ];
+
+  const isActive = (path: string) =>
+    pathname === path || pathname.startsWith(path + "/");
 
   return (
     <header className="sticky top-0 z-50 w-full bg-surface border-b border-outline-variant shadow-[--shadow-level-1] dark:shadow-none">
-      <div className="container max-w-[--spacing-container-max] mx-auto px-md lg:px-lg h-16 flex items-center justify-between">
+      <div className="container max-w-[--spacing-container-max] mx-auto px-4 lg:px-6 h-16 flex items-center justify-between">
         {/* Logo */}
         <Link
           href={ROUTES.HOME}
@@ -56,45 +75,41 @@ export function Navbar() {
 
         {/* Desktop Navigation */}
         <nav className="hidden lg:flex items-center gap-6">
-          {navLinks.map(({ href, label, icon: Icon }) => (
+          {navLinks.map(({ href, label, icon: Icon, public: isPublic }) => {
+            if (!isPublic && !isAuthenticated) return null;
+            return (
+              <Link
+                key={href}
+                href={href}
+                className={`flex items-center gap-1.5 text-label-md font-medium transition-colors hover:text-primary ${
+                  isActive(href)
+                    ? "text-primary border-b-2 border-primary pb-1"
+                    : "text-on-surface-variant"
+                }`}
+              >
+                <Icon className="h-4 w-4" />
+                {label}
+              </Link>
+            );
+          })}
+          {/* Admin link – only for admins */}
+          {isAuthenticated && user?.role === "ADMIN" && (
             <Link
-              key={href}
-              href={href}
+              href="/admin"
               className={`flex items-center gap-1.5 text-label-md font-medium transition-colors hover:text-primary ${
-                pathname === href || pathname.startsWith(href + "/")
+                isActive("/admin")
                   ? "text-primary border-b-2 border-primary pb-1"
                   : "text-on-surface-variant"
               }`}
             >
-              <Icon className="h-4 w-4" />
-              {label}
+              <Shield className="h-4 w-4" />
+              Admin
             </Link>
-          ))}
+          )}
         </nav>
-
-        {/* Search Bar (Desktop) */}
-        <div className="hidden lg:flex flex-1 max-w-md mx-6 relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-on-surface-variant" />
-          <Input
-            type="text"
-            placeholder="Search items..."
-            className="pl-10 bg-surface-container-low border-outline rounded-full h-9 text-body-sm focus:ring-primary focus:border-primary"
-          />
-        </div>
 
         {/* Right Actions */}
         <div className="flex items-center gap-2">
-          {/* Add Item */}
-          {isAuthenticated && (
-            <Link
-              href={ROUTES.CREATE_ITEM}
-              className="hidden lg:inline-flex items-center gap-1 bg-primary-container text-on-primary-container hover:bg-primary hover:text-white px-4 py-2 rounded-md text-label-md font-medium transition-colors shadow-sm"
-            >
-              <Plus className="h-4 w-4" />
-              Add Item
-            </Link>
-          )}
-
           {/* Theme Toggle */}
           <ThemeToggle />
 
@@ -116,7 +131,6 @@ export function Navbar() {
                 }
               />
               <DropdownMenuContent align="end" className="w-56">
-                {/* ✅ FIX: Use plain div for user info, not DropdownMenuLabel */}
                 <div className="px-2 py-1.5">
                   <p className="text-sm font-medium leading-none text-on-surface">
                     {user.fullName}
@@ -146,6 +160,18 @@ export function Navbar() {
                     </Link>
                   }
                 />
+                {user.role === "ADMIN" && (
+                  <DropdownMenuItem
+                    render={
+                      <Link
+                        href="/admin"
+                        className="flex w-full items-center gap-2 cursor-pointer"
+                      >
+                        <Shield className="h-4 w-4" /> Admin Dashboard
+                      </Link>
+                    }
+                  />
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   render={
@@ -167,50 +193,139 @@ export function Navbar() {
               Sign In
             </Link>
           )}
+
+          {/* Mobile Menu Trigger */}
+          <button
+            className="lg:hidden p-2 text-on-surface-variant hover:text-primary"
+            onClick={() => setIsMobileMenuOpen(true)}
+          >
+            <Menu className="h-6 w-6" />
+          </button>
         </div>
       </div>
 
-      {/* Mobile Bottom Navigation */}
-      <div className="lg:hidden fixed top-0 left-0 w-full z-50 bg-surface border-t border-outline-variant flex justify-around items-center px-md h-16 shadow-[0_-1px_3px_0_rgba(0,0,0,0.1)]">
-        {navLinks.map(({ href, label, icon: Icon }) => {
-          const isActive = pathname === href || pathname.startsWith(href + "/");
-          return (
-            <Link
-              key={href}
-              href={href}
-              className={`flex flex-col items-center gap-0.5 text-label-sm font-medium transition-colors py-1 px-4 rounded-full ${
-                isActive
-                  ? "bg-primary-container text-on-primary-container scale-95 shadow-sm"
-                  : "text-on-surface-variant hover:text-primary"
-              }`}
-            >
-              <Icon className={`h-5 w-5 ${isActive ? "fill-current" : ""}`} />
-              <span>{label}</span>
-            </Link>
-          );
-        })}
-        {/* Mobile Add Item FAB */}
-        {isAuthenticated && (
-          <Link
-            href={ROUTES.CREATE_ITEM}
-            className="flex flex-col items-center gap-0.5 text-label-sm font-medium text-on-surface-variant hover:text-primary transition-colors py-1 px-4"
-          >
-            <Plus className="h-5 w-5" />
-            <span>Add</span>
-          </Link>
-        )}
-        <Link
-          href={isAuthenticated ? ROUTES.PROFILE : ROUTES.LOGIN}
-          className={`flex flex-col items-center gap-0.5 text-label-sm font-medium transition-colors py-1 px-4 rounded-full ${
-            pathname === ROUTES.PROFILE || pathname === ROUTES.LOGIN
-              ? "bg-primary-container text-on-primary-container scale-95 shadow-sm"
-              : "text-on-surface-variant hover:text-primary"
-          }`}
+      {/* Mobile Hamburger Sidebar */}
+      <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+        <SheetContent
+          side="right"
+          className="w-72 bg-surface border-l border-outline-variant"
         >
-          <User className="h-5 w-5" />
-          <span>{isAuthenticated ? "Profile" : "Sign In"}</span>
-        </Link>
-      </div>
+          <SheetHeader className="border-b border-outline-variant pb-4 mb-4">
+            <SheetTitle className="text-h3 font-h3 text-primary">
+              UniShare
+            </SheetTitle>
+          </SheetHeader>
+
+          <div className="flex flex-col gap-1">
+            {/* Home */}
+            <Link
+              href={ROUTES.HOME}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-body-md font-medium transition-colors ${
+                pathname === "/"
+                  ? "bg-primary-container/10 text-primary"
+                  : "text-on-surface hover:bg-surface-container"
+              }`}
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              <Home className="h-5 w-5" />
+              Home
+            </Link>
+
+            {/* Browse */}
+            <Link
+              href={ROUTES.ITEMS}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-body-md font-medium transition-colors ${
+                pathname === "/items" || pathname.startsWith("/items/")
+                  ? "bg-primary-container/10 text-primary"
+                  : "text-on-surface hover:bg-surface-container"
+              }`}
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              <Search className="h-5 w-5" />
+              Browse
+            </Link>
+
+            {/* Dashboard – only for logged in */}
+            {isAuthenticated && (
+              <Link
+                href={ROUTES.DASHBOARD}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-body-md font-medium transition-colors ${
+                  pathname === "/dashboard"
+                    ? "bg-primary-container/10 text-primary"
+                    : "text-on-surface hover:bg-surface-container"
+                }`}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <LayoutDashboard className="h-5 w-5" />
+                Dashboard
+              </Link>
+            )}
+
+            {/* Admin – only for admins */}
+            {isAuthenticated && user?.role === "ADMIN" && (
+              <Link
+                href="/admin"
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-body-md font-medium transition-colors ${
+                  pathname === "/admin" || pathname.startsWith("/admin/")
+                    ? "bg-primary-container/10 text-primary"
+                    : "text-on-surface hover:bg-surface-container"
+                }`}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <Shield className="h-5 w-5" />
+                Admin
+              </Link>
+            )}
+
+            <div className="border-t border-outline-variant my-2 pt-2">
+              {isAuthenticated ? (
+                <>
+                  <Link
+                    href={ROUTES.PROFILE}
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-md text-body-md font-medium text-on-surface hover:bg-surface-container transition-colors"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <User className="h-5 w-5" />
+                    Profile
+                  </Link>
+                  <Link
+                    href={ROUTES.SETTINGS}
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-md text-body-md font-medium text-on-surface hover:bg-surface-container transition-colors"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <Settings className="h-5 w-5" />
+                    Settings
+                  </Link>
+                  <button
+                    onClick={() => {
+                      handleLogout();
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="flex w-full items-center gap-3 px-3 py-2.5 rounded-md text-body-md font-medium text-error hover:bg-error/10 transition-colors"
+                  >
+                    <LogOut className="h-5 w-5" />
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <Link
+                  href={ROUTES.LOGIN}
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-md text-body-md font-medium text-primary hover:bg-primary-container/10 transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <User className="h-5 w-5" />
+                  Sign In
+                </Link>
+              )}
+            </div>
+
+            {/* Theme Toggle in mobile */}
+            <div className="border-t border-outline-variant mt-2 pt-2 px-3">
+              <ThemeToggle />
+            </div>
+          </div>
+        </SheetContent>
+      </Sheet>
     </header>
   );
 }

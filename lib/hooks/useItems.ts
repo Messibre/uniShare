@@ -56,15 +56,18 @@ export const itemKeys = {
   detail: (id: string) => [...itemKeys.details(), id] as const,
 };
 
-export function useItems(filters?: {
-  search?: string;
-  category?: string;
-  minPrice?: number;
-  maxPrice?: number;
-  available?: boolean;
-  page?: number;
-  limit?: number;
-}) {
+export function useItems(
+  filters?: {
+    search?: string;
+    category?: string;
+    minPrice?: number;
+    maxPrice?: number;
+    available?: boolean;
+    page?: number;
+    limit?: number;
+  },
+  options?: { initialData?: PaginatedItemsResponse },
+) {
   return useQuery({
     queryKey: itemKeys.list(filters || {}),
     queryFn: async () => {
@@ -73,6 +76,7 @@ export function useItems(filters?: {
       });
       return response;
     },
+    initialData: options?.initialData,
     staleTime: 60 * 1000,
   });
 }

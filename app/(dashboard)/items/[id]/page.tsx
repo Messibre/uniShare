@@ -65,13 +65,8 @@ export default function ItemDetailPage() {
 
   const handleRent = async () => {
     if (!isAuthenticated) {
-      toast.error("Please sign in to rent items", {
-        description: "You'll be redirected to the login page.",
-        action: {
-          label: "Sign In",
-          onClick: () => router.push(ROUTES.LOGIN),
-        },
-      });
+      const redirectUrl = `/login?redirect=${encodeURIComponent(`/items/${id}`)}`;
+      router.push(redirectUrl);
       return;
     }
 

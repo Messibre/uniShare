@@ -4,24 +4,49 @@ import { verifyAccessTokenEdge } from "@/lib/auth-edge";
 import { rateLimit } from "@/lib/rate-limit";
 import { createRequestLogger } from "@/lib/logger";
 
-const PUBLIC_ROUTES = [
-  "/login",
-  "/register",
-  "/api/v1/auth/(.*)", // All auth routes
-  "/api/payments/webhook", // Chapa webhook
-  "/api/health", // Health check (unversioned)
+const PUBLIC_ROUTES_EXACT = ["/", "/items", "/login", "/register"];
+
+// Public API routes (with regex support)
+const PUBLIC_ROUTES_REGEX = [
+  "/api/v1/auth/(.*)",
+  "/api/payments/webhook",
+  "/api/health",
 ];
 
-// Routes where GET is public, but other methods are protected
+// Routes where GET is public, but other methods are protected (API only)
 const PUBLIC_GET_ROUTES = ["/api/v1/items"];
 
 export const config = {
   matcher: [
-    // Apply to all routes except static files
     "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
     "/api/admin/:path*",
   ],
 };
+
+/**
+ * Check if a path is publicly accessible (no authentication required)
+ */
+function isPublicPath(path: string): boolean {
+  if (PUBLIC_ROUTES_EXACT.includes(path)) {
+    return true;
+  }
+
+  for (const pattern of PUBLIC_ROUTES_REGEX) {
+    if (new RegExp(`^${pattern}$`).test(path)) {
+      return true;
+    }
+  }
+
+  if (path.startsWith("/items/")) {
+    const rest = path.replace("/items/", "");
+    if (rest === "create" || rest.startsWith("edit")) {
+      return false;
+    }
+    return true;
+  }
+
+  return false;
+}
 
 export async function proxy(request: NextRequest) {
   const path = request.nextUrl.pathname;
@@ -31,10 +56,7 @@ export async function proxy(request: NextRequest) {
   logger.info({ type: "request_start" }, `Incoming ${method} ${path}`);
 
   if (path.startsWith("/api/")) {
-    const { success, limit, remaining, reset, headers } =
-      await rateLimit(request);
-
-    // If rate limit exceeded, return 429
+    const { success, headers } = await rateLimit(request);
     if (!success) {
       logger.warn(
         { type: "rate_limit_exceeded" },
@@ -47,11 +69,10 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  if (PUBLIC_ROUTES.some((route) => new RegExp(`^${route}$`).test(path))) {
+  if (isPublicPath(path)) {
     return NextResponse.next();
   }
 
-  // Allow GET /api/v1/items (public browse)
   if (
     PUBLIC_GET_ROUTES.some((route) => path.startsWith(route)) &&
     method === "GET"
@@ -69,7 +90,6 @@ export async function proxy(request: NextRequest) {
   try {
     const payload = await verifyAccessTokenEdge(accessToken);
 
-    // Attach user info to headers for route handlers
     const requestHeaders = new Headers(request.headers);
     requestHeaders.set("x-user-id", payload.userId);
     requestHeaders.set("x-user-role", payload.role);

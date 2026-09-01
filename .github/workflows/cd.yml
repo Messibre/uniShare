@@ -39,6 +39,9 @@ jobs:
           JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
           APP_BASE_URL: ${{ secrets.APP_BASE_URL }}
           CHAPA_SECRET_KEY: ${{ secrets.CHAPA_SECRET_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY}}
+          CLOUDINARY_URL: ${{ secrets.CLOUDINARY_URL}}
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN}}
 
       - name: Deploy to Vercel (Production)
         uses: amondnet/vercel-action@v20

@@ -25,11 +25,11 @@ jobs:
       - name: Generate Prisma client
         run: npx prisma generate
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://dummy:password@localhost:5432/dummy' }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
           JWT_ACCESS_SECRET: ${{ secrets.JWT_ACCESS_SECRET }}
-          JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET  }}
-          APP_BASE_URL: ${{ secrets.APP_BASE_URL  }}
-          CHAPA_SECRET_KEY: ${{ secrets.CHAPA_SECRET_KEY  }}
+          JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
+          APP_BASE_URL: ${{ secrets.APP_BASE_URL }}
+          CHAPA_SECRET_KEY: ${{ secrets.CHAPA_SECRET_KEY }}
 
       - name: Build the app
         run: npm run build
@@ -39,6 +39,14 @@ jobs:
           JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
           APP_BASE_URL: ${{ secrets.APP_BASE_URL }}
           CHAPA_SECRET_KEY: ${{ secrets.CHAPA_SECRET_KEY }}
+          CHAPA_BASE_URL: ${{ secrets.CHAPA_BASE_URL }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+          CLOUDINARY_URL: ${{ secrets.CLOUDINARY_URL }}
+          UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
+          NEXT_PUBLIC_APP_BASE_URL: ${{ secrets.NEXT_PUBLIC_APP_BASE_URL }}
+          LOG_LEVEL: ${{ secrets.LOG_LEVEL || 'info' }}
 
       - name: Deploy to Vercel (Production)
         uses: amondnet/vercel-action@v20

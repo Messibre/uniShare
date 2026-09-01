@@ -26,6 +26,10 @@ jobs:
         run: npx prisma generate
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://dummy:password@localhost:5432/dummy' }}
+          JWT_ACCESS_SECRET: ${{ secrets.JWT_ACCESS_SECRET }}
+          JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET  }}
+          APP_BASE_URL: ${{ secrets.APP_BASE_URL  }}
+          CHAPA_SECRET_KEY: ${{ secrets.CHAPA_SECRET_KEY  }}
 
       - name: Build the app
         run: npm run build

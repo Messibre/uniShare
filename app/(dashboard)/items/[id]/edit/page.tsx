@@ -133,14 +133,20 @@ export default function EditItemPage() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-h2 font-h2 text-on-surface">Edit Item</h1>
-        <p className="text-body-sm text-on-surface-variant">
+      <div className="space-y-2">
+        <span className="inline-flex w-fit items-center gap-2 rounded-full border border-outline-variant bg-surface-container-low px-3 py-1 text-label-sm font-medium text-on-surface-variant">
+          Edit listing
+        </span>
+        <h1 className="text-h2 font-semibold text-on-surface">Edit Item</h1>
+        <p className="text-body-md text-on-surface-variant">
           Update your listing details.
         </p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="space-y-4 rounded-2xl border border-outline-variant bg-surface-container-lowest p-6 shadow-[var(--shadow-level-1)]"
+      >
         {/* Name */}
         <div className="space-y-1.5">
           <Label htmlFor="name">Item Name</Label>

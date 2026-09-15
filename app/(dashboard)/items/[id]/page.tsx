@@ -193,7 +193,7 @@ export default function ItemDetailPage() {
         {/* Left Column: Image & Details */}
         <div className="lg:col-span-2 space-y-6">
           {/* Image */}
-          <div className="relative aspect-square lg:aspect-[4/3] rounded-xl overflow-hidden bg-surface-container-high">
+          <div className="relative aspect-square lg:aspect-[4/3] rounded-2xl overflow-hidden bg-surface-container-high border border-outline-variant">
             {item.imageUrl ? (
               <img
                 src={item.imageUrl}
@@ -254,7 +254,7 @@ export default function ItemDetailPage() {
               {item.description || "No description provided."}
             </p>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-6 p-4 rounded-xl bg-surface-container-low">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-6 p-4 rounded-2xl bg-surface-container-low border border-outline-variant">
               <div>
                 <p className="text-label-sm text-on-surface-variant">
                   Category
@@ -283,7 +283,7 @@ export default function ItemDetailPage() {
           </div>
 
           {/* Owner Info */}
-          <Card className="bg-surface-container-low border-outline-variant">
+          <Card className="bg-surface-container-low border-outline-variant rounded-2xl">
             <CardContent className="p-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant">
@@ -314,7 +314,7 @@ export default function ItemDetailPage() {
 
         {/* Right Column: Booking Card */}
         <div className="lg:col-span-1">
-          <Card className="sticky top-24 bg-surface-container-lowest border-outline-variant shadow-[--shadow-level-2]">
+          <Card className="sticky top-24 bg-surface-container-lowest border-outline-variant rounded-2xl shadow-[var(--shadow-level-2)]">
             <CardContent className="p-6 space-y-4">
               <div className="text-center border-b border-outline-variant pb-4">
                 <span className="text-h3 font-h3 text-primary">

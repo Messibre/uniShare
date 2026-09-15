@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Package } from "lucide-react";
 import { toast } from "sonner";
 
 const STATUS_COLORS: Record<string, string> = {
@@ -114,7 +115,14 @@ export default function RentalDetailPage() {
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-h2 font-h2 text-on-surface">Rental Details</h1>
+        <div className="space-y-2">
+          <span className="inline-flex w-fit items-center gap-2 rounded-full border border-outline-variant bg-surface-container-low px-3 py-1 text-label-sm font-medium text-on-surface-variant">
+            Rental
+          </span>
+          <h1 className="text-h2 font-semibold text-on-surface">
+            Rental Details
+          </h1>
+        </div>
         <Badge
           className={
             STATUS_COLORS[rental.status] || "bg-gray-500/15 text-gray-600"
@@ -125,10 +133,10 @@ export default function RentalDetailPage() {
       </div>
 
       {/* Item Info */}
-      <Card className="bg-surface border-outline-variant">
+      <Card className="bg-surface border-outline-variant rounded-2xl shadow-[var(--shadow-level-1)]">
         <CardContent className="p-6 space-y-4">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-lg bg-surface-container-high overflow-hidden">
+            <div className="w-16 h-16 rounded-xl bg-surface-container-high overflow-hidden border border-outline-variant">
               {rental.item?.imageUrl ? (
                 <img
                   src={rental.item.imageUrl}
@@ -137,7 +145,7 @@ export default function RentalDetailPage() {
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-on-surface-variant">
-                  📦
+                  <Package className="h-6 w-6" aria-hidden="true" />
                 </div>
               )}
             </div>
@@ -157,7 +165,7 @@ export default function RentalDetailPage() {
       </Card>
 
       {/* Rental Info */}
-      <Card className="bg-surface border-outline-variant">
+      <Card className="bg-surface border-outline-variant rounded-2xl shadow-[var(--shadow-level-1)]">
         <CardContent className="p-6 space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -223,9 +231,11 @@ export default function RentalDetailPage() {
 
       {/* Status Timeline */}
       {rental.statusLogs && rental.statusLogs.length > 0 && (
-        <Card className="bg-surface border-outline-variant">
+        <Card className="bg-surface border-outline-variant rounded-2xl shadow-[var(--shadow-level-1)]">
           <CardContent className="p-6">
-            <h3 className="text-h3 font-h3 text-on-surface mb-4">Timeline</h3>
+            <h3 className="text-h3 font-semibold text-on-surface mb-4">
+              Timeline
+            </h3>
             <div className="space-y-3">
               {rental.statusLogs.map((log, index) => (
                 <div key={log.id} className="flex items-start gap-3">

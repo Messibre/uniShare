@@ -67,9 +67,14 @@ export default function ResetPasswordPage() {
 
   return (
     <GuestRoute>
-      <div className="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-[--shadow-level-1] p-6 lg:p-8 space-y-6">
-        <div className="text-center space-y-1">
-          <h1 className="text-h2 font-h2 text-primary">Set New Password</h1>
+      <div className="bg-surface-container-lowest border border-outline-variant rounded-2xl shadow-[var(--shadow-level-1)] p-6 lg:p-8 space-y-6">
+        <div className="space-y-2">
+          <span className="inline-flex items-center gap-2 rounded-full border border-outline-variant bg-surface-container-low px-3 py-1 text-label-sm font-medium text-on-surface-variant">
+            Account recovery
+          </span>
+          <h1 className="text-h2 font-semibold text-on-surface">
+            Set a new password
+          </h1>
           <p className="text-body-sm text-on-surface-variant">
             Enter your new password below.
           </p>

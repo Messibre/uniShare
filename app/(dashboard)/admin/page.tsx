@@ -95,7 +95,7 @@ export default function AdminPage() {
         deposit: platformItem.deposit ? parseFloat(platformItem.deposit) : 0,
         imageUrl: platformItem.imageUrl,
       });
-      toast.success("✅ Platform item created successfully!");
+      toast.success("Platform item created successfully!");
       setPlatformItem({
         name: "",
         description: "",
@@ -111,7 +111,14 @@ export default function AdminPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-h2 font-h2 text-on-surface">Admin Dashboard</h1>
+      <div className="space-y-2">
+        <span className="inline-flex items-center gap-2 rounded-full border border-outline-variant bg-surface-container-low px-3 py-1 text-label-sm font-medium text-on-surface-variant">
+          Administrator
+        </span>
+        <h1 className="text-h2 font-semibold text-on-surface">
+          Admin Dashboard
+        </h1>
+      </div>
 
       <Tabs defaultValue="stats" className="w-full">
         <TabsList className="bg-surface-container-low">
@@ -131,42 +138,42 @@ export default function AdminPage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <Card className="bg-surface border-outline-variant">
-                <CardContent className="p-4">
+              <Card className="bg-surface border-outline-variant rounded-2xl transition-shadow hover:shadow-[var(--shadow-level-1)]">
+                <CardContent className="p-5">
                   <p className="text-label-sm text-on-surface-variant">
                     Total Users
                   </p>
-                  <p className="text-h2 font-h2 text-on-surface">
+                  <p className="mt-1 text-h2 font-semibold text-on-surface">
                     {stats?.totalUsers || 0}
                   </p>
                 </CardContent>
               </Card>
-              <Card className="bg-surface border-outline-variant">
-                <CardContent className="p-4">
+              <Card className="bg-surface border-outline-variant rounded-2xl transition-shadow hover:shadow-[var(--shadow-level-1)]">
+                <CardContent className="p-5">
                   <p className="text-label-sm text-on-surface-variant">
                     Total Rentals
                   </p>
-                  <p className="text-h2 font-h2 text-on-surface">
+                  <p className="mt-1 text-h2 font-semibold text-on-surface">
                     {stats?.totalRentals || 0}
                   </p>
                 </CardContent>
               </Card>
-              <Card className="bg-surface border-outline-variant">
-                <CardContent className="p-4">
+              <Card className="bg-surface border-outline-variant rounded-2xl transition-shadow hover:shadow-[var(--shadow-level-1)]">
+                <CardContent className="p-5">
                   <p className="text-label-sm text-on-surface-variant">
                     Total Items
                   </p>
-                  <p className="text-h2 font-h2 text-on-surface">
+                  <p className="mt-1 text-h2 font-semibold text-on-surface">
                     {stats?.totalItems || 0}
                   </p>
                 </CardContent>
               </Card>
-              <Card className="bg-surface border-outline-variant">
-                <CardContent className="p-4">
+              <Card className="bg-surface border-outline-variant rounded-2xl transition-shadow hover:shadow-[var(--shadow-level-1)]">
+                <CardContent className="p-5">
                   <p className="text-label-sm text-on-surface-variant">
                     Pending Rentals
                   </p>
-                  <p className="text-h2 font-h2 text-primary">
+                  <p className="mt-1 text-h2 font-semibold text-primary">
                     {stats?.pendingRentals || 0}
                   </p>
                 </CardContent>
@@ -188,7 +195,7 @@ export default function AdminPage() {
           {usersLoading ? (
             <Skeleton className="h-64 w-full rounded-xl" />
           ) : (
-            <div className="bg-surface border border-outline-variant rounded-xl overflow-hidden">
+            <div className="bg-surface border border-outline-variant rounded-2xl overflow-hidden shadow-[var(--shadow-level-1)]">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -248,7 +255,7 @@ export default function AdminPage() {
           {rentalsLoading ? (
             <Skeleton className="h-64 w-full rounded-xl" />
           ) : (
-            <div className="bg-surface border border-outline-variant rounded-xl overflow-hidden">
+            <div className="bg-surface border border-outline-variant rounded-2xl overflow-hidden shadow-[var(--shadow-level-1)]">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -289,9 +296,9 @@ export default function AdminPage() {
 
         {/* ✅ NEW: Platform Items Tab */}
         <TabsContent value="platform" className="mt-6">
-          <Card className="bg-surface border-outline-variant max-w-2xl">
+          <Card className="bg-surface border-outline-variant max-w-2xl rounded-2xl shadow-[var(--shadow-level-1)]">
             <CardContent className="p-6 space-y-4">
-              <h2 className="text-h3 font-h3 text-on-surface">
+              <h2 className="text-h3 font-semibold text-on-surface">
                 Create Platform Item
               </h2>
               <p className="text-body-sm text-on-surface-variant">

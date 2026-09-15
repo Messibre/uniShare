@@ -86,13 +86,13 @@ export function HeroPage() {
           <nav aria-label="Primary" className="flex items-center gap-2">
             <Link
               href={ROUTES.LOGIN}
-              className="rounded-md px-4 py-2 text-body-sm font-medium text-on-surface no-underline transition-colors hover:bg-surface-container focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+              className="whitespace-nowrap rounded-md px-2 py-2 text-body-sm font-medium text-on-surface no-underline transition-colors hover:bg-surface-container focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface sm:px-4"
             >
               Sign in
             </Link>
             <Link
               href={ROUTES.REGISTER}
-              className="rounded-md bg-primary-container px-4 py-2 text-body-sm font-semibold text-on-primary-container no-underline transition-transform hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+              className="whitespace-nowrap rounded-md bg-primary-container px-3 py-2 text-body-sm font-semibold text-on-primary-container no-underline transition-transform hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface sm:px-4"
             >
               Get started
             </Link>

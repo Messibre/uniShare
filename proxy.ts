@@ -4,7 +4,16 @@ import { verifyAccessTokenEdge } from "@/lib/auth-edge";
 import { rateLimit } from "@/lib/rate-limit";
 import { createRequestLogger } from "@/lib/logger";
 
-const PUBLIC_ROUTES_EXACT = ["/", "/items", "/login", "/register"];
+const PUBLIC_ROUTES_EXACT = [
+  "/",
+  "/items",
+  "/login",
+  "/register",
+  "/forgot-password",
+  "/about",
+  "/privacy",
+  "/terms",
+];
 
 // Public API routes (with regex support)
 const PUBLIC_ROUTES_REGEX = [

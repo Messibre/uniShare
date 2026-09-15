@@ -35,11 +35,16 @@ export function DashboardContent() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-h2 font-h2 text-on-surface">Dashboard</h1>
+      <div className="flex flex-col gap-4 rounded-2xl border border-outline-variant bg-surface-container-low p-6 sm:flex-row sm:items-center sm:justify-between lg:p-8">
+        <div className="space-y-2">
+          <span className="inline-flex items-center gap-2 rounded-full border border-outline-variant bg-surface-container-lowest px-3 py-1 text-label-sm font-medium text-on-surface-variant">
+            Your dashboard
+          </span>
+          <h1 className="text-h2 font-semibold text-on-surface">
+            Welcome back, {user?.fullName?.split(" ")[0] || "there"}
+          </h1>
           <p className="text-body-sm text-on-surface-variant">
-            Welcome back, {user?.fullName || "User"}!
+            Manage your rentals and listings in one place.
           </p>
         </div>
         <Button
@@ -49,7 +54,7 @@ export function DashboardContent() {
               Add Item
             </Link>
           }
-          className="bg-primary-container text-on-primary-container hover:bg-primary hover:text-white"
+          className="shrink-0 bg-primary-container text-on-primary-container hover:bg-primary hover:text-white"
         ></Button>
       </div>
 
@@ -62,8 +67,8 @@ export function DashboardContent() {
         {/* RENTER TAB */}
         <TabsContent value="renter" className="space-y-4 mt-6">
           {rentals.length === 0 ? (
-            <div className="text-center py-12 bg-surface-container-low rounded-xl border border-outline-variant">
-              <p className="text-body-lg text-on-surface-variant">
+            <div className="text-center py-16 bg-surface-container-low rounded-2xl border border-outline-variant">
+              <p className="text-body-lg font-medium text-on-surface">
                 No rentals yet.
               </p>
               <p className="text-body-sm text-on-surface-variant mt-1">
@@ -79,7 +84,7 @@ export function DashboardContent() {
               {rentals.map((rental) => (
                 <Card
                   key={rental.id}
-                  className="bg-surface border border-outline-variant hover:shadow-[--shadow-level-2] transition-shadow"
+                  className="bg-surface border border-outline-variant rounded-2xl transition-all duration-200 hover:-translate-y-1 hover:shadow-[var(--shadow-level-2)]"
                 >
                   <CardContent className="p-4 space-y-3">
                     <div className="flex justify-between items-start">
@@ -121,9 +126,9 @@ export function DashboardContent() {
         {/* OWNER TAB */}
         <TabsContent value="owner" className="space-y-4 mt-6">
           {ownedItems.length === 0 ? (
-            <div className="text-center py-12 bg-surface-container-low rounded-xl border border-outline-variant">
-              <p className="text-body-lg text-on-surface-variant">
-                You haven't listed any items yet.
+            <div className="text-center py-16 bg-surface-container-low rounded-2xl border border-outline-variant">
+              <p className="text-body-lg font-medium text-on-surface">
+                You haven&apos;t listed any items yet.
               </p>
               <p className="text-body-sm text-on-surface-variant mt-1">
                 Start earning by listing your gear!
@@ -138,7 +143,7 @@ export function DashboardContent() {
               {ownedItems.map((item) => (
                 <Card
                   key={item.id}
-                  className="bg-surface border border-outline-variant hover:shadow-[--shadow-level-2] transition-shadow"
+                  className="bg-surface border border-outline-variant rounded-2xl transition-all duration-200 hover:-translate-y-1 hover:shadow-[var(--shadow-level-2)]"
                 >
                   <CardContent className="p-4 space-y-3">
                     <div className="flex justify-between items-start">

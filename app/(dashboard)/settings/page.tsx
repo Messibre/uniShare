@@ -84,12 +84,19 @@ export default function SettingsPage() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-      <h1 className="text-h2 font-h2 text-on-surface">Settings</h1>
+      <div className="space-y-2">
+        <span className="inline-flex items-center gap-2 rounded-full border border-outline-variant bg-surface-container-low px-3 py-1 text-label-sm font-medium text-on-surface-variant">
+          Manage account
+        </span>
+        <h1 className="text-h2 font-semibold text-on-surface">Settings</h1>
+      </div>
 
       {/* Profile Settings */}
-      <Card className="bg-surface border-outline-variant">
+      <Card className="bg-surface border-outline-variant rounded-2xl shadow-[var(--shadow-level-1)]">
         <CardContent className="p-6 space-y-4">
-          <h2 className="text-h3 font-h3 text-on-surface">Personal Details</h2>
+          <h2 className="text-h3 font-semibold text-on-surface">
+            Personal Details
+          </h2>
           <form
             onSubmit={profileForm.handleSubmit(onProfileSubmit)}
             className="space-y-4"
@@ -136,9 +143,11 @@ export default function SettingsPage() {
       <Separator />
 
       {/* Password Change */}
-      <Card className="bg-surface border-outline-variant">
+      <Card className="bg-surface border-outline-variant rounded-2xl shadow-[var(--shadow-level-1)]">
         <CardContent className="p-6 space-y-4">
-          <h2 className="text-h3 font-h3 text-on-surface">Change Password</h2>
+          <h2 className="text-h3 font-semibold text-on-surface">
+            Change Password
+          </h2>
           <form
             onSubmit={passwordForm.handleSubmit(onPasswordSubmit)}
             className="space-y-4"

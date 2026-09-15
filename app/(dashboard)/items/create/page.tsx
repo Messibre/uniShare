@@ -63,7 +63,7 @@ export default function CreateItemPage() {
         deposit: data.deposit ? parseFloat(data.deposit) : 0,
         imageUrl: data.imageUrl,
       });
-      toast.success("🎉 Item listed successfully!");
+      toast.success("Item listed successfully!");
       router.push(ROUTES.DASHBOARD);
     } catch (error) {
       toast.error("Failed to list item. Please try again.");
@@ -72,14 +72,22 @@ export default function CreateItemPage() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-h2 font-h2 text-on-surface">List a New Item</h1>
-        <p className="text-body-sm text-on-surface-variant">
+      <div className="space-y-2">
+        <span className="inline-flex w-fit items-center gap-2 rounded-full border border-outline-variant bg-surface-container-low px-3 py-1 text-label-sm font-medium text-on-surface-variant">
+          New listing
+        </span>
+        <h1 className="text-h2 font-semibold text-on-surface">
+          List a New Item
+        </h1>
+        <p className="text-body-md text-on-surface-variant">
           Share your gear with the campus community and start earning.
         </p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="space-y-4 rounded-2xl border border-outline-variant bg-surface-container-lowest p-6 shadow-[var(--shadow-level-1)]"
+      >
         <div className="space-y-1.5">
           <Label htmlFor="name">Item Name</Label>
           <Input

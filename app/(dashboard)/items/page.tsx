@@ -17,9 +17,12 @@ export default async function ItemsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4">
-        <h1 className="text-h2 font-h2 text-on-surface">Browse Items</h1>
-        <p className="text-body-sm text-on-surface-variant">
+      <div className="flex flex-col gap-2">
+        <span className="inline-flex w-fit items-center gap-2 rounded-full border border-outline-variant bg-surface-container-low px-3 py-1 text-label-sm font-medium text-on-surface-variant">
+          Marketplace
+        </span>
+        <h1 className="text-h2 font-semibold text-on-surface">Browse Items</h1>
+        <p className="text-body-md text-on-surface-variant">
           Find the perfect gear for your next project or event.
         </p>
       </div>

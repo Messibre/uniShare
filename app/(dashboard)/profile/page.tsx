@@ -43,11 +43,16 @@ export default function ProfilePage() {
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
-      <h1 className="text-h2 font-h2 text-on-surface">Profile</h1>
+      <div className="space-y-2">
+        <span className="inline-flex items-center gap-2 rounded-full border border-outline-variant bg-surface-container-low px-3 py-1 text-label-sm font-medium text-on-surface-variant">
+          Your account
+        </span>
+        <h1 className="text-h2 font-semibold text-on-surface">Profile</h1>
+      </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="bg-surface border-outline-variant">
+        <Card className="bg-surface border-outline-variant rounded-2xl">
           <CardContent className="p-4 flex items-center gap-4">
             <div className="p-3 rounded-full bg-primary-container/10 text-primary-container">
               <User className="h-6 w-6" />
@@ -60,7 +65,7 @@ export default function ProfilePage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="bg-surface border-outline-variant">
+        <Card className="bg-surface border-outline-variant rounded-2xl">
           <CardContent className="p-4 flex items-center gap-4">
             <div className="p-3 rounded-full bg-secondary-container/10 text-secondary">
               <Mail className="h-6 w-6" />
@@ -73,7 +78,7 @@ export default function ProfilePage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="bg-surface border-outline-variant">
+        <Card className="bg-surface border-outline-variant rounded-2xl">
           <CardContent className="p-4 flex items-center gap-4">
             <div className="p-3 rounded-full bg-tertiary-container/10 text-tertiary">
               <Phone className="h-6 w-6" />
@@ -89,7 +94,7 @@ export default function ProfilePage() {
       </div>
 
       {/* Main Profile Card */}
-      <Card className="bg-surface border-outline-variant">
+      <Card className="bg-surface border-outline-variant rounded-2xl shadow-[var(--shadow-level-1)]">
         <CardContent className="p-6 space-y-4">
           <div className="flex items-center gap-6">
             <Avatar className="h-20 w-20 border-2 border-primary-container/20">
@@ -98,7 +103,7 @@ export default function ProfilePage() {
               </AvatarFallback>
             </Avatar>
             <div className="space-y-1">
-              <h2 className="text-h3 font-h3 text-on-surface">
+              <h2 className="text-h3 font-semibold text-on-surface">
                 {profile.fullName}
               </h2>
               <div className="flex items-center gap-2">

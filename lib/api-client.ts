@@ -1,4 +1,11 @@
-const API_BASE = process.env.NEXT_PUBLIC_APP_BASE_URL || "";
+// In the browser, always target the same origin the app is served from so
+// client requests can't break when NEXT_PUBLIC_APP_BASE_URL is baked to a
+// different domain than the one the user is actually on. Only fall back to the
+// configured base URL on the server, where there is no window.origin.
+const API_BASE =
+  typeof window !== "undefined"
+    ? window.location.origin
+    : process.env.NEXT_PUBLIC_APP_BASE_URL || "http://localhost:3000";
 const API_VERSION = "/api/v1";
 
 interface FetchOptions extends RequestInit {

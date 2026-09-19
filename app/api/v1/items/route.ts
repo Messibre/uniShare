@@ -3,53 +3,17 @@ import prisma from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth-guard";
 import { createItemSchema } from "@/lib/validations";
 import { OwnerType, ItemStatus } from "@/lib/generated/prisma";
+import { getItems } from "@/lib/items";
 
 export async function GET(req: NextRequest) {
   try {
     const url = new URL(req.url);
-    const search = url.searchParams.get("search");
-    const category = url.searchParams.get("category");
-    const minPrice = url.searchParams.get("minPrice");
-    const maxPrice = url.searchParams.get("maxPrice");
-    const available = url.searchParams.get("available") === "true";
 
-    const where: any = {
-      status: "AVAILABLE",
-    };
-
-    if (search) {
-      where.OR = [
-        { name: { contains: search, mode: "insensitive" } },
-        { description: { contains: search, mode: "insensitive" } },
-      ];
-    }
-
-    if (category) {
-      where.category = category;
-    }
-
-    if (minPrice || maxPrice) {
-      where.pricePerDay = {};
-      if (minPrice) where.pricePerDay.gte = parseFloat(minPrice);
-      if (maxPrice) where.pricePerDay.lte = parseFloat(maxPrice);
-    }
-
-    if (available) {
-      where.status = "AVAILABLE";
-    }
-
-    const items = await prisma.item.findMany({
-      where,
-      include: {
-        owner: {
-          select: {
-            id: true,
-            fullName: true,
-            email: true,
-          },
-        },
-      },
-      orderBy: { createdAt: "desc" },
+    const items = await getItems({
+      search: url.searchParams.get("search"),
+      category: url.searchParams.get("category"),
+      minPrice: url.searchParams.get("minPrice"),
+      maxPrice: url.searchParams.get("maxPrice"),
     });
 
     return NextResponse.json({ items }, { status: 200 });

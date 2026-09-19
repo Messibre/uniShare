@@ -1,15 +1,25 @@
 import { Suspense } from "react";
 import ItemsLoading from "./loading";
 import { ItemsList } from "@/components/items/ItemsList";
+import { getItems } from "@/lib/items";
 
-// Server-side data fetching (SEO friendly)
+const PAGE_LIMIT = 12;
+
+// Server-side data fetching (SEO friendly). Queries the database directly
+// instead of self-fetching /api/v1/items, which avoids a fragile
+// server-to-server loopback request during render.
 async function getInitialItems() {
-  const baseUrl = process.env.APP_BASE_URL || "http://localhost:3000";
-  const res = await fetch(`${baseUrl}/api/v1/items?limit=12`, {
-    cache: "no-store", // For dynamic content; use "force-cache" if static
-  });
-  if (!res.ok) throw new Error("Failed to fetch items");
-  return res.json();
+  const items = await getItems();
+  const total = items.length;
+  return {
+    items,
+    pagination: {
+      page: 1,
+      limit: PAGE_LIMIT,
+      total,
+      totalPages: Math.max(1, Math.ceil(total / PAGE_LIMIT)),
+    },
+  };
 }
 
 export default async function ItemsPage() {

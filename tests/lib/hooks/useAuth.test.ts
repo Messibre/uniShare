@@ -1,4 +1,3 @@
-// tests/lib/hooks/useAuth.test.ts
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { waitFor } from "@testing-library/react";
 import {
@@ -19,9 +18,6 @@ import {
   resetAuthStore,
 } from "@/tests/helpers/render";
 
-// ────────────────────────────────────────────────────────────
-// Mock apiClient
-// ────────────────────────────────────────────────────────────
 vi.mock("@/lib/api-client", () => ({
   apiClient: vi.fn(),
   ApiError: class ApiError extends Error {
@@ -37,9 +33,6 @@ vi.mock("@/lib/api-client", () => ({
 import { apiClient } from "@/lib/api-client";
 const mockedApiClient = vi.mocked(apiClient);
 
-// ────────────────────────────────────────────────────────────
-// Fixtures
-// ────────────────────────────────────────────────────────────
 const mockUser = {
   id: "user-1",
   fullName: "Test User",
@@ -60,9 +53,6 @@ describe("useAuth hooks", () => {
     vi.clearAllMocks();
   });
 
-  // ────────────────────────────────────────────────────────────
-  // 1. useUser
-  // ────────────────────────────────────────────────────────────
   describe("useUser", () => {
     it("fetches /auth/me and updates the auth store", async () => {
       mockedApiClient.mockResolvedValueOnce({ user: mockUser });
@@ -99,9 +89,6 @@ describe("useAuth hooks", () => {
     });
   });
 
-  // ────────────────────────────────────────────────────────────
-  // 2. useLogin
-  // ────────────────────────────────────────────────────────────
   describe("useLogin", () => {
     it("calls /auth/login with credentials", async () => {
       mockedApiClient.mockResolvedValueOnce({ success: true, user: mockUser });
@@ -162,9 +149,6 @@ describe("useAuth hooks", () => {
     });
   });
 
-  // ────────────────────────────────────────────────────────────
-  // 3. useRegister
-  // ────────────────────────────────────────────────────────────
   describe("useRegister", () => {
     it("calls /auth/register with user data", async () => {
       mockedApiClient.mockResolvedValueOnce({ success: true, user: mockUser });
@@ -204,9 +188,6 @@ describe("useAuth hooks", () => {
     });
   });
 
-  // ────────────────────────────────────────────────────────────
-  // 4. useLogout
-  // ────────────────────────────────────────────────────────────
   describe("useLogout", () => {
     it("calls /auth/logout with POST", async () => {
       mockedApiClient.mockResolvedValueOnce({});
@@ -248,9 +229,6 @@ describe("useAuth hooks", () => {
     });
   });
 
-  // ────────────────────────────────────────────────────────────
-  // 5. useForgotPassword
-  // ────────────────────────────────────────────────────────────
   describe("useForgotPassword", () => {
     it("calls /auth/forgot-password with email", async () => {
       mockedApiClient.mockResolvedValueOnce({ message: "Email sent" });
@@ -278,9 +256,6 @@ describe("useAuth hooks", () => {
     });
   });
 
-  // ────────────────────────────────────────────────────────────
-  // 6. useResetPassword
-  // ────────────────────────────────────────────────────────────
   describe("useResetPassword", () => {
     it("calls /auth/reset-password with token and password", async () => {
       mockedApiClient.mockResolvedValueOnce({ message: "Password reset" });
@@ -299,9 +274,6 @@ describe("useAuth hooks", () => {
     });
   });
 
-  // ────────────────────────────────────────────────────────────
-  // 7. useUpdateProfile
-  // ────────────────────────────────────────────────────────────
   describe("useUpdateProfile", () => {
     it("calls PATCH /auth/me with the update payload", async () => {
       mockedApiClient.mockResolvedValueOnce({
@@ -343,9 +315,6 @@ describe("useAuth hooks", () => {
     });
   });
 
-  // ────────────────────────────────────────────────────────────
-  // 8. useDeleteAccount
-  // ────────────────────────────────────────────────────────────
   describe("useDeleteAccount", () => {
     it("calls DELETE /auth/me", async () => {
       mockedApiClient.mockResolvedValueOnce({ message: "Account deleted" });
@@ -375,9 +344,6 @@ describe("useAuth hooks", () => {
     });
   });
 
-  // ────────────────────────────────────────────────────────────
-  // 9. useChangePassword
-  // ────────────────────────────────────────────────────────────
   describe("useChangePassword", () => {
     it("calls PATCH /auth/password with current and new password", async () => {
       mockedApiClient.mockResolvedValueOnce({ message: "Password changed" });

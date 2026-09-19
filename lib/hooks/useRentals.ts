@@ -97,9 +97,12 @@ export function useRentals(filters?: {
   return useQuery({
     queryKey: rentalKeys.list(filters || {}),
     queryFn: async () => {
+      const normalizedFilters = filters ?? {};
+
       const response = await apiClient<PaginatedRentalsResponse>("/rentals", {
-        params: filters as Record<string, string>,
+        params: normalizedFilters,
       });
+
       return response;
     },
     staleTime: 30 * 1000,

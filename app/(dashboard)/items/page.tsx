@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { connection } from "next/server";
 import ItemsLoading from "./loading";
 import { ItemsList } from "@/components/items/ItemsList";
 import { getItems } from "@/lib/items";
@@ -9,6 +10,11 @@ const PAGE_LIMIT = 12;
 // instead of self-fetching /api/v1/items, which avoids a fragile
 // server-to-server loopback request during render.
 async function getInitialItems() {
+  // Opt out of static prerendering (cacheComponents is enabled). Live
+  // inventory must render at request time; without this, Next tries to
+  // prerender /items and Prisma's internal `new Date()` breaks the build.
+  await connection();
+
   const items = await getItems();
   const total = items.length;
   return {

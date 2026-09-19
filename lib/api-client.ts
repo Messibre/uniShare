@@ -1,4 +1,8 @@
-const API_BASE = process.env.NEXT_PUBLIC_APP_BASE_URL || "";
+const API_BASE =
+  process.env.NEXT_PUBLIC_APP_BASE_URL ||
+  (typeof window !== "undefined"
+    ? window.location.origin
+    : "http://localhost:3000");
 const API_VERSION = "/api/v1";
 
 interface FetchOptions extends RequestInit {
@@ -19,22 +23,34 @@ export class ApiError extends Error {
   }
 }
 
+function buildApiUrl(path: string, params?: FetchOptions["params"]) {
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  const url = new URL(`${API_VERSION}${normalizedPath}`, API_BASE);
+
+  if (params) {
+    const searchParams = new URLSearchParams();
+
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== "") {
+        searchParams.set(key, String(value));
+      }
+    });
+
+    if (searchParams.size > 0) {
+      url.search = searchParams.toString();
+    }
+  }
+
+  return url.toString();
+}
+
 export async function apiClient<T = any>(
   path: string,
   options: FetchOptions = {},
 ): Promise<T> {
   const { params, body, headers, ...rest } = options;
 
-  let url = `${API_VERSION}${path}`;
-  if (params) {
-    const searchParams = new URLSearchParams();
-    Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        searchParams.set(key, String(value));
-      }
-    });
-    url += `?${searchParams.toString()}`;
-  }
+  const url = buildApiUrl(path, params);
 
   const response = await fetch(url, {
     ...rest,
@@ -50,7 +66,9 @@ export async function apiClient<T = any>(
   try {
     responseData = await response.json();
   } catch {
-    responseData = { message: response.statusText || "Unknown error" };
+    responseData = response.ok
+      ? {}
+      : { message: response.statusText || "Unknown error" };
   }
 
   if (!response.ok) {

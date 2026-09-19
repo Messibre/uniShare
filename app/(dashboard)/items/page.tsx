@@ -15,17 +15,7 @@ async function getInitialItems() {
   // prerender /items and Prisma's internal `new Date()` breaks the build.
   await connection();
 
-  const items = await getItems();
-  const total = items.length;
-  return {
-    items,
-    pagination: {
-      page: 1,
-      limit: PAGE_LIMIT,
-      total,
-      totalPages: Math.max(1, Math.ceil(total / PAGE_LIMIT)),
-    },
-  };
+  return getItems({ page: 1, limit: PAGE_LIMIT });
 }
 
 export default async function ItemsPage() {

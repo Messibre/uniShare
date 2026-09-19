@@ -10,7 +10,7 @@ interface Item {
   deposit?: number;
   imageUrl?: string;
   status: "AVAILABLE" | "RENTED" | "MAINTENANCE" | "REMOVED";
-  ownerType: "PLATFORM" | "USER";
+  ownerType: "PLATFORM" | "EndUser";
   ownerId: string | null;
   owner?: {
     id: string;
@@ -71,8 +71,10 @@ export function useItems(
   return useQuery({
     queryKey: itemKeys.list(filters || {}),
     queryFn: async () => {
+      const normalizedFilters = filters ?? {};
+
       const response = await apiClient<PaginatedItemsResponse>("/items", {
-        params: filters as Record<string, string>,
+        params: normalizedFilters,
       });
       return response;
     },

@@ -85,12 +85,12 @@ export function useAdminUsers(filters?: {
   return useQuery({
     queryKey: adminKeys.usersList(filters || {}),
     queryFn: async () => {
+      const normalizedFilters = filters ?? {};
+
       const response = await apiClient<PaginatedUsersResponse>("/admin/users", {
-        params: filters as Record<
-          string,
-          string | number | boolean | undefined
-        >,
+        params: normalizedFilters,
       });
+
       return response;
     },
     staleTime: 60 * 1000,
@@ -135,12 +135,15 @@ export function useAdminRentals(filters?: {
   return useQuery({
     queryKey: adminKeys.rentalsList(filters || {}),
     queryFn: async () => {
+      const normalizedFilters = filters ?? {};
+
       const response = await apiClient<PaginatedRentalsResponse>(
         "/admin/rentals",
         {
-          params: filters as Record<string, string | number | undefined>,
+          params: normalizedFilters,
         },
       );
+
       return response;
     },
     staleTime: 60 * 1000,

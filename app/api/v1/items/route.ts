@@ -9,14 +9,16 @@ export async function GET(req: NextRequest) {
   try {
     const url = new URL(req.url);
 
-    const items = await getItems({
+    const result = await getItems({
       search: url.searchParams.get("search"),
       category: url.searchParams.get("category"),
       minPrice: url.searchParams.get("minPrice"),
       maxPrice: url.searchParams.get("maxPrice"),
+      page: url.searchParams.get("page"),
+      limit: url.searchParams.get("limit"),
     });
 
-    return NextResponse.json({ items }, { status: 200 });
+    return NextResponse.json(result, { status: 200 });
   } catch (error) {
     console.error("GET /api/items error:", error);
     return NextResponse.json(

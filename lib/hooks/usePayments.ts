@@ -10,6 +10,7 @@ interface InitializePaymentResponse {
 interface VerifyPaymentResponse {
   status: "success" | "failed" | "pending";
   payment_id: string;
+  tx_ref: string;
 }
 
 export const paymentKeys = {
@@ -35,7 +36,7 @@ export function useVerifyPayment(txRef: string) {
 export function useInitializePayment() {
   return useMutation({
     mutationFn: async (rentalId: string) => {
-      const response = await apiClient<{ checkout_url: string }>(
+      const response = await apiClient<InitializePaymentResponse>(
         "/payments/initialize",
         {
           method: "POST",

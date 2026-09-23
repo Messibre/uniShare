@@ -3,7 +3,7 @@
 import { useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { CalendarIcon, User, Star, Loader2, AlertCircle } from "lucide-react";
+import { CalendarIcon, User, Star, Loader2, AlertCircle, ArrowLeft } from "lucide-react";
 import { format, differenceInDays } from "date-fns";
 import { useItem } from "@/lib/hooks/useItems";
 import { useCreateRental } from "@/lib/hooks/useRentals";
@@ -179,14 +179,21 @@ export default function ItemDetailPage() {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
-      {/* Back button */}
+      {/* Back button — falls back to the marketplace on direct loads */}
       <Button
         variant="ghost"
         size="sm"
-        className="mb-6 text-on-surface-variant hover:text-primary"
-        onClick={() => router.back()}
+        className="mb-6 -ml-2 gap-1.5 text-on-surface-variant hover:text-primary"
+        onClick={() => {
+          if (window.history.length > 1) {
+            router.back();
+          } else {
+            router.push(ROUTES.ITEMS);
+          }
+        }}
       >
-        ← Back
+        <ArrowLeft className="h-4 w-4" />
+        Back to items
       </Button>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

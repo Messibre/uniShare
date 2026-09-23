@@ -210,16 +210,18 @@ export function AdminUsersPanel() {
                         )}
                       </Button>
                       <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            className="h-8 w-8 text-on-surface-variant hover:text-red-600"
-                            aria-label={`Remove ${u.fullName}`}
-                            disabled={u.role === "ADMIN"}
-                          >
-                            <Trash2 className="h-4 w-4" aria-hidden="true" />
-                          </Button>
+                        <AlertDialogTrigger
+                          render={
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="h-8 w-8 text-on-surface-variant hover:text-red-600"
+                              aria-label={`Remove ${u.fullName}`}
+                              disabled={u.role === "ADMIN"}
+                            />
+                          }
+                        >
+                          <Trash2 className="h-4 w-4" aria-hidden="true" />
                         </AlertDialogTrigger>
                         <AlertDialogContent>
                           <AlertDialogHeader>

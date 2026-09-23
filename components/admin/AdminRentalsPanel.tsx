@@ -39,7 +39,7 @@ export function AdminRentalsPanel() {
         <p className="text-label-sm text-on-surface-variant">
           Showing the most recent rentals
         </p>
-        <Select value={status} onValueChange={setStatus}>
+        <Select value={status} onValueChange={(value) => setStatus(value ?? "all")}>
           <SelectTrigger className="w-40" aria-label="Filter by status">
             <SelectValue placeholder="Status" />
           </SelectTrigger>

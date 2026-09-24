@@ -43,7 +43,7 @@ export default function AdminPage() {
 
       <AdminStatsGrid stats={stats} isLoading={statsLoading} />
 
-      <Tabs defaultValue="users" className="w-full">
+      <Tabs defaultValue="users" className="flex w-full flex-col">
         <TabsList className="bg-surface-container-low">
           <TabsTrigger value="users">Users</TabsTrigger>
           <TabsTrigger value="rentals">Rentals</TabsTrigger>

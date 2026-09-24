@@ -63,6 +63,7 @@ export function useItems(
     minPrice?: number;
     maxPrice?: number;
     available?: boolean;
+    mine?: boolean;
     page?: number;
     limit?: number;
   },

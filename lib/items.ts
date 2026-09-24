@@ -7,6 +7,10 @@ export type GetItemsFilters = {
   maxPrice?: string | number | null;
   page?: string | number | null;
   limit?: string | number | null;
+  // When set, scope results to a single owner and return items of every
+  // status (a user's own listings include RENTED/MAINTENANCE, not just
+  // AVAILABLE). Left unset for the public catalog, which stays AVAILABLE-only.
+  ownerId?: string | null;
 };
 
 const DEFAULT_LIMIT = 12;
@@ -23,14 +27,14 @@ function toPositiveInt(value: unknown, fallback: number) {
 // consistent { items, pagination } shape so search/filter/pagination behave
 // the same whether rendered on the server or refetched on the client.
 export async function getItems(filters: GetItemsFilters = {}) {
-  const { search, category, minPrice, maxPrice } = filters;
+  const { search, category, minPrice, maxPrice, ownerId } = filters;
 
   const page = toPositiveInt(filters.page, 1);
   const limit = Math.min(toPositiveInt(filters.limit, DEFAULT_LIMIT), MAX_LIMIT);
 
-  const where: any = {
-    status: "AVAILABLE",
-  };
+  const where: any = ownerId
+    ? { ownerId }
+    : { status: "AVAILABLE" };
 
   if (search) {
     where.OR = [

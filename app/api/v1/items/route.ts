@@ -9,6 +9,15 @@ export async function GET(req: NextRequest) {
   try {
     const url = new URL(req.url);
 
+    // "mine=true" scopes the listing to the authenticated user's own items.
+    // The owner id is taken from the session, never from a client-supplied
+    // value, so one user cannot enumerate another user's non-public items.
+    let ownerId: string | null = null;
+    if (url.searchParams.get("mine") === "true") {
+      const user = await requireAuth(req);
+      ownerId = user.id;
+    }
+
     const result = await getItems({
       search: url.searchParams.get("search"),
       category: url.searchParams.get("category"),
@@ -16,10 +25,14 @@ export async function GET(req: NextRequest) {
       maxPrice: url.searchParams.get("maxPrice"),
       page: url.searchParams.get("page"),
       limit: url.searchParams.get("limit"),
+      ownerId,
     });
 
     return NextResponse.json(result, { status: 200 });
-  } catch (error) {
+  } catch (error: any) {
+    if (error?.message === "Unauthorized") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     console.error("GET /api/items error:", error);
     return NextResponse.json(
       { error: "Internal server error" },

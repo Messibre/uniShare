@@ -27,7 +27,7 @@ import { OwnedItemCard } from "./OwnedItemCard";
 export function DashboardContent() {
   const { user } = useAuthStore();
   const { data: rentalsData } = useRentals({ limit: 20 });
-  const { data: itemsData } = useItems({ limit: 20 });
+  const { data: itemsData } = useItems({ mine: true, limit: 50 });
 
   const rentals = useMemo(() => rentalsData?.rentals ?? [], [rentalsData]);
   const ownedItems = useMemo(() => itemsData?.items ?? [], [itemsData]);
@@ -125,7 +125,7 @@ export function DashboardContent() {
         </section>
       ) : null}
 
-      <Tabs defaultValue="renter" className="w-full">
+      <Tabs defaultValue="renter" className="flex w-full flex-col">
         <TabsList className="grid w-full max-w-md grid-cols-2 bg-surface-container-low">
           <TabsTrigger value="renter">As renter</TabsTrigger>
           <TabsTrigger value="owner">As owner</TabsTrigger>

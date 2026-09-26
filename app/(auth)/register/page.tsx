@@ -22,6 +22,8 @@ const registerSchema = z
     phone: z.string().optional(),
     password: z.string().min(8, "Password must be at least 8 characters"),
     confirmPassword: z.string().min(1, "Please confirm your password"),
+    // Honeypot: hidden from real users, must remain empty
+    website: z.string().optional(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
@@ -49,6 +51,7 @@ export default function RegisterPage() {
       phone: "",
       password: "",
       confirmPassword: "",
+      website: "",
     },
   });
 
@@ -67,6 +70,7 @@ export default function RegisterPage() {
         email: data.email,
         password: data.password,
         phone: data.phone,
+        website: data.website,
       });
       router.push(ROUTES.DASHBOARD);
     } catch (error: any) {
@@ -91,6 +95,18 @@ export default function RegisterPage() {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          {/* Honeypot field: hidden from users, catches bots */}
+          <div aria-hidden="true" className="hidden">
+            <label htmlFor="website">Website</label>
+            <input
+              id="website"
+              type="text"
+              tabIndex={-1}
+              autoComplete="off"
+              {...register("website")}
+            />
+          </div>
+
           <div className="space-y-1.5">
             <Label htmlFor="fullName">Full Name</Label>
             <Input

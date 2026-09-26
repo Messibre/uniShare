@@ -1,18 +1,46 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { verifyChapaPayment, isPaymentValid } from "@/lib/chapa";
+import {
+  verifyChapaPayment,
+  isPaymentValid,
+  verifyWebhookSignature,
+} from "@/lib/chapa";
 import { handleSuccessfulPayment } from "@/lib/payment-utils";
 import {
   sendPaymentConfirmationEmail,
   sendPaymentFailedEmail,
 } from "@/lib/email";
+import { logger } from "@/lib/logger";
+import { env } from "@/lib/env";
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    console.log("Chapa webhook received:", body);
+    const rawBody = await req.text();
+    const signature =
+      req.headers.get("chapa-signature") ||
+      req.headers.get("x-chapa-signature");
 
+    if (!env.CHAPA_WEBHOOK_SECRET && env.NODE_ENV === "production") {
+      logger.warn(
+        { type: "webhook_secret_missing" },
+        "CHAPA_WEBHOOK_SECRET is not set in production; webhook signatures are not being verified.",
+      );
+    }
+
+    if (!verifyWebhookSignature(rawBody, signature)) {
+      logger.warn(
+        { type: "webhook_signature_invalid" },
+        "Rejected Chapa webhook with invalid signature",
+      );
+      return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
+    }
+
+    const body = JSON.parse(rawBody);
     const { event, status, tx_ref, reference } = body;
+    logger.info(
+      { type: "webhook_received", event, status, tx_ref },
+      "Chapa webhook received",
+    );
 
     const payment = await prisma.payment.findUnique({
       where: { txRef: tx_ref },
@@ -27,7 +55,7 @@ export async function POST(req: NextRequest) {
     });
 
     if (!payment) {
-      console.error(`Payment not found for tx_ref: ${tx_ref}`);
+      logger.error({ type: "webhook_payment_not_found", tx_ref }, "Payment not found");
       return NextResponse.json({ error: "Payment not found" }, { status: 404 });
     }
 
@@ -42,7 +70,7 @@ export async function POST(req: NextRequest) {
       // Verify with Chapa (source of truth)
       const verification = await verifyChapaPayment(tx_ref);
       if (!verification) {
-        console.error(`Verification failed for tx_ref: ${tx_ref}`);
+        logger.error({ type: "webhook_verification_failed", tx_ref }, "Chapa verification failed");
         return NextResponse.json(
           { error: "Verification failed" },
           { status: 400 },
@@ -51,7 +79,7 @@ export async function POST(req: NextRequest) {
 
       const isValid = isPaymentValid(verification, payment.amount, "ETB");
       if (!isValid) {
-        console.error(`Verification mismatch for tx_ref: ${tx_ref}`);
+        logger.error({ type: "webhook_verification_mismatch", tx_ref }, "Chapa verification mismatch");
         return NextResponse.json(
           { error: "Verification mismatch" },
           { status: 400 },
@@ -124,10 +152,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ status: "ok" }, { status: 200 });
     }
 
-    console.log(`Ignored event: ${event} with status: ${status}`);
+    logger.info({ type: "webhook_ignored", event, status }, "Ignored webhook event");
     return NextResponse.json({ status: "ignored" }, { status: 200 });
   } catch (error) {
-    console.error("Webhook processing error:", error);
+    logger.error({ type: "webhook_error", error: String(error) }, "Webhook processing error");
     return NextResponse.json({ status: "error" }, { status: 200 });
   }
 }

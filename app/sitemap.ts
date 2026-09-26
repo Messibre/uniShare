@@ -38,7 +38,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     take: 10000, // Safety limit
   });
 
-  const itemRoutes: MetadataRoute.Sitemap = items.map((item) => ({
+  const itemRoutes: MetadataRoute.Sitemap = items.map((item: { id: string; updatedAt: Date }) => ({
     url: `${baseUrl}/items/${item.id}`,
     lastModified: item.updatedAt,
     changeFrequency: "weekly",

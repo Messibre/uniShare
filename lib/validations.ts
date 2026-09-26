@@ -1,5 +1,22 @@
-import { Currency } from "lucide-react";
 import { z } from "zod";
+
+// Only allow image URLs from trusted hosts (matches next.config image allowlist)
+const ALLOWED_IMAGE_HOSTS = ["res.cloudinary.com"];
+
+const imageUrlSchema = z
+  .string()
+  .url("Invalid image URL")
+  .refine((value) => {
+    try {
+      const url = new URL(value);
+      return (
+        url.protocol === "https:" &&
+        ALLOWED_IMAGE_HOSTS.includes(url.hostname)
+      );
+    } catch {
+      return false;
+    }
+  }, "Image URL must be an https URL from an allowed host");
 
 // Password regex: at least 8 characters, at least one letter and one number
 const passwordSchema = z
@@ -23,22 +40,22 @@ export const loginSchema = z.object({
 });
 // Item schemas
 export const createItemSchema = z.object({
-  name: z.string().min(3, "Name must be at least 3 characters"),
-  description: z.string().optional(),
+  name: z.string().min(3, "Name must be at least 3 characters").max(120),
+  description: z.string().max(2000).optional(),
   category: z.string().min(1, "Category is required"),
   pricePerDay: z.number().positive("Price must be greater than 0"),
   deposit: z.number().optional(),
-  imageUrl: z.string().url("Invalid image URL").optional(),
+  imageUrl: imageUrlSchema.optional(),
   ownerType: z.enum(["PLATFORM", "USER"]).default("USER"),
 });
 
 export const updateItemSchema = z.object({
-  name: z.string().min(3).optional(),
-  description: z.string().optional(),
+  name: z.string().min(3).max(120).optional(),
+  description: z.string().max(2000).optional(),
   category: z.string().optional(),
   pricePerDay: z.number().positive().optional(),
   deposit: z.number().optional(),
-  imageUrl: z.string().url().optional(),
+  imageUrl: imageUrlSchema.optional(),
   status: z.enum(["AVAILABLE", "MAINTENANCE", "REMOVED"]).optional(),
 });
 

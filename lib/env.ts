@@ -8,6 +8,7 @@ export interface EnvConfig {
   NODE_ENV: "development" | "production" | "test";
 
   CHAPA_SECRET_KEY: string;
+  CHAPA_WEBHOOK_SECRET?: string;
 
   RESEND_API_KEY?: string;
   EMAIL_FROM?: string;
@@ -26,6 +27,7 @@ const REQUIRED_ENV_VARS: (keyof EnvConfig)[] = [
 ];
 
 const OPTIONAL_ENV_VARS: (keyof EnvConfig)[] = [
+  "CHAPA_WEBHOOK_SECRET",
   "RESEND_API_KEY",
   "EMAIL_FROM",
   "FAYDA_CLIENT_ID",
@@ -61,6 +63,7 @@ function validateEnv(): EnvConfig {
     JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET!,
     APP_BASE_URL: process.env.APP_BASE_URL!,
     CHAPA_SECRET_KEY: process.env.CHAPA_SECRET_KEY!,
+    CHAPA_WEBHOOK_SECRET: process.env.CHAPA_WEBHOOK_SECRET,
     NODE_ENV: (process.env.NODE_ENV as EnvConfig["NODE_ENV"]) || "development",
     RESEND_API_KEY: process.env.RESEND_API_KEY,
     EMAIL_FROM: process.env.EMAIL_FROM || DEFAULTS.EMAIL_FROM,

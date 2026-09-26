@@ -1,8 +1,22 @@
 import pino from "pino";
 
+const VALID_LEVELS = [
+  "trace",
+  "debug",
+  "info",
+  "warn",
+  "error",
+  "fatal",
+  "silent",
+] as const;
+
+const configuredLevel = process.env.LOG_LEVEL?.trim().toLowerCase();
+const fallbackLevel = process.env.NODE_ENV === "production" ? "info" : "debug";
+
 const LOG_LEVEL =
-  process.env.LOG_LEVEL ||
-  (process.env.NODE_ENV === "production" ? "info" : "debug");
+  configuredLevel && VALID_LEVELS.includes(configuredLevel as (typeof VALID_LEVELS)[number])
+    ? configuredLevel
+    : fallbackLevel;
 
 export const logger = pino({
   level: LOG_LEVEL,

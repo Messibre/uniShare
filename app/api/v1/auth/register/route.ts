@@ -8,6 +8,11 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
+    // Honeypot: bots fill hidden fields; humans never see this input.
+    if (typeof body?.website === "string" && body.website.trim() !== "") {
+      return NextResponse.json({ error: "Bad request" }, { status: 400 });
+    }
+
     const parsed = registerSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json(

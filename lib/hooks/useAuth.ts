@@ -22,6 +22,8 @@ interface RegisterData {
   email: string;
   password: string;
   phone?: string;
+  // Honeypot: must stay empty for genuine submissions
+  website?: string;
 }
 
 interface AuthResponse {
@@ -112,12 +114,18 @@ export function useLogout() {
 
 export function useForgotPassword() {
   return useMutation({
-    mutationFn: async (email: string) => {
+    mutationFn: async ({
+      email,
+      website,
+    }: {
+      email: string;
+      website?: string;
+    }) => {
       const response = await apiClient<{ message: string }>(
         "/auth/forgot-password",
         {
           method: "POST",
-          body: { email },
+          body: { email, website },
         },
       );
       return response;

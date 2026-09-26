@@ -63,7 +63,10 @@ function getIP(req: NextRequest): string {
 }
 
 // ─── Rate limiter factory ───
-export function createRateLimiter() {
+export function createRateLimiter(
+  limiter?: ConstructorParameters<typeof Ratelimit>[0]["limiter"],
+  prefix?: string,
+) {
   const isDev =
     process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test";
   const hasUpstash =
@@ -82,7 +85,8 @@ export function createRateLimiter() {
     );
     const store = new InMemoryStore();
     return new Ratelimit({
-      limiter: Ratelimit.slidingWindow(100, "60s"),
+      limiter: limiter ?? Ratelimit.slidingWindow(100, "60s"),
+      prefix,
       redis: {
         get: async (key: string) => store.get(key),
         set: async (key: string, count: number, ttl: number) => {
@@ -116,7 +120,8 @@ export function createRateLimiter() {
   });
   return new Ratelimit({
     redis,
-    limiter: Ratelimit.slidingWindow(100, "60s"),
+    limiter: limiter ?? Ratelimit.slidingWindow(100, "60s"),
+    prefix,
   });
 }
 
@@ -126,6 +131,41 @@ export async function rateLimit(req: NextRequest) {
   const ip = getIP(req);
 
   const { success, limit, remaining, reset } = await limiter.limit(ip);
+
+  return {
+    success,
+    limit,
+    remaining,
+    reset,
+    headers: {
+      "X-RateLimit-Limit": String(limit),
+      "X-RateLimit-Remaining": String(remaining),
+      "X-RateLimit-Reset": String(Math.ceil(reset / 1000)),
+    },
+  };
+}
+
+// ─── Stricter limiter for auth endpoints (brute-force protection) ───
+// Reuse a single instance so we don't recreate the Upstash client per request.
+let authLimiter: Ratelimit | null = null;
+
+function getAuthLimiter() {
+  if (!authLimiter) {
+    authLimiter = createRateLimiter(
+      Ratelimit.slidingWindow(10, "60s"),
+      "ratelimit:auth",
+    );
+  }
+  return authLimiter;
+}
+
+export async function authRateLimit(req: NextRequest) {
+  const limiter = getAuthLimiter();
+  const ip = getIP(req);
+
+  const { success, limit, remaining, reset } = await limiter.limit(
+    `auth:${ip}`,
+  );
 
   return {
     success,

@@ -1,7 +1,44 @@
+import { createHmac, timingSafeEqual } from "node:crypto";
 import { env } from "./env";
 
 const CHAPA_BASE_URL = "https://api.chapa.co/v1";
 const CHAPA_SECRET_KEY = env.CHAPA_SECRET_KEY;
+
+/**
+ * Verify a Chapa webhook signature.
+ *
+ * Chapa signs the raw request body with HMAC-SHA256 using the webhook secret
+ * configured in the dashboard and sends it in the `Chapa-Signature` (or
+ * `x-chapa-signature`) header. We recompute the HMAC over the raw body and
+ * compare in constant time.
+ *
+ * Returns `true` when no secret is configured so local/test environments that
+ * have not set `CHAPA_WEBHOOK_SECRET` continue to work; callers should warn in
+ * production when the secret is unset.
+ */
+export function verifyWebhookSignature(
+  rawBody: string,
+  signatureHeader: string | null,
+): boolean {
+  const secret = env.CHAPA_WEBHOOK_SECRET;
+  if (!secret) {
+    return true;
+  }
+  if (!signatureHeader) {
+    return false;
+  }
+
+  const expected = createHmac("sha256", secret).update(rawBody).digest("hex");
+
+  const expectedBuf = Buffer.from(expected, "utf8");
+  const receivedBuf = Buffer.from(signatureHeader, "utf8");
+
+  if (expectedBuf.length !== receivedBuf.length) {
+    return false;
+  }
+
+  return timingSafeEqual(expectedBuf, receivedBuf);
+}
 
 export interface InitializePaymentParams {
   amount: number;

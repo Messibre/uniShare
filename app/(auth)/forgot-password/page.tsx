@@ -15,6 +15,8 @@ import { GuestRoute } from "@/components/auth/GuestRoute";
 
 const forgotPasswordSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
+  // Honeypot: hidden from real users, must remain empty
+  website: z.string().optional(),
 });
 
 type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
@@ -29,14 +31,17 @@ export default function ForgotPasswordPage() {
     setError,
   } = useForm<ForgotPasswordFormData>({
     resolver: zodResolver(forgotPasswordSchema),
-    defaultValues: { email: "" },
+    defaultValues: { email: "", website: "" },
   });
 
   const forgotPasswordMutation = useForgotPassword();
 
   const onSubmit = async (data: ForgotPasswordFormData) => {
     try {
-      await forgotPasswordMutation.mutateAsync(data.email);
+      await forgotPasswordMutation.mutateAsync({
+        email: data.email,
+        website: data.website,
+      });
       setIsSuccess(true);
     } catch (error: any) {
       const message =
@@ -78,6 +83,18 @@ export default function ForgotPasswordPage() {
           </div>
         ) : (
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            {/* Honeypot field: hidden from users, catches bots */}
+            <div aria-hidden="true" className="hidden">
+              <label htmlFor="website">Website</label>
+              <input
+                id="website"
+                type="text"
+                tabIndex={-1}
+                autoComplete="off"
+                {...register("website")}
+              />
+            </div>
+
             <div className="space-y-1.5">
               <Label
                 htmlFor="email"

@@ -7,6 +7,7 @@ vi.mock("@/lib/prisma", () => ({
 vi.mock("@/lib/chapa", () => ({
   verifyChapaPayment: vi.fn(),
   isPaymentValid: vi.fn(),
+  verifyWebhookSignature: vi.fn(() => true),
 }));
 vi.mock("@/lib/payment-utils", () => ({
   handleSuccessfulPayment: vi.fn(),

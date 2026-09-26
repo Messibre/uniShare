@@ -96,8 +96,8 @@ export async function POST(req: NextRequest) {
       first_name: user.fullName.split(" ")[0],
       last_name: user.fullName.split(" ").slice(1).join(" ") || "User",
       phone_number: user.phone || "+251900000000",
-      callback_url: `${appUrl}/api/payments/webhook`,
-      return_url: `${appUrl}/api/payments/callback?tx_ref=${txRef}`,
+      callback_url: `${appUrl}/api/v1/payments/webhook`,
+      return_url: `${appUrl}/api/v1/payments/callback?tx_ref=${txRef}`,
       customization: {
         title: "UniShare",
         description: `Rental- ${rental.item.name}`,

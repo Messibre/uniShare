@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { verifyAccessTokenEdge } from "@/lib/auth-edge";
-import { rateLimit } from "@/lib/rate-limit";
+import { rateLimit, authRateLimit } from "@/lib/rate-limit";
 import { createRequestLogger } from "@/lib/logger";
 
 const PUBLIC_ROUTES_EXACT = [
@@ -18,9 +18,14 @@ const PUBLIC_ROUTES_EXACT = [
 // Public API routes (with regex support)
 const PUBLIC_ROUTES_REGEX = [
   "/api/v1/auth/(.*)",
+  "/api/v1/payments/webhook",
+  "/api/v1/payments/callback",
   "/api/payments/webhook",
   "/api/health",
 ];
+
+// Auth endpoints that need stricter, brute-force rate limiting
+const AUTH_RATE_LIMITED_REGEX = /^\/api\/v1\/auth\/(login|register|forgot-password)$/;
 
 // Routes where GET is public, but other methods are protected (API only)
 const PUBLIC_GET_ROUTES = ["/api/v1/items"];
@@ -75,6 +80,24 @@ export async function proxy(request: NextRequest) {
         { error: "Too many requests, please try again later." },
         { status: 429, headers },
       );
+    }
+
+    // Stricter brute-force protection for auth endpoints
+    if (AUTH_RATE_LIMITED_REGEX.test(path)) {
+      const auth = await authRateLimit(request);
+      if (!auth.success) {
+        logger.warn(
+          { type: "auth_rate_limit_exceeded" },
+          `Auth rate limit exceeded for ${path}`,
+        );
+        return NextResponse.json(
+          {
+            error:
+              "Too many attempts. Please wait a minute before trying again.",
+          },
+          { status: 429, headers: auth.headers },
+        );
+      }
     }
   }
 

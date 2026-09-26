@@ -11,6 +11,15 @@ const forgotPasswordSchema = z.object({
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
+
+    // Honeypot: silently accept bot submissions without doing any work.
+    if (typeof body?.website === "string" && body.website.trim() !== "") {
+      return NextResponse.json(
+        { message: "If an account exists, a reset link will be sent." },
+        { status: 200 },
+      );
+    }
+
     const parsed = forgotPasswordSchema.safeParse(body);
 
     if (!parsed.success) {

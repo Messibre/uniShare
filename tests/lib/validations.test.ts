@@ -146,7 +146,7 @@ describe("createItemSchema", () => {
   it("accepts a well-formed imageUrl", () => {
     const result = createItemSchema.safeParse({
       ...valid,
-      imageUrl: "https://example.com/bike.jpg",
+      imageUrl: "https://res.cloudinary.com/demo/image/upload/bike.jpg",
     });
     expect(result.success).toBe(true);
   });

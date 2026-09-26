@@ -235,7 +235,7 @@ describe("useAuth hooks", () => {
 
       const { result } = renderHookWithProviders(() => useForgotPassword());
 
-      await result.current.mutateAsync("test@test.com");
+      await result.current.mutateAsync({ email: "test@test.com" });
 
       expect(mockedApiClient).toHaveBeenCalledWith("/auth/forgot-password", {
         method: "POST",
@@ -250,7 +250,9 @@ describe("useAuth hooks", () => {
 
       const { result } = renderHookWithProviders(() => useForgotPassword());
 
-      const response = await result.current.mutateAsync("test@test.com");
+      const response = await result.current.mutateAsync({
+        email: "test@test.com",
+      });
 
       expect(response).toEqual({ message: "If an account exists..." });
     });

@@ -23,7 +23,7 @@ describe("POST /api/admin/items – Admin Create Platform Item", () => {
     category: "Electronics",
     pricePerDay: 250,
     deposit: 1000,
-    imageUrl: "https://example.com/camera.jpg",
+    imageUrl: "https://res.cloudinary.com/demo/image/upload/camera.jpg",
   };
 
   const createdItem = {

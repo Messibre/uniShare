@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { logger } from "./logger";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -14,10 +15,10 @@ interface EmailParams {
 
 async function sendEmail({ to, subject, html }: EmailParams) {
   if (isDev) {
-    console.log("📧 [DEV] Email would be sent:");
-    console.log(`  To: ${to}`);
-    console.log(`  Subject: ${subject}`);
-    console.log(`  HTML: ${html.substring(0, 200)}...`);
+    logger.info(
+      { to, subject, htmlPreview: html.substring(0, 200) },
+      "[DEV] Email would be sent",
+    );
     return;
   }
 
@@ -29,7 +30,7 @@ async function sendEmail({ to, subject, html }: EmailParams) {
       html,
     });
   } catch (error) {
-    console.error("Failed to send email:", error);
+    logger.error({ err: error, to, subject }, "Failed to send email");
     throw error;
   }
 }

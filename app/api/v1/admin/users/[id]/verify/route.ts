@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth-guard";
+import { logger } from "@/lib/logger";
 
 export async function PATCH(
   req: NextRequest,
@@ -38,7 +39,7 @@ export async function PATCH(
     if (error.message === "Forbidden – Admin access required") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
-    console.error("PATCH /api/admin/users/[id]/verify error:", error);
+    logger.error({ err: error }, "PATCH /api/admin/users/[id]/verify error");
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 },

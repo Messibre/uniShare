@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth-guard";
 import { updateRentalStatusSchema } from "@/lib/validations";
+import { logger } from "@/lib/logger";
 
 export async function PATCH(
   req: NextRequest,
@@ -149,7 +150,7 @@ export async function PATCH(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    console.error("PATCH /api/rentals/[id]/status error:", error);
+    logger.error({ err: error }, "PATCH /api/rentals/[id]/status error");
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 },

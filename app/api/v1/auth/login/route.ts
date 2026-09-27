@@ -3,6 +3,7 @@ import { loginSchema } from "@/lib/validations";
 import { comparePassword } from "@/lib/bcrypt";
 import prisma from "@/lib/prisma";
 import { signAccessToken, signRefreshToken, setAuthCookies } from "@/lib/auth";
+import { logger } from "@/lib/logger";
 
 export async function POST(req: NextRequest) {
   try {
@@ -73,7 +74,7 @@ export async function POST(req: NextRequest) {
 
     return setAuthCookies(response, accessToken, refreshToken);
   } catch (error) {
-    console.error("Login error:", error);
+    logger.error({ err: error }, "Login error");
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 },

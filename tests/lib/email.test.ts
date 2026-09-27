@@ -22,7 +22,8 @@ describe("email helpers", () => {
 
       const { sendPaymentConfirmationEmail } = await import("@/lib/email");
 
-      const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+      const { logger } = await import("@/lib/logger");
+      const logSpy = vi.spyOn(logger, "info").mockImplementation(() => {});
 
       await sendPaymentConfirmationEmail({
         email: "a@b.com",

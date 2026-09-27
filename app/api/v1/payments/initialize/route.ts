@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth-guard";
 import { initializePaymentSchema } from "@/lib/validations";
 import { initializeChapaPayment } from "@/lib/chapa";
+import { logger } from "@/lib/logger";
 
 export async function POST(req: NextRequest) {
   try {
@@ -131,7 +132,7 @@ export async function POST(req: NextRequest) {
     if (error.message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    console.error("POST /api/payments/initialize error:", error);
+    logger.error({ err: error }, "POST /api/payments/initialize error");
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 },

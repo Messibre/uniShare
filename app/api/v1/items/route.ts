@@ -4,6 +4,7 @@ import { requireAuth } from "@/lib/auth-guard";
 import { createItemSchema } from "@/lib/validations";
 import { OwnerType, ItemStatus } from "@/lib/generated/prisma";
 import { getItems } from "@/lib/items";
+import { logger } from "@/lib/logger";
 
 export async function GET(req: NextRequest) {
   try {
@@ -33,7 +34,7 @@ export async function GET(req: NextRequest) {
     if (error?.message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    console.error("GET /api/items error:", error);
+    logger.error({ err: error }, "GET /api/items error");
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 },
@@ -100,7 +101,7 @@ export async function POST(req: NextRequest) {
     if (error.message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    console.error("POST /api/items error:", error);
+    logger.error({ err: error }, "POST /api/items error");
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 },

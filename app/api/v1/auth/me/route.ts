@@ -10,6 +10,7 @@ import {
 } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth-guard";
+import { logger } from "@/lib/logger";
 
 export async function GET(req: NextRequest) {
   try {
@@ -53,7 +54,7 @@ export async function GET(req: NextRequest) {
     );
     return response;
   } catch (err) {
-    console.error("get me error", err);
+    logger.error({ err: err }, "get me error");
     return NextResponse.json({ error: "server error" }, { status: 500 });
   }
 }
@@ -108,7 +109,7 @@ export async function PATCH(req: NextRequest) {
     if (error.message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    console.error("PATCH /api/auth/me error:", error);
+    logger.error({ err: error }, "PATCH /api/auth/me error");
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 },
@@ -143,7 +144,7 @@ export async function DELETE(req: NextRequest) {
     if (error.message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    console.error("DELETE /api/auth/me error:", error);
+    logger.error({ err: error }, "DELETE /api/auth/me error");
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 },

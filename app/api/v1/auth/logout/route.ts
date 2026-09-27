@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { clearAuthCookies } from "@/lib/auth";
 import prisma from "@/lib/prisma";
+import { logger } from "@/lib/logger";
 
 export async function POST(req: NextRequest) {
   try {
@@ -23,7 +24,7 @@ export async function POST(req: NextRequest) {
 
     return clearAuthCookies(response);
   } catch (error) {
-    console.error("Logout error:", error);
+    logger.error({ err: error }, "Logout error");
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 },

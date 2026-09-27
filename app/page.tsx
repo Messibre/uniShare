@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { verifyAccessToken } from "@/lib/auth";
 import { ROUTES } from "@/lib/utils/constants";
 import { HeroPage } from "@/components/hero/HeroPage";
+import { logger } from "@/lib/logger";
 
 export const metadata: Metadata = {
   title: "Rent campus gear",
@@ -22,9 +23,7 @@ export default async function RootPage() {
         redirect(ROUTES.DASHBOARD);
       }
     } catch (error) {
-      console.warn("Token validation failed on root page:", {
-        error: error instanceof Error ? error.message : error,
-      });
+      logger.warn({ err: error }, "Token validation failed on root page");
     }
   }
 

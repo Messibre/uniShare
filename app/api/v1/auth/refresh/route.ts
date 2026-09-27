@@ -6,6 +6,7 @@ import {
   signRefreshToken,
 } from "@/lib/auth";
 import prisma from "@/lib/prisma";
+import { logger } from "@/lib/logger";
 
 export async function POST(req: NextRequest) {
   try {
@@ -83,7 +84,7 @@ export async function POST(req: NextRequest) {
     );
     return setAuthCookies(response, newAccessToken, newRefreshToken);
   } catch (error) {
-    console.error("Refresh error:", error);
+    logger.error({ err: error }, "Refresh error");
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 },

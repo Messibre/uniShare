@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 
 import { requireAuth } from "@/lib/auth-guard";
 import { updateItemSchema } from "@/lib/validations";
+import { logger } from "@/lib/logger";
 
 export async function GET(
   req: NextRequest,
@@ -39,7 +40,7 @@ export async function GET(
 
     return NextResponse.json({ item }, { status: 200 });
   } catch (error) {
-    console.error("GET /api/items/[id] error:", error);
+    logger.error({ err: error }, "GET /api/items/[id] error");
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 },
@@ -100,7 +101,7 @@ export async function PATCH(
     if (error.message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    console.error("PATCH /api/items/[id] error:", error);
+    logger.error({ err: error }, "PATCH /api/items/[id] error");
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 },
@@ -153,7 +154,7 @@ export async function DELETE(
     if (error.message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    console.error("DELETE /api/items/[id] error:", error);
+    logger.error({ err: error }, "DELETE /api/items/[id] error");
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 },

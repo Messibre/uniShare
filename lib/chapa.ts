@@ -1,5 +1,6 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { env } from "./env";
+import { logger } from "./logger";
 
 const CHAPA_BASE_URL = "https://api.chapa.co/v1";
 const CHAPA_SECRET_KEY = env.CHAPA_SECRET_KEY;
@@ -118,7 +119,7 @@ export async function initializeChapaPayment(
   const data = await response.json();
 
   if (data.status !== "success") {
-    console.error("Chapa v1 initialization failed:", data);
+    logger.error({ response: data }, "Chapa v1 initialization failed");
     throw new Error(data.message || "Failed to initialize payment");
   }
 
@@ -147,7 +148,7 @@ export async function verifyChapaPayment(
     const data = await response.json();
 
     if (data.status !== "success") {
-      console.error("Chapa v1 verification failed:", data);
+      logger.error({ response: data, txRef }, "Chapa v1 verification failed");
       return null;
     }
 
@@ -159,7 +160,7 @@ export async function verifyChapaPayment(
       payment_method: data.data.payment_method,
     };
   } catch (error) {
-    console.error("Error verifying Chapa v1 payment:", error);
+    logger.error({ err: error, txRef }, "Error verifying Chapa v1 payment");
     return null;
   }
 }

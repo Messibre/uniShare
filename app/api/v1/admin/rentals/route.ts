@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth-guard";
+import { logger } from "@/lib/logger";
 
 export async function GET(req: NextRequest) {
   try {
@@ -61,7 +62,7 @@ export async function GET(req: NextRequest) {
     if (error.message === "Forbidden – Admin access required") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
-    console.error("GET /api/admin/rentals error:", error);
+    logger.error({ err: error }, "GET /api/admin/rentals error");
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 },

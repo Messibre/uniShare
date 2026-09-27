@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth-guard";
 import prisma from "@/lib/prisma";
+import { logger } from "@/lib/logger";
 
 export async function DELETE(
   req: NextRequest,
@@ -56,7 +57,7 @@ export async function DELETE(
     if (error.message === "Forbidden – Admin access required") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
-    console.error("DELETE /admin/users/[id] error:", error);
+    logger.error({ err: error }, "DELETE /admin/users/[id] error");
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 },

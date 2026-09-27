@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
+import { logger } from "./logger";
 
 // ─── In‑memory store (for development / test only) ───
 class InMemoryStore {
@@ -80,8 +81,9 @@ export function createRateLimiter(
   }
 
   if (isDev && !hasUpstash) {
-    console.warn(
-      "⚠️ [DEV] Rate limiting using in‑memory store. Not suitable for production.",
+    logger.warn(
+      { prefix },
+      "[DEV] Rate limiting using in-memory store. Not suitable for production.",
     );
     const store = new InMemoryStore();
     return new Ratelimit({

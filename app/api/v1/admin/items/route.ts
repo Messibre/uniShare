@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth-guard";
 import { createItemSchema } from "@/lib/validations";
+import { logger } from "@/lib/logger";
 
 export async function POST(req: NextRequest) {
   try {
@@ -41,7 +42,7 @@ export async function POST(req: NextRequest) {
     if (error.message === "Forbidden – Admin access required") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
-    console.error("POST /api/admin/items error:", error);
+    logger.error({ err: error }, "POST /api/admin/items error");
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 },

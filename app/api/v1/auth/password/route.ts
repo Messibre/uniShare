@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireAuth } from "@/lib/auth-guard";
 import { comparePassword, hashPassword } from "@/lib/bcrypt";
 import prisma from "@/lib/prisma";
+import { logger } from "@/lib/logger";
 
 const passwordSchema = z.object({
   currentPassword: z.string().min(1, "Current password is required"),
@@ -61,7 +62,7 @@ export async function PATCH(req: NextRequest) {
     if (error.message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    console.error("PATCH /auth/password error:", error);
+    logger.error({ err: error }, "PATCH /auth/password error");
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 },

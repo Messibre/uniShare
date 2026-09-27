@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { requireAuth, requireAdmin } from "@/lib/auth-guard";
+import { logger } from "@/lib/logger";
 
 export async function GET(
   req: NextRequest,
@@ -65,7 +66,7 @@ export async function GET(
     if (error.message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    console.error("GET /api/rentals/[id] error:", error);
+    logger.error({ err: error }, "GET /api/rentals/[id] error");
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 },
@@ -122,7 +123,7 @@ export async function DELETE(
         { status: 403 },
       );
     }
-    console.error("DELETE /api/rentals/[id] error:", error);
+    logger.error({ err: error }, "DELETE /api/rentals/[id] error");
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 },

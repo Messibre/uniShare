@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import { z } from "zod";
 import { sendPasswordResetEmail } from "@/lib/email";
 import { randomUUID } from "crypto";
+import { logger } from "@/lib/logger";
 
 const forgotPasswordSchema = z.object({
   email: z.email("Invalid email address"),
@@ -73,7 +74,7 @@ export async function POST(req: NextRequest) {
       { status: 200 },
     );
   } catch (error) {
-    console.error("Forgot password error:", error);
+    logger.error({ err: error }, "Forgot password error");
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 },

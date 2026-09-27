@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth-guard";
 import { createRentalSchema } from "@/lib/validations";
 import { RentalStatus } from "@/lib/generated/prisma";
+import { logger } from "@/lib/logger";
 
 export async function POST(req: NextRequest) {
   try {
@@ -127,7 +128,7 @@ export async function POST(req: NextRequest) {
     if (error.message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    console.error("POST /api/rentals error:", error);
+    logger.error({ err: error }, "POST /api/rentals error");
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 },
@@ -224,7 +225,7 @@ export async function GET(req: NextRequest) {
       { status: 200 },
     );
   } catch (error) {
-    console.error("GET /api/rentals error:", error);
+    logger.error({ err: error }, "GET /api/rentals error");
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 },

@@ -20,14 +20,14 @@ export default function AuthLayout({
           sizes="50vw"
           className="object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#630900]/85 via-[#630900]/45 to-[#630900]/25" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/55 to-black/30" />
 
         <div className="relative flex h-full flex-col justify-between p-10 xl:p-12">
           <Link
             href={ROUTES.HOME}
             className="inline-flex w-fit items-center gap-2 no-underline hover:no-underline"
           >
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/15 text-white backdrop-blur-sm">
+            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary-container text-on-primary-container">
               <Sparkles className="h-4 w-4" aria-hidden="true" />
             </span>
             <span className="text-body-lg font-semibold tracking-tight text-white">

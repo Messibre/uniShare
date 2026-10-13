@@ -145,7 +145,7 @@ export default function EditItemPage() {
 
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="space-y-4 rounded-2xl border border-outline-variant bg-surface-container-lowest p-6 shadow-[var(--shadow-level-1)]"
+        className="space-y-4 rounded-xl border border-outline-variant bg-surface-container-lowest p-6 shadow-[var(--shadow-level-1)]"
       >
         {/* Name */}
         <div className="space-y-1.5">
@@ -274,7 +274,7 @@ export default function EditItemPage() {
           <Button
             type="submit"
             disabled={isSubmitting}
-            className="flex-1 bg-primary-container text-on-primary-container hover:bg-primary hover:text-white"
+            className="flex-1 bg-primary-container text-on-primary-container hover:bg-primary-container/90"
           >
             {isSubmitting ? (
               <>

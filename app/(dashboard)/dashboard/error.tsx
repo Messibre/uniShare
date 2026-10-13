@@ -27,7 +27,7 @@ export default function DashboardError({
       <div className="mt-6 flex gap-4">
         <Button
           onClick={reset}
-          className="bg-primary-container text-on-primary-container hover:bg-primary hover:text-white"
+          className="bg-primary-container text-on-primary-container hover:bg-primary-container/90"
         >
           Retry
         </Button>

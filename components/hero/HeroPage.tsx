@@ -70,9 +70,9 @@ const focusRing =
 const motion =
   "transition-[color,background-color,border-color,box-shadow,transform] duration-200 motion-reduce:transition-none motion-safe:active:scale-[0.98]";
 
-const primaryLink = `inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-primary-container px-5 text-body-md font-semibold text-on-primary-container no-underline shadow-[var(--shadow-level-1)] hover:shadow-[var(--shadow-level-2)] hover:brightness-[0.97] ${motion} ${focusRing}`;
+const primaryLink = `inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-primary-container px-5 text-body-md font-semibold text-on-primary-container no-underline shadow-[var(--shadow-level-1)] hover:shadow-[var(--shadow-level-2)] hover:brightness-[0.97] ${motion} ${focusRing}`;
 
-const secondaryLink = `inline-flex min-h-11 items-center justify-center rounded-md border border-outline bg-surface px-5 text-body-md font-medium text-on-surface no-underline hover:border-primary hover:bg-surface-container ${motion} ${focusRing}`;
+const secondaryLink = `inline-flex min-h-11 items-center justify-center rounded-full border border-outline bg-surface px-5 text-body-md font-medium text-on-surface no-underline hover:border-primary hover:bg-surface-container ${motion} ${focusRing}`;
 
 function categoryHref(category: ItemCategory) {
   return `${ROUTES.ITEMS}?category=${encodeURIComponent(category)}`;
@@ -83,7 +83,7 @@ export function HeroPage() {
     <div className="flex min-h-dvh touch-manipulation flex-col bg-surface text-on-surface">
       <a
         href="#main"
-        className={`fixed left-4 top-0 z-[60] inline-flex min-h-11 -translate-y-full items-center rounded-md bg-primary-container px-4 text-body-sm font-semibold text-on-primary-container focus:top-4 focus:translate-y-0 focus-visible:top-4 focus-visible:translate-y-0 ${focusRing}`}
+        className={`fixed left-4 top-0 z-[60] inline-flex min-h-11 -translate-y-full items-center rounded-full bg-primary-container px-4 text-body-sm font-semibold text-on-primary-container focus:top-4 focus:translate-y-0 focus-visible:top-4 focus-visible:translate-y-0 ${focusRing}`}
       >
         Skip to content
       </a>
@@ -93,7 +93,7 @@ export function HeroPage() {
           <Link
             href={ROUTES.HOME}
             aria-label="UniShare home"
-            className={`inline-flex min-h-11 items-center gap-2 rounded-md no-underline ${focusRing}`}
+            className={`inline-flex min-h-11 items-center gap-2 rounded-full no-underline ${focusRing}`}
           >
             <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-container text-on-primary-container">
               <Sparkles className="h-4 w-4" aria-hidden="true" />
@@ -108,13 +108,13 @@ export function HeroPage() {
           <nav aria-label="Primary" className="flex flex-wrap items-center gap-1">
             <Link
               href={ROUTES.ITEMS}
-              className={`inline-flex min-h-11 items-center rounded-md px-3 text-body-sm font-medium text-on-surface no-underline hover:bg-surface-container ${motion} ${focusRing}`}
+              className={`inline-flex min-h-11 items-center rounded-full px-3 text-body-sm font-medium text-on-surface no-underline hover:bg-surface-container ${motion} ${focusRing}`}
             >
               Browse
             </Link>
             <Link
               href={ROUTES.LOGIN}
-              className={`inline-flex min-h-11 items-center rounded-md px-3 text-body-sm font-medium text-on-surface no-underline hover:bg-surface-container ${motion} ${focusRing}`}
+              className={`inline-flex min-h-11 items-center rounded-full px-3 text-body-sm font-medium text-on-surface no-underline hover:bg-surface-container ${motion} ${focusRing}`}
             >
               Sign in
             </Link>
@@ -192,7 +192,7 @@ export function HeroPage() {
               </div>
               <Link
                 href={categoryHref("Electronics")}
-                className={`absolute inset-x-4 bottom-0 block rounded-2xl border border-outline-variant bg-surface-container-lowest p-4 no-underline shadow-[var(--shadow-level-2)] hover:border-primary sm:inset-x-auto sm:left-6 sm:w-72 ${motion} ${focusRing}`}
+                className={`absolute inset-x-4 bottom-0 block rounded-xl border border-outline-variant bg-surface-container-lowest p-4 no-underline shadow-[var(--shadow-level-2)] hover:border-primary sm:inset-x-auto sm:left-6 sm:w-72 ${motion} ${focusRing}`}
               >
                 <p className="text-label-sm text-on-surface-variant">
                   Example, not a live listing
@@ -261,7 +261,7 @@ export function HeroPage() {
                 is only required when you reserve or publish.
               </p>
             </div>
-            <ol className="mt-10 grid gap-px overflow-hidden rounded-2xl border border-outline-variant bg-outline-variant sm:grid-cols-2 lg:grid-cols-4">
+            <ol className="mt-10 grid gap-px overflow-hidden rounded-xl border border-outline-variant bg-outline-variant sm:grid-cols-2 lg:grid-cols-4">
               {JOURNEY.map((step) => {
                 const Icon = step.icon;
                 return (

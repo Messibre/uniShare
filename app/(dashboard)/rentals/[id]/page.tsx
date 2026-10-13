@@ -14,12 +14,12 @@ import { Package } from "lucide-react";
 import { toast } from "sonner";
 
 const STATUS_COLORS: Record<string, string> = {
-  PENDING: "bg-yellow-500/15 text-yellow-600 border-yellow-500/20",
-  CONFIRMED: "bg-blue-500/15 text-blue-600 border-blue-500/20",
-  ACTIVE: "bg-green-500/15 text-green-600 border-green-500/20",
-  RETURNED: "bg-gray-500/15 text-gray-600 border-gray-500/20",
-  OVERDUE: "bg-red-500/15 text-red-600 border-red-500/20",
-  CANCELLED: "bg-red-500/15 text-red-600 border-red-500/20",
+  PENDING: "bg-warning/15 text-warning border-warning/30",
+  CONFIRMED: "bg-primary-container/15 text-primary border-primary-container/30",
+  ACTIVE: "bg-success/15 text-success border-success/30",
+  RETURNED: "bg-surface-container-high text-on-surface-variant border-outline",
+  OVERDUE: "bg-error/15 text-error border-error/30",
+  CANCELLED: "bg-error/15 text-error border-error/30",
 };
 
 const STATUS_ACTIONS: Record<
@@ -125,7 +125,7 @@ export default function RentalDetailPage() {
         </div>
         <Badge
           className={
-            STATUS_COLORS[rental.status] || "bg-gray-500/15 text-gray-600"
+            STATUS_COLORS[rental.status] || "bg-surface-container-high text-on-surface-variant"
           }
         >
           {rental.status}
@@ -133,7 +133,7 @@ export default function RentalDetailPage() {
       </div>
 
       {/* Item Info */}
-      <Card className="bg-surface border-outline-variant rounded-2xl shadow-[var(--shadow-level-1)]">
+      <Card className="bg-surface border-outline-variant rounded-xl shadow-[var(--shadow-level-1)]">
         <CardContent className="p-6 space-y-4">
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-xl bg-surface-container-high overflow-hidden border border-outline-variant">
@@ -165,7 +165,7 @@ export default function RentalDetailPage() {
       </Card>
 
       {/* Rental Info */}
-      <Card className="bg-surface border-outline-variant rounded-2xl shadow-[var(--shadow-level-1)]">
+      <Card className="bg-surface border-outline-variant rounded-xl shadow-[var(--shadow-level-1)]">
         <CardContent className="p-6 space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -194,7 +194,7 @@ export default function RentalDetailPage() {
               <p className="text-label-sm text-on-surface-variant">Status</p>
               <Badge
                 className={
-                  STATUS_COLORS[rental.status] || "bg-gray-500/15 text-gray-600"
+                  STATUS_COLORS[rental.status] || "bg-surface-container-high text-on-surface-variant"
                 }
               >
                 {rental.status}
@@ -231,7 +231,7 @@ export default function RentalDetailPage() {
 
       {/* Status Timeline */}
       {rental.statusLogs && rental.statusLogs.length > 0 && (
-        <Card className="bg-surface border-outline-variant rounded-2xl shadow-[var(--shadow-level-1)]">
+        <Card className="bg-surface border-outline-variant rounded-xl shadow-[var(--shadow-level-1)]">
           <CardContent className="p-6">
             <h3 className="text-h3 font-semibold text-on-surface mb-4">
               Timeline
@@ -277,8 +277,8 @@ export default function RentalDetailPage() {
               disabled={updateStatus.isPending}
               className={`${
                 action.value === "CANCELLED"
-                  ? "bg-error text-white hover:bg-error/80"
-                  : "bg-primary-container text-on-primary-container hover:bg-primary hover:text-white"
+                  ? "bg-error text-on-error hover:bg-error/90"
+                  : "bg-primary-container text-on-primary-container hover:bg-primary-container/90"
               }`}
             >
               {updateStatus.isPending ? (

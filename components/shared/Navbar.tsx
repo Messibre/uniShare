@@ -63,27 +63,27 @@ export function Navbar() {
     pathname === path || pathname.startsWith(path + "/");
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-surface border-b border-outline-variant shadow-[--shadow-level-1] dark:shadow-none">
+    <header className="sticky top-0 z-50 w-full bg-surface/90 backdrop-blur border-b border-outline">
       <div className="container max-w-[--spacing-container-max] mx-auto px-4 lg:px-6 h-16 flex items-center justify-between">
         {/* Logo */}
         <Link
           href={ROUTES.HOME}
-          className="text-h3 font-bold text-primary hover:no-underline"
+          className="text-h3 font-bold tracking-tight text-on-surface hover:no-underline"
         >
           UniShare
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden lg:flex items-center gap-6">
+        <nav className="hidden lg:flex items-center gap-1">
           {navLinks.map(({ href, label, icon: Icon, public: isPublic }) => {
             if (!isPublic && !isAuthenticated) return null;
             return (
               <Link
                 key={href}
                 href={href}
-                className={`flex items-center gap-1.5 text-label-md font-medium transition-colors hover:text-primary ${
+                className={`flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-label-md font-medium transition-colors hover:bg-surface-container hover:text-on-surface hover:no-underline ${
                   isActive(href)
-                    ? "text-primary border-b-2 border-primary pb-1"
+                    ? "bg-surface-container text-on-surface"
                     : "text-on-surface-variant"
                 }`}
               >
@@ -96,9 +96,9 @@ export function Navbar() {
           {isAuthenticated && user?.role === "ADMIN" && (
             <Link
               href="/admin"
-              className={`flex items-center gap-1.5 text-label-md font-medium transition-colors hover:text-primary ${
+              className={`flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-label-md font-medium transition-colors hover:bg-surface-container hover:text-on-surface hover:no-underline ${
                 isActive("/admin")
-                  ? "text-primary border-b-2 border-primary pb-1"
+                  ? "bg-surface-container text-on-surface"
                   : "text-on-surface-variant"
               }`}
             >
@@ -188,7 +188,7 @@ export function Navbar() {
           ) : (
             <Link
               href={ROUTES.LOGIN}
-              className="bg-primary-container text-on-primary-container hover:bg-primary hover:text-white px-4 py-2 rounded-md text-label-md font-medium transition-colors shadow-sm"
+              className="bg-primary-container text-on-primary-container hover:bg-primary-container/90 px-4 py-2 rounded-full text-label-md font-semibold transition-colors hover:no-underline"
             >
               Sign In
             </Link>
@@ -196,7 +196,8 @@ export function Navbar() {
 
           {/* Mobile Menu Trigger */}
           <button
-            className="lg:hidden p-2 text-on-surface-variant hover:text-primary"
+            aria-label="Open menu"
+            className="lg:hidden rounded-full p-2 text-on-surface-variant hover:bg-surface-container hover:text-on-surface"
             onClick={() => setIsMobileMenuOpen(true)}
           >
             <Menu className="h-6 w-6" />
@@ -208,10 +209,10 @@ export function Navbar() {
       <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
         <SheetContent
           side="right"
-          className="w-72 bg-surface border-l border-outline-variant"
+          className="w-72 bg-surface border-l border-outline"
         >
-          <SheetHeader className="border-b border-outline-variant pb-4 mb-4">
-            <SheetTitle className="text-h3 font-h3 text-primary">
+          <SheetHeader className="border-b border-outline pb-4 mb-4">
+            <SheetTitle className="text-h3 font-bold tracking-tight text-on-surface">
               UniShare
             </SheetTitle>
           </SheetHeader>
@@ -220,7 +221,7 @@ export function Navbar() {
             {/* Home */}
             <Link
               href={ROUTES.HOME}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-body-md font-medium transition-colors ${
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-full text-body-md font-medium transition-colors ${
                 pathname === "/"
                   ? "bg-primary-container/10 text-primary"
                   : "text-on-surface hover:bg-surface-container"
@@ -234,7 +235,7 @@ export function Navbar() {
             {/* Browse */}
             <Link
               href={ROUTES.ITEMS}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-body-md font-medium transition-colors ${
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-full text-body-md font-medium transition-colors ${
                 pathname === "/items" || pathname.startsWith("/items/")
                   ? "bg-primary-container/10 text-primary"
                   : "text-on-surface hover:bg-surface-container"
@@ -249,7 +250,7 @@ export function Navbar() {
             {isAuthenticated && (
               <Link
                 href={ROUTES.DASHBOARD}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-body-md font-medium transition-colors ${
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-full text-body-md font-medium transition-colors ${
                   pathname === "/dashboard"
                     ? "bg-primary-container/10 text-primary"
                     : "text-on-surface hover:bg-surface-container"
@@ -265,7 +266,7 @@ export function Navbar() {
             {isAuthenticated && user?.role === "ADMIN" && (
               <Link
                 href="/admin"
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-body-md font-medium transition-colors ${
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-full text-body-md font-medium transition-colors ${
                   pathname === "/admin" || pathname.startsWith("/admin/")
                     ? "bg-primary-container/10 text-primary"
                     : "text-on-surface hover:bg-surface-container"
@@ -282,7 +283,7 @@ export function Navbar() {
                 <>
                   <Link
                     href={ROUTES.PROFILE}
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-md text-body-md font-medium text-on-surface hover:bg-surface-container transition-colors"
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-full text-body-md font-medium text-on-surface hover:bg-surface-container transition-colors"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <User className="h-5 w-5" />
@@ -290,7 +291,7 @@ export function Navbar() {
                   </Link>
                   <Link
                     href={ROUTES.SETTINGS}
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-md text-body-md font-medium text-on-surface hover:bg-surface-container transition-colors"
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-full text-body-md font-medium text-on-surface hover:bg-surface-container transition-colors"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <Settings className="h-5 w-5" />
@@ -301,7 +302,7 @@ export function Navbar() {
                       handleLogout();
                       setIsMobileMenuOpen(false);
                     }}
-                    className="flex w-full items-center gap-3 px-3 py-2.5 rounded-md text-body-md font-medium text-error hover:bg-error/10 transition-colors"
+                    className="flex w-full items-center gap-3 px-3 py-2.5 rounded-full text-body-md font-medium text-error hover:bg-error/10 transition-colors"
                   >
                     <LogOut className="h-5 w-5" />
                     Logout
@@ -310,7 +311,7 @@ export function Navbar() {
               ) : (
                 <Link
                   href={ROUTES.LOGIN}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-md text-body-md font-medium text-primary hover:bg-primary-container/10 transition-colors"
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-full text-body-md font-medium text-primary hover:bg-primary-container/10 transition-colors"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <User className="h-5 w-5" />

@@ -165,7 +165,7 @@ export default function ItemDetailPage() {
           </p>
           <Link
             href={ROUTES.ITEMS}
-            className="inline-flex items-center justify-center rounded-md bg-primary-container text-on-primary-container hover:bg-primary hover:text-white px-4 py-2 text-sm font-medium transition-colors"
+            className="inline-flex items-center justify-center rounded-full bg-primary-container text-on-primary-container hover:bg-primary-container/90 px-4 py-2 text-sm font-medium transition-colors"
           >
             Browse Items
           </Link>
@@ -200,7 +200,7 @@ export default function ItemDetailPage() {
         {/* Left Column: Image & Details */}
         <div className="lg:col-span-2 space-y-6">
           {/* Image */}
-          <div className="relative aspect-square lg:aspect-[4/3] rounded-2xl overflow-hidden bg-surface-container-high border border-outline-variant">
+          <div className="relative aspect-square lg:aspect-[4/3] rounded-xl overflow-hidden bg-surface-container-high border border-outline-variant">
             {item.imageUrl ? (
               <img
                 src={item.imageUrl}
@@ -261,7 +261,7 @@ export default function ItemDetailPage() {
               {item.description || "No description provided."}
             </p>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-6 p-4 rounded-2xl bg-surface-container-low border border-outline-variant">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-6 p-4 rounded-xl bg-surface-container-low border border-outline-variant">
               <div>
                 <p className="text-label-sm text-on-surface-variant">
                   Category
@@ -290,7 +290,7 @@ export default function ItemDetailPage() {
           </div>
 
           {/* Owner Info */}
-          <Card className="bg-surface-container-low border-outline-variant rounded-2xl">
+          <Card className="bg-surface-container-low border-outline-variant rounded-xl">
             <CardContent className="p-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant">
@@ -301,7 +301,7 @@ export default function ItemDetailPage() {
                     {item.owner?.fullName || "Unknown"}
                   </p>
                   <div className="flex items-center gap-1 text-label-sm text-on-surface-variant">
-                    <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
+                    <Star className="h-3 w-3 fill-primary-container text-primary-container" />
                     <span>4.9</span>
                     <span className="mx-1">•</span>
                     <span>12 rentals</span>
@@ -321,7 +321,7 @@ export default function ItemDetailPage() {
 
         {/* Right Column: Booking Card */}
         <div className="lg:col-span-1">
-          <Card className="sticky top-24 bg-surface-container-lowest border-outline-variant rounded-2xl shadow-[var(--shadow-level-2)]">
+          <Card className="sticky top-24 bg-surface-container-lowest border-outline-variant rounded-xl shadow-[var(--shadow-level-2)]">
             <CardContent className="p-6 space-y-4">
               <div className="text-center border-b border-outline-variant pb-4">
                 <span className="text-h3 font-h3 text-primary">
@@ -358,7 +358,7 @@ export default function ItemDetailPage() {
                   </p>
                   <Link
                     href={`/items/${item.id}/edit`}
-                    className="inline-flex w-full items-center justify-center rounded-md bg-primary-container text-on-primary-container hover:bg-primary hover:text-white px-4 py-2 text-sm font-medium transition-colors mt-4"
+                    className="inline-flex w-full items-center justify-center rounded-full bg-primary-container text-on-primary-container hover:bg-primary-container/90 px-4 py-2 text-sm font-medium transition-colors mt-4"
                   >
                     Edit Listing
                   </Link>
@@ -450,7 +450,7 @@ export default function ItemDetailPage() {
                   <Button
                     onClick={handleRent}
                     disabled={createRental.isPending || !total}
-                    className="w-full bg-primary-container text-on-primary-container hover:bg-primary hover:text-white"
+                    className="w-full bg-primary-container text-on-primary-container hover:bg-primary-container/90"
                   >
                     {createRental.isPending ? (
                       <>

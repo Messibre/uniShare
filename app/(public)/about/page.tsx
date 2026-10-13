@@ -61,7 +61,7 @@ export default function AboutPage() {
             return (
               <div
                 key={value.title}
-                className="group rounded-2xl border border-outline-variant bg-surface-container-lowest p-6 shadow-[var(--shadow-level-1)] transition-all duration-200 hover:-translate-y-1 hover:shadow-[var(--shadow-level-2)]"
+                className="group rounded-xl border border-outline-variant bg-surface-container-lowest p-6 shadow-[var(--shadow-level-1)] transition-all duration-200 hover:-translate-y-1 hover:shadow-[var(--shadow-level-2)]"
               >
                 <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary-container/15 text-primary transition-colors group-hover:bg-primary-container group-hover:text-on-primary-container">
                   <Icon className="h-6 w-6" aria-hidden="true" />
@@ -78,7 +78,7 @@ export default function AboutPage() {
         </div>
 
         {/* CTA */}
-        <div className="rounded-2xl border border-outline-variant bg-surface-container-lowest p-8 lg:p-10">
+        <div className="rounded-xl border border-outline-variant bg-surface-container-lowest p-8 lg:p-10">
           <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
             <div>
               <h2 className="text-h3 font-semibold text-on-surface">
@@ -97,7 +97,7 @@ export default function AboutPage() {
             </div>
             <Link
               href={ROUTES.REGISTER}
-              className="group inline-flex shrink-0 items-center justify-center gap-2 rounded-md bg-primary-container px-7 py-3.5 text-body-md font-semibold text-on-primary-container no-underline shadow-[var(--shadow-level-1)] transition-all hover:scale-[1.02] hover:no-underline hover:shadow-[var(--shadow-level-2)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+              className="group inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-primary-container px-7 py-3.5 text-body-md font-semibold text-on-primary-container no-underline shadow-[var(--shadow-level-1)] transition-all hover:scale-[1.02] hover:no-underline hover:shadow-[var(--shadow-level-2)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
             >
               Get started free
               <ArrowRight

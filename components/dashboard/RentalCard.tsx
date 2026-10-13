@@ -28,7 +28,7 @@ export function RentalCard({
   item,
 }: RentalCardProps) {
   return (
-    <article className="group flex flex-col overflow-hidden rounded-2xl border border-outline-variant bg-surface transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-level-2)]">
+    <article className="group flex flex-col overflow-hidden rounded-xl border border-outline-variant bg-surface transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-level-2)]">
       <div className="flex gap-4 p-4">
         <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-surface-container">
           {item?.imageUrl ? (
@@ -69,7 +69,7 @@ export function RentalCard({
           <Button
             size="sm"
             render={<Link href={`/rentals/${id}`}>Pay now</Link>}
-            className="bg-primary text-white hover:bg-primary/90"
+            className="bg-primary-container text-on-primary-container hover:bg-primary-container/90"
           />
         ) : (
           <Button

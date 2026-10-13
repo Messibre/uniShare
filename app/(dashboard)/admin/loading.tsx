@@ -10,11 +10,11 @@ export default function AdminLoading() {
       </div>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 5 }).map((_, i) => (
-          <Skeleton key={i} className="h-24 w-full rounded-2xl" />
+          <Skeleton key={i} className="h-24 w-full rounded-xl" />
         ))}
       </div>
       <Skeleton className="h-10 w-72 rounded-md" />
-      <Skeleton className="h-64 w-full rounded-2xl" />
+      <Skeleton className="h-64 w-full rounded-xl" />
     </div>
   );
 }

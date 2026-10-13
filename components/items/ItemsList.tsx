@@ -183,7 +183,7 @@ export function ItemsList({ initialData }: ItemsListProps) {
 
       {/* Grid */}
       {items.length === 0 ? (
-        <div className="flex flex-col items-center rounded-2xl border border-dashed border-outline-variant py-16 text-center">
+        <div className="flex flex-col items-center rounded-xl border border-dashed border-outline-variant py-16 text-center">
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-surface-container-high">
             <Search className="h-5 w-5 text-on-surface-variant" />
           </div>

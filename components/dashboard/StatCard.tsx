@@ -17,7 +17,7 @@ export function StatCard({
 }: StatCardProps) {
   return (
     <div
-      className={`flex items-start gap-4 rounded-2xl border p-5 transition-colors ${
+      className={`flex items-start gap-4 rounded-xl border p-5 transition-colors ${
         accent
           ? "border-primary/30 bg-primary-container/40"
           : "border-outline-variant bg-surface-container-low"
@@ -26,7 +26,7 @@ export function StatCard({
       <span
         className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${
           accent
-            ? "bg-primary text-white"
+            ? "bg-primary-container text-on-primary-container"
             : "bg-surface-container text-on-surface-variant"
         }`}
       >

@@ -108,7 +108,7 @@ export function AdminUsersPanel() {
               aria-pressed={filter === f.value}
               className={`rounded-full px-3 py-1 text-label-sm font-medium transition-colors ${
                 filter === f.value
-                  ? "bg-primary text-white"
+                  ? "bg-primary-container text-on-primary-container"
                   : "text-on-surface-variant hover:text-on-surface"
               }`}
             >
@@ -119,9 +119,9 @@ export function AdminUsersPanel() {
       </div>
 
       {isLoading ? (
-        <Skeleton className="h-64 w-full rounded-2xl" />
+        <Skeleton className="h-64 w-full rounded-xl" />
       ) : users.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-outline-variant bg-surface-container-low py-16 text-center">
+        <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-outline-variant bg-surface-container-low py-16 text-center">
           <span className="flex h-12 w-12 items-center justify-center rounded-full bg-surface-container text-on-surface-variant">
             <Users className="h-6 w-6" aria-hidden="true" />
           </span>
@@ -130,7 +130,7 @@ export function AdminUsersPanel() {
           </p>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-outline-variant bg-surface shadow-[var(--shadow-level-1)]">
+        <div className="overflow-hidden rounded-xl border border-outline-variant bg-surface shadow-[var(--shadow-level-1)]">
           <Table>
             <TableHeader>
               <TableRow>
@@ -179,11 +179,11 @@ export function AdminUsersPanel() {
                   </TableCell>
                   <TableCell>
                     {u.isIdVerified ? (
-                      <Badge className="border-green-500/20 bg-green-500/15 text-green-600">
+                      <Badge className="border-success/30 bg-success/15 text-success">
                         Verified
                       </Badge>
                     ) : (
-                      <Badge className="border-yellow-500/20 bg-yellow-500/15 text-yellow-600">
+                      <Badge className="border-warning/30 bg-warning/15 text-warning">
                         Pending
                       </Badge>
                     )}
@@ -215,7 +215,7 @@ export function AdminUsersPanel() {
                             <Button
                               size="icon"
                               variant="ghost"
-                              className="h-8 w-8 text-on-surface-variant hover:text-red-600"
+                              className="h-8 w-8 text-on-surface-variant hover:text-error"
                               aria-label={`Remove ${u.fullName}`}
                               disabled={u.role === "ADMIN"}
                             />
@@ -236,7 +236,7 @@ export function AdminUsersPanel() {
                           <AlertDialogFooter>
                             <AlertDialogCancel>Cancel</AlertDialogCancel>
                             <AlertDialogAction
-                              className="bg-red-600 text-white hover:bg-red-700"
+                              className="bg-error text-on-error hover:bg-error/90"
                               onClick={() => handleDelete(u.id, u.fullName)}
                             >
                               Remove user

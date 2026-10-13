@@ -81,7 +81,7 @@ export default function RegisterPage() {
 
   return (
     <GuestRoute>
-      <div className="bg-surface-container-lowest border border-outline-variant rounded-2xl shadow-[var(--shadow-level-1)] p-6 lg:p-8 space-y-6">
+      <div className="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-[var(--shadow-level-1)] p-6 lg:p-8 space-y-6">
         <div className="space-y-2">
           <span className="inline-flex items-center gap-2 rounded-full border border-outline-variant bg-surface-container-low px-3 py-1 text-label-sm font-medium text-on-surface-variant">
             Get started free
@@ -219,7 +219,7 @@ export default function RegisterPage() {
 
           <Button
             type="submit"
-            className="w-full bg-primary-container text-on-primary-container hover:bg-primary hover:text-white"
+            className="w-full bg-primary-container text-on-primary-container hover:bg-primary-container/90"
             disabled={registerMutation.isPending}
           >
             {registerMutation.isPending ? (

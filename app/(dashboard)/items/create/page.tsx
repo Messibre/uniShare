@@ -86,7 +86,7 @@ export default function CreateItemPage() {
 
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="space-y-4 rounded-2xl border border-outline-variant bg-surface-container-lowest p-6 shadow-[var(--shadow-level-1)]"
+        className="space-y-4 rounded-xl border border-outline-variant bg-surface-container-lowest p-6 shadow-[var(--shadow-level-1)]"
       >
         <div className="space-y-1.5">
           <Label htmlFor="name">Item Name</Label>
@@ -182,7 +182,7 @@ export default function CreateItemPage() {
         <Button
           type="submit"
           disabled={isSubmitting}
-          className="w-full bg-primary-container text-on-primary-container hover:bg-primary hover:text-white"
+          className="w-full bg-primary-container text-on-primary-container hover:bg-primary-container/90"
         >
           {isSubmitting ? (
             <>

@@ -92,7 +92,7 @@ export default function SettingsPage() {
       </div>
 
       {/* Profile Settings */}
-      <Card className="bg-surface border-outline-variant rounded-2xl shadow-[var(--shadow-level-1)]">
+      <Card className="bg-surface border-outline-variant rounded-xl shadow-[var(--shadow-level-1)]">
         <CardContent className="p-6 space-y-4">
           <h2 className="text-h3 font-semibold text-on-surface">
             Personal Details
@@ -130,7 +130,7 @@ export default function SettingsPage() {
             <Button
               type="submit"
               disabled={profileForm.formState.isSubmitting}
-              className="bg-primary-container text-on-primary-container hover:bg-primary hover:text-white"
+              className="bg-primary-container text-on-primary-container hover:bg-primary-container/90"
             >
               {profileForm.formState.isSubmitting
                 ? "Saving..."
@@ -143,7 +143,7 @@ export default function SettingsPage() {
       <Separator />
 
       {/* Password Change */}
-      <Card className="bg-surface border-outline-variant rounded-2xl shadow-[var(--shadow-level-1)]">
+      <Card className="bg-surface border-outline-variant rounded-xl shadow-[var(--shadow-level-1)]">
         <CardContent className="p-6 space-y-4">
           <h2 className="text-h3 font-semibold text-on-surface">
             Change Password
@@ -194,7 +194,7 @@ export default function SettingsPage() {
             <Button
               type="submit"
               disabled={passwordForm.formState.isSubmitting}
-              className="bg-primary-container text-on-primary-container hover:bg-primary hover:text-white"
+              className="bg-primary-container text-on-primary-container hover:bg-primary-container/90"
             >
               {passwordForm.formState.isSubmitting
                 ? "Changing..."

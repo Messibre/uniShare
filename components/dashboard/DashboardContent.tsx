@@ -62,7 +62,7 @@ export function DashboardContent() {
       <header className="flex flex-col gap-5 rounded-3xl border border-outline-variant bg-surface-container-low p-6 sm:flex-row sm:items-center sm:justify-between lg:p-8">
         <div className="flex items-center gap-4">
           <span
-            className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary text-title-lg font-semibold text-white"
+            className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-primary text-title-lg font-semibold text-on-primary"
             aria-hidden="true"
           >
             {user?.fullName ? getInitials(user.fullName) : "U"}
@@ -93,7 +93,7 @@ export function DashboardContent() {
                 List an item
               </Link>
             }
-            className="bg-primary text-white hover:bg-primary/90"
+            className="bg-primary-container text-on-primary-container hover:bg-primary-container/90"
           />
         </div>
       </header>
@@ -102,11 +102,11 @@ export function DashboardContent() {
       {renterStats.pending > 0 ? (
         <section
           aria-labelledby="attention-heading"
-          className="flex flex-col gap-3 rounded-2xl border border-yellow-500/30 bg-yellow-500/10 p-5 sm:flex-row sm:items-center sm:justify-between"
+          className="flex flex-col gap-3 rounded-xl border border-warning/30 bg-warning/10 p-5 sm:flex-row sm:items-center sm:justify-between"
         >
           <div className="flex items-start gap-3">
             <Clock
-              className="mt-0.5 h-5 w-5 shrink-0 text-yellow-600"
+              className="mt-0.5 h-5 w-5 shrink-0 text-warning"
               aria-hidden="true"
             />
             <div>
@@ -267,9 +267,9 @@ function EmptyState({
   actionLabel: string;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-outline-variant bg-surface-container-low px-6 py-16 text-center">
+    <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-outline-variant bg-surface-container-low px-6 py-16 text-center">
       <span
-        className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-surface-container text-on-surface-variant"
+        className="mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-surface-container text-on-surface-variant"
         aria-hidden="true"
       >
         <Icon className="h-6 w-6" />
@@ -280,7 +280,7 @@ function EmptyState({
       </p>
       <Button
         render={<Link href={actionHref}>{actionLabel}</Link>}
-        className="mt-5 bg-primary text-white hover:bg-primary/90"
+        className="mt-5 bg-primary-container text-on-primary-container hover:bg-primary-container/90"
       />
     </div>
   );

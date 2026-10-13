@@ -52,7 +52,7 @@ export default function ProfilePage() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="bg-surface border-outline-variant rounded-2xl">
+        <Card className="bg-surface border-outline-variant rounded-xl">
           <CardContent className="p-4 flex items-center gap-4">
             <div className="p-3 rounded-full bg-primary-container/10 text-primary-container">
               <User className="h-6 w-6" />
@@ -65,7 +65,7 @@ export default function ProfilePage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="bg-surface border-outline-variant rounded-2xl">
+        <Card className="bg-surface border-outline-variant rounded-xl">
           <CardContent className="p-4 flex items-center gap-4">
             <div className="p-3 rounded-full bg-secondary-container/10 text-secondary">
               <Mail className="h-6 w-6" />
@@ -78,7 +78,7 @@ export default function ProfilePage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="bg-surface border-outline-variant rounded-2xl">
+        <Card className="bg-surface border-outline-variant rounded-xl">
           <CardContent className="p-4 flex items-center gap-4">
             <div className="p-3 rounded-full bg-tertiary-container/10 text-tertiary">
               <Phone className="h-6 w-6" />
@@ -94,7 +94,7 @@ export default function ProfilePage() {
       </div>
 
       {/* Main Profile Card */}
-      <Card className="bg-surface border-outline-variant rounded-2xl shadow-[var(--shadow-level-1)]">
+      <Card className="bg-surface border-outline-variant rounded-xl shadow-[var(--shadow-level-1)]">
         <CardContent className="p-6 space-y-4">
           <div className="flex items-center gap-6">
             <Avatar className="h-20 w-20 border-2 border-primary-container/20">
@@ -114,11 +114,11 @@ export default function ProfilePage() {
                   {profile.role}
                 </Badge>
                 {profile.isIdVerified ? (
-                  <Badge className="bg-green-500/15 text-green-600 border-green-500/20 gap-1">
+                  <Badge className="bg-success/15 text-success border-success/30 gap-1">
                     <CheckCircle className="h-3 w-3" /> Verified
                   </Badge>
                 ) : (
-                  <Badge className="bg-yellow-500/15 text-yellow-600 border-yellow-500/20 gap-1">
+                  <Badge className="bg-warning/15 text-warning border-warning/30 gap-1">
                     <XCircle className="h-3 w-3" /> Pending Verification
                   </Badge>
                 )}

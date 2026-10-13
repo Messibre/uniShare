@@ -55,9 +55,9 @@ export function AdminRentalsPanel() {
       </div>
 
       {isLoading ? (
-        <Skeleton className="h-64 w-full rounded-2xl" />
+        <Skeleton className="h-64 w-full rounded-xl" />
       ) : rentals.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-outline-variant bg-surface-container-low py-16 text-center">
+        <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-outline-variant bg-surface-container-low py-16 text-center">
           <span className="flex h-12 w-12 items-center justify-center rounded-full bg-surface-container text-on-surface-variant">
             <Receipt className="h-6 w-6" aria-hidden="true" />
           </span>
@@ -66,7 +66,7 @@ export function AdminRentalsPanel() {
           </p>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-outline-variant bg-surface shadow-[var(--shadow-level-1)]">
+        <div className="overflow-hidden rounded-xl border border-outline-variant bg-surface shadow-[var(--shadow-level-1)]">
           <Table>
             <TableHeader>
               <TableRow>

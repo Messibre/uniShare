@@ -56,7 +56,7 @@ export function PlatformItemForm() {
   };
 
   return (
-    <div className="max-w-2xl rounded-2xl border border-outline-variant bg-surface p-6 shadow-[var(--shadow-level-1)]">
+    <div className="max-w-2xl rounded-xl border border-outline-variant bg-surface p-6 shadow-[var(--shadow-level-1)]">
       <div className="flex items-start gap-3">
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary-container text-on-primary-container">
           <Building2 className="h-5 w-5" aria-hidden="true" />
@@ -155,7 +155,7 @@ export function PlatformItemForm() {
         <Button
           type="submit"
           disabled={createPlatformItem.isPending}
-          className="w-full bg-primary-container text-on-primary-container hover:bg-primary hover:text-white"
+          className="w-full bg-primary-container text-on-primary-container hover:bg-primary-container/90"
         >
           {createPlatformItem.isPending ? (
             <>

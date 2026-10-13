@@ -16,7 +16,7 @@ export default function AdminPage() {
   if (user?.role !== "ADMIN") {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-20 text-center">
-        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-red-500/15 text-red-600">
+        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-error/15 text-error">
           <ShieldAlert className="h-7 w-7" aria-hidden="true" />
         </span>
         <h2 className="text-h2 font-semibold text-on-surface">Access denied</h2>

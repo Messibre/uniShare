@@ -62,7 +62,7 @@ export function DashboardContent() {
       <header className="flex flex-col gap-5 rounded-3xl border border-outline-variant bg-surface-container-low p-6 sm:flex-row sm:items-center sm:justify-between lg:p-8">
         <div className="flex items-center gap-4">
           <span
-            className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-primary text-title-lg font-semibold text-white"
+            className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-primary text-title-lg font-semibold text-on-primary"
             aria-hidden="true"
           >
             {user?.fullName ? getInitials(user.fullName) : "U"}

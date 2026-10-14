@@ -104,10 +104,11 @@ export function useLogout() {
     mutationFn: async () => {
       await apiClient("/auth/logout", { method: "POST" });
     },
-    onSuccess: () => {
+    onSettled: () => {
       setUser(null);
-      queryClient.setQueryData(authKeys.me, null);
       queryClient.clear(); // Clear all cached queries
+      // Hard navigation drops every in-memory page so nothing private stays rendered
+      window.location.replace("/items");
     },
   });
 }

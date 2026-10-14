@@ -5,7 +5,7 @@ import {
   isPaymentValid,
   verifyWebhookSignature,
 } from "@/lib/chapa";
-import { handleSuccessfulPayment } from "@/lib/payment-utils";
+import { markPaymentSuccessful } from "@/lib/payment-utils";
 import {
   sendPaymentConfirmationEmail,
   sendPaymentFailedEmail,
@@ -86,7 +86,18 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      await handleSuccessfulPayment(tx_ref, reference || "chapa_ref");
+      // The browser callback may already have confirmed this payment; only the
+      // call that flips PENDING -> SUCCESS should send the confirmation email.
+      const { claimed } = await markPaymentSuccessful(
+        tx_ref,
+        reference || "chapa_ref",
+      );
+      if (!claimed) {
+        return NextResponse.json(
+          { message: "Already processed" },
+          { status: 200 },
+        );
+      }
 
       const updatedPayment = await prisma.payment.findUnique({
         where: { txRef: tx_ref },
@@ -101,15 +112,22 @@ export async function POST(req: NextRequest) {
       });
 
       if (updatedPayment?.rental?.renter) {
-        await sendPaymentConfirmationEmail({
-          email: updatedPayment.rental.renter.email,
-          fullName: updatedPayment.rental.renter.fullName,
-          rentalId: updatedPayment.rental.id,
-          itemName: updatedPayment.rental.item.name,
-          startDate: updatedPayment.rental.startDate,
-          endDate: updatedPayment.rental.endDate,
-          amount: updatedPayment.amount,
-        });
+        try {
+          await sendPaymentConfirmationEmail({
+            email: updatedPayment.rental.renter.email,
+            fullName: updatedPayment.rental.renter.fullName,
+            rentalId: updatedPayment.rental.id,
+            itemName: updatedPayment.rental.item.name,
+            startDate: updatedPayment.rental.startDate,
+            endDate: updatedPayment.rental.endDate,
+            amount: updatedPayment.amount,
+          });
+        } catch (emailError) {
+          logger.error(
+            { err: emailError, tx_ref },
+            "Confirmation email failed after successful payment",
+          );
+        }
       }
 
       return NextResponse.json({ status: "ok" }, { status: 200 });

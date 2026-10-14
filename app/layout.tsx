@@ -1,9 +1,10 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import { Providers } from "./providers";
+import { SkipLink } from "@/components/shared/SkipLink";
 import "sonner/dist/styles.css";
 
 const inter = Inter({
@@ -32,6 +33,16 @@ export const metadata: Metadata = {
     "peer‑to‑peer",
   ],
   authors: [{ name: "UniShare Team" }],
+  applicationName: APP_NAME,
+  manifest: "/manifest.webmanifest",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.png", type: "image/png", sizes: "512x512" },
+      { url: "/icon-192.png", type: "image/png", sizes: "192x192" },
+    ],
+    apple: [{ url: "/apple-icon.png", sizes: "180x180" }],
+  },
   openGraph: {
     type: "website",
     siteName: APP_NAME,
@@ -69,6 +80,12 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  themeColor: "#ff7300",
+  width: "device-width",
+  initialScale: 1,
+};
+
 export default function RootLayout({
   children,
 }: {
@@ -77,6 +94,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className={inter.variable}>
       <body className="font-sans">
+        <SkipLink />
         <Providers>{children}</Providers>
         <Analytics />
         <SpeedInsights />

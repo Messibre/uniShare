@@ -19,6 +19,7 @@ describe("email helpers", () => {
     it("logs the email instead of calling Resend", async () => {
       vi.resetModules();
       vi.stubEnv("NODE_ENV", "development");
+      vi.stubEnv("RESEND_API_KEY", "");
 
       const { sendPaymentConfirmationEmail } = await import("@/lib/email");
 

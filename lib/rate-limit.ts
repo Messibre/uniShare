@@ -75,7 +75,7 @@ export function createRateLimiter(
 
   if (!isDev && !hasUpstash) {
     throw new Error(
-      "❌ Production environment requires Upstash Redis. " +
+      "Production environment requires Upstash Redis. " +
         "Set UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN in your environment variables.",
     );
   }

@@ -48,7 +48,7 @@ export interface InitializePaymentParams {
   email: string;
   first_name: string;
   last_name: string;
-  phone_number: string;
+  phone_number?: string;
   callback_url: string;
   return_url: string;
   customization?: {
@@ -105,7 +105,7 @@ export async function initializeChapaPayment(
       email,
       first_name,
       last_name,
-      phone_number,
+      ...(phone_number ? { phone_number } : {}),
       callback_url,
       return_url,
       customization: customization || {

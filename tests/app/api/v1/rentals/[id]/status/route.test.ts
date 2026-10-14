@@ -41,6 +41,10 @@ function setUp(rentalRecord: any) {
   } as any);
   mockedItemUpdate.mockResolvedValue({} as any);
   mockedStatusLogCreate.mockResolvedValue({} as any);
+  vi.mocked(prisma.payment.findFirst).mockResolvedValue({
+    id: "pay_1",
+    status: "SUCCESS",
+  } as any);
 }
 
 describe("PATCH /api/rentals/[id]/status", () => {

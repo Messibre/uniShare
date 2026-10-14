@@ -27,7 +27,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirect = searchParams.get("redirect") || ROUTES.DASHBOARD;
+  const redirect = searchParams?.get("redirect") || ROUTES.DASHBOARD;
   const { isAuthenticated } = useAuthStore();
   const [showPassword, setShowPassword] = useState(false);
 
@@ -80,6 +80,15 @@ export default function LoginPage() {
             Enter your details to access your campus rentals.
           </p>
         </div>
+
+        {searchParams?.get("expired") === "1" && (
+          <p
+            role="status"
+            className="rounded-lg border border-warning/30 bg-warning/15 px-3 py-2 text-body-sm text-on-surface"
+          >
+            Your session expired. Sign in again to pick up where you left off.
+          </p>
+        )}
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {/* Email */}

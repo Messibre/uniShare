@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils/format";
 import { getItemStatusColor } from "@/lib/utils/status";
+import { SafeImage } from "@/components/shared/SafeImage";
 
 interface OwnedItemCardProps {
   id: string;
@@ -27,8 +28,7 @@ export function OwnedItemCard({
       <div className="flex gap-4 p-4">
         <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-surface-container">
           {imageUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <SafeImage
               src={imageUrl || "/placeholder.svg"}
               alt=""
               className="h-full w-full object-cover"

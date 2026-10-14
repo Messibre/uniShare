@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import prismaMock from "@/tests/lib/__mocks__/prisma";
 
 vi.mock("@/lib/prisma", () => ({
@@ -10,10 +10,14 @@ vi.mock("@/lib/auth-guard", () => ({
 vi.mock("@/lib/chapa", () => ({
   initializeChapaPayment: vi.fn(),
 }));
+vi.mock("@/lib/payment-utils", () => ({
+  finalizePayment: vi.fn(),
+}));
 
 import prisma from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth-guard";
 import { initializeChapaPayment } from "@/lib/chapa";
+import { finalizePayment } from "@/lib/payment-utils";
 import { POST } from "@/app/api/v1/payments/initialize/route";
 import { makeRequest } from "@/tests/test/helpers";
 
@@ -22,7 +26,15 @@ const mockedRentalFindUnique = vi.mocked(prisma.rental.findUnique);
 const mockedPaymentFindFirst = vi.mocked(prisma.payment.findFirst);
 const mockedPaymentCreate = vi.mocked(prisma.payment.create);
 const mockedPaymentUpdate = vi.mocked(prisma.payment.update);
+const mockedPaymentFindMany = vi.mocked(prisma.payment.findMany);
+const mockedPaymentUpdateMany = vi.mocked(prisma.payment.updateMany);
+const mockedFinalize = vi.mocked(finalizePayment);
 const mockedInitChapa = vi.mocked(initializeChapaPayment);
+
+beforeEach(() => {
+  mockedPaymentFindMany.mockResolvedValue([]);
+  mockedPaymentUpdateMany.mockResolvedValue({ count: 1 });
+});
 
 const verifiedUser = {
   id: "renter_1",
@@ -139,22 +151,83 @@ describe("POST /api/payments/initialize", () => {
     expect(body.error).toMatch(/already paid/i);
   });
 
-  it("returns 409 with the existing paymentId when one is still PENDING", async () => {
+  it("reuses a fresh PENDING checkout instead of creating a second payment", async () => {
     mockedRequireAuth.mockResolvedValue(verifiedUser as any);
     mockedRentalFindUnique.mockResolvedValue(pendingRental as any);
-    mockedPaymentFindFirst.mockResolvedValue({
-      id: "pay_pending",
-      status: "PENDING",
-    } as any);
+    mockedPaymentFindFirst.mockResolvedValue(null);
+    mockedPaymentFindMany.mockResolvedValue([
+      {
+        id: "pay_pending",
+        txRef: "tx_pending",
+        createdAt: new Date(),
+        metadata: { checkout_url: "https://checkout.chapa.co/existing" },
+      },
+    ] as any);
+    mockedFinalize.mockResolvedValue({ state: "pending" });
+
     const res = await POST(
       makeRequest("/api/payments/initialize", {
         method: "POST",
         body: { rentalId: "rental_1" },
       }),
     );
-    expect(res.status).toBe(409);
+
+    expect(res.status).toBe(200);
     const body = await res.json();
-    expect(body.paymentId).toBe("pay_pending");
+    expect(body.checkout_url).toBe("https://checkout.chapa.co/existing");
+    expect(body.payment_id).toBe("pay_pending");
+    expect(mockedPaymentCreate).not.toHaveBeenCalled();
+  });
+
+  it("returns 409 when a pending checkout turns out to be paid on Chapa", async () => {
+    mockedRequireAuth.mockResolvedValue(verifiedUser as any);
+    mockedRentalFindUnique.mockResolvedValue(pendingRental as any);
+    mockedPaymentFindFirst.mockResolvedValue(null);
+    mockedPaymentFindMany.mockResolvedValue([
+      { id: "pay_pending", txRef: "tx_pending", createdAt: new Date() },
+    ] as any);
+    mockedFinalize.mockResolvedValue({ state: "success", rentalId: "rental_1" });
+
+    const res = await POST(
+      makeRequest("/api/payments/initialize", {
+        method: "POST",
+        body: { rentalId: "rental_1" },
+      }),
+    );
+
+    expect(res.status).toBe(409);
+  });
+
+  it("expires a stale PENDING payment and starts a fresh checkout", async () => {
+    mockedRequireAuth.mockResolvedValue(verifiedUser as any);
+    mockedRentalFindUnique.mockResolvedValue(pendingRental as any);
+    mockedPaymentFindFirst.mockResolvedValue(null);
+    mockedPaymentFindMany.mockResolvedValue([
+      {
+        id: "pay_stale",
+        txRef: "tx_stale",
+        createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
+        metadata: { checkout_url: "https://checkout.chapa.co/stale" },
+      },
+    ] as any);
+    mockedFinalize.mockResolvedValue({ state: "pending" });
+    mockedPaymentCreate.mockResolvedValue({ id: "pay_new" } as any);
+    mockedInitChapa.mockResolvedValue({ checkout_url: "url", tx_ref: "tx" });
+    mockedPaymentUpdate.mockResolvedValue({} as any);
+
+    const res = await POST(
+      makeRequest("/api/payments/initialize", {
+        method: "POST",
+        body: { rentalId: "rental_1" },
+      }),
+    );
+
+    expect(res.status).toBe(200);
+    expect(mockedPaymentUpdateMany).toHaveBeenCalledWith({
+      where: { id: "pay_stale", status: "PENDING" },
+      data: { status: "FAILED" },
+    });
+    expect((await res.json()).payment_id).toBe("pay_new");
   });
 
   it("creates a PENDING payment and initializes Chapa on success", async () => {
@@ -204,7 +277,7 @@ describe("POST /api/payments/initialize", () => {
     expect(call.last_name).toBe("User");
   });
 
-  it("falls back to a placeholder phone number when the user has none", async () => {
+  it("omits the phone number for Chapa when the user has none", async () => {
     mockedRequireAuth.mockResolvedValue({
       ...verifiedUser,
       phone: null,
@@ -223,10 +296,10 @@ describe("POST /api/payments/initialize", () => {
     );
 
     const call = mockedInitChapa.mock.calls[0][0];
-    expect(call.phone_number).toBe("+251900000000");
+    expect(call.phone_number).toBeUndefined();
   });
 
-  it("returns 500 when Chapa initialization throws", async () => {
+  it("returns 502 and marks the payment FAILED when Chapa initialization throws", async () => {
     mockedRequireAuth.mockResolvedValue(verifiedUser as any);
     mockedRentalFindUnique.mockResolvedValue(pendingRental as any);
     mockedPaymentFindFirst.mockResolvedValue(null);
@@ -239,7 +312,7 @@ describe("POST /api/payments/initialize", () => {
         body: { rentalId: "rental_1" },
       }),
     );
-    expect(res.status).toBe(500);
+    expect(res.status).toBe(502);
   });
 
   it("returns 500 on unexpected database errors", async () => {

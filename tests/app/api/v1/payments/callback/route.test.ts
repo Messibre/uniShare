@@ -1,70 +1,89 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+
+vi.mock("@/lib/payment-utils", () => ({
+  finalizePayment: vi.fn(),
+}));
+
+import { finalizePayment } from "@/lib/payment-utils";
 import { GET } from "@/app/api/v1/payments/callback/route";
 import { makeRequest } from "@/tests/test/helpers";
 
+const mockedFinalize = vi.mocked(finalizePayment);
+
+function location(res: Response) {
+  return res.headers.get("location");
+}
+
 describe("GET /api/payments/callback", () => {
-  it("returns a failure HTML page when status=failed", async () => {
-    const res = await GET(
-      makeRequest("/api/payments/callback", {
-        searchParams: { status: "failed" },
-      }),
-    );
-    expect(res.status).toBe(200);
-    expect(res.headers.get("content-type")).toContain("text/html");
-    const html = await res.text();
-    expect(html).toContain("Payment Failed");
+  beforeEach(() => {
+    vi.clearAllMocks();
   });
 
-  it("returns a failure HTML page when status=cancelled", async () => {
-    const res = await GET(
-      makeRequest("/api/payments/callback", {
-        searchParams: { status: "cancelled" },
-      }),
-    );
-    const html = await res.text();
-    expect(html).toContain("Payment Failed");
-  });
-
-  it("returns a processing/success HTML page for any other status", async () => {
-    const res = await GET(
-      makeRequest("/api/payments/callback", {
-        searchParams: { status: "success" },
-      }),
-    );
-    const html = await res.text();
-    expect(html).toContain("confirming your payment");
-  });
-
-  it("returns the processing page when status is missing entirely", async () => {
+  it("redirects to the dashboard when tx_ref is missing", async () => {
     const res = await GET(makeRequest("/api/payments/callback"));
-    const html = await res.text();
-    expect(html).toContain("confirming your payment");
+    expect(res.status).toBe(302);
+    expect(location(res)).toBe("/dashboard");
+    expect(mockedFinalize).not.toHaveBeenCalled();
   });
 
-  it("echoes the tx_ref into the processing page", async () => {
+  it("redirects to the dashboard when the payment is unknown", async () => {
+    mockedFinalize.mockResolvedValue({ state: "not_found" });
     const res = await GET(
       makeRequest("/api/payments/callback", {
-        searchParams: { tx_ref: "rental_abc_123" },
+        searchParams: { tx_ref: "tx_unknown" },
       }),
     );
-    const html = await res.text();
-    expect(html).toContain("rental_abc_123");
+    expect(location(res)).toBe("/dashboard");
   });
 
-  it("shows 'N/A' when tx_ref is missing", async () => {
-    const res = await GET(makeRequest("/api/payments/callback"));
-    const html = await res.text();
-    expect(html).toContain("N/A");
-  });
-
-  it("does not reflect a malicious tx_ref unescaped in a way that breaks the page structure", async () => {
-    // Documents current (unescaped) behavior — the route interpolates tx_ref directly.
+  it("redirects to the rental page with payment=success after a verified payment", async () => {
+    mockedFinalize.mockResolvedValue({ state: "success", rentalId: "rental_1" });
     const res = await GET(
       makeRequest("/api/payments/callback", {
-        searchParams: { tx_ref: "<script>alert(1)</script>" },
+        searchParams: { tx_ref: "tx_1", status: "success" },
       }),
     );
-    const html = await res.text();
-    expect(html).toContain("<script>alert(1)</script>");
+    expect(mockedFinalize).toHaveBeenCalledWith("tx_1");
+    expect(location(res)).toBe("/rentals/rental_1?payment=success");
+  });
+
+  it("accepts the alternative trx_ref query parameter", async () => {
+    mockedFinalize.mockResolvedValue({ state: "success", rentalId: "rental_1" });
+    await GET(
+      makeRequest("/api/payments/callback", {
+        searchParams: { trx_ref: "tx_alt" },
+      }),
+    );
+    expect(mockedFinalize).toHaveBeenCalledWith("tx_alt");
+  });
+
+  it("reports failed when Chapa says the checkout was cancelled and nothing was paid", async () => {
+    mockedFinalize.mockResolvedValue({ state: "pending", rentalId: "rental_1" });
+    const res = await GET(
+      makeRequest("/api/payments/callback", {
+        searchParams: { tx_ref: "tx_1", status: "cancelled" },
+      }),
+    );
+    expect(location(res)).toBe("/rentals/rental_1?payment=failed");
+  });
+
+  it("reports pending while the payment is still being confirmed", async () => {
+    mockedFinalize.mockResolvedValue({ state: "pending", rentalId: "rental_1" });
+    const res = await GET(
+      makeRequest("/api/payments/callback", {
+        searchParams: { tx_ref: "tx_1" },
+      }),
+    );
+    expect(location(res)).toBe("/rentals/rental_1?payment=pending");
+  });
+
+  it("falls back to a pending dashboard redirect when verification throws", async () => {
+    mockedFinalize.mockRejectedValue(new Error("chapa down"));
+    const res = await GET(
+      makeRequest("/api/payments/callback", {
+        searchParams: { tx_ref: "tx_1" },
+      }),
+    );
+    expect(location(res)).toBe("/dashboard?payment=pending");
   });
 });

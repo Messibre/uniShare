@@ -8,10 +8,15 @@ const API_BASE =
     : process.env.NEXT_PUBLIC_APP_BASE_URL || "http://localhost:3000";
 const API_VERSION = "/api/v1";
 
+import { toast } from "sonner";
+import { useAuthStore } from "@/lib/stores/auth-store";
+
 interface FetchOptions extends RequestInit {
   headers?: Record<string, string>;
   body?: any;
   params?: Record<string, string | number | boolean | undefined>;
+  /** Internal: set on the single retry made after a silent token refresh. */
+  _retry?: boolean;
 }
 
 export class ApiError extends Error {
@@ -47,11 +52,43 @@ function buildApiUrl(path: string, params?: FetchOptions["params"]) {
   return url.toString();
 }
 
+// Share one in-flight refresh so parallel 401s don't each rotate the token.
+let refreshPromise: Promise<boolean> | null = null;
+
+function refreshSession(): Promise<boolean> {
+  if (!refreshPromise) {
+    refreshPromise = fetch(buildApiUrl("/auth/refresh"), {
+      method: "POST",
+      credentials: "include",
+    })
+      .then((response) => response.ok)
+      .catch(() => false)
+      .finally(() => {
+        refreshPromise = null;
+      });
+  }
+  return refreshPromise;
+}
+
+function handleSessionExpired() {
+  if (typeof window === "undefined") return;
+
+  const store = useAuthStore.getState();
+  if (!store.isAuthenticated) return;
+
+  store.logout();
+  toast.error("Your session has expired. Please sign in again.");
+  const here = window.location.pathname + window.location.search;
+  window.location.assign(
+    `/login?expired=1&redirect=${encodeURIComponent(here)}`,
+  );
+}
+
 export async function apiClient<T = any>(
   path: string,
   options: FetchOptions = {},
 ): Promise<T> {
-  const { params, body, headers, ...rest } = options;
+  const { params, body, headers, _retry, ...rest } = options;
 
   const url = buildApiUrl(path, params);
 
@@ -72,6 +109,18 @@ export async function apiClient<T = any>(
     responseData = response.ok
       ? {}
       : { message: response.statusText || "Unknown error" };
+  }
+
+  // Auth endpoints report their own 401s (bad credentials, no session yet).
+  if (
+    response.status === 401 &&
+    typeof window !== "undefined" &&
+    !path.startsWith("/auth/")
+  ) {
+    if (!_retry && (await refreshSession())) {
+      return apiClient<T>(path, { ...options, _retry: true });
+    }
+    handleSessionExpired();
   }
 
   if (!response.ok) {

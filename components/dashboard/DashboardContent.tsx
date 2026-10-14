@@ -11,7 +11,6 @@ import {
   CheckCircle2,
   TrendingUp,
   ArrowRight,
-  Sparkles,
 } from "lucide-react";
 import { useAuthStore } from "@/lib/stores/auth-store";
 import { useRentals } from "@/lib/hooks/useRentals";
@@ -68,10 +67,6 @@ export function DashboardContent() {
             {user?.fullName ? getInitials(user.fullName) : "U"}
           </span>
           <div className="space-y-1">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-outline-variant bg-surface-container-lowest px-2.5 py-0.5 text-label-sm font-medium text-on-surface-variant">
-              <Sparkles className="h-3 w-3" aria-hidden="true" />
-              Your dashboard
-            </span>
             <h1 className="text-h2 font-semibold text-on-surface text-pretty">
               Welcome back, {firstName}
             </h1>
@@ -180,6 +175,7 @@ export function DashboardContent() {
                   endDate={rental.endDate}
                   totalPrice={rental.totalPrice}
                   item={rental.item}
+                  canPay={rental.renterId === user?.id}
                 />
               ))}
             </div>

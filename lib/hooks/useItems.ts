@@ -1,4 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { apiClient } from "@/lib/api-client";
 
 interface Item {
@@ -80,6 +85,7 @@ export function useItems(
       return response;
     },
     initialData: options?.initialData,
+    placeholderData: keepPreviousData,
     staleTime: 60 * 1000,
   });
 }

@@ -8,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Loader2 } from "lucide-react";
 import { useItem, useUpdateItem } from "@/lib/hooks/useItems";
+import { useUnsavedChanges } from "@/lib/hooks/useUnsavedChanges";
 import { ITEM_CATEGORIES, ITEM_STATUSES } from "@/lib/utils/constants";
 import { ROUTES } from "@/lib/utils/constants";
 import { Button } from "@/components/ui/button";
@@ -22,6 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ImageUpload } from "@/components/shared/ImageUpload";
 import { toast } from "sonner";
 
 const editItemSchema = z.object({
@@ -30,7 +32,7 @@ const editItemSchema = z.object({
   category: z.string().min(1, "Please select a category"),
   pricePerDay: z.string().min(1, "Price is required"),
   deposit: z.string().optional(),
-  imageUrl: z.string().url("Invalid URL").optional(),
+  imageUrl: z.string().optional(),
   status: z.enum(["AVAILABLE", "RENTED", "MAINTENANCE", "REMOVED"]),
 });
 
@@ -38,7 +40,7 @@ type EditItemFormData = z.infer<typeof editItemSchema>;
 
 export default function EditItemPage() {
   const router = useRouter();
-  const { id } = useParams<{ id: string }>();
+  const id = useParams<{ id: string }>()?.id ?? "";
   const { data: item, isLoading } = useItem(id);
   const updateItem = useUpdateItem();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -48,7 +50,7 @@ export default function EditItemPage() {
     handleSubmit,
     control,
     setValue,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = useForm<EditItemFormData>({
     resolver: zodResolver(editItemSchema),
     defaultValues: {
@@ -61,6 +63,8 @@ export default function EditItemPage() {
       status: "AVAILABLE",
     },
   });
+
+  useUnsavedChanges(isDirty && !isSubmitting);
 
   // Populate form when item loads
   useEffect(() => {
@@ -86,7 +90,7 @@ export default function EditItemPage() {
           category: data.category,
           pricePerDay: parseFloat(data.pricePerDay),
           deposit: data.deposit ? parseFloat(data.deposit) : 0,
-          imageUrl: data.imageUrl,
+          imageUrl: data.imageUrl || undefined,
           status: data.status,
         },
       });
@@ -254,19 +258,20 @@ export default function EditItemPage() {
           </div>
         </div>
 
-        {/* Image URL */}
+        {/* Photo */}
         <div className="space-y-1.5">
-          <Label htmlFor="imageUrl">Image URL</Label>
-          <Input
-            id="imageUrl"
-            placeholder="https://example.com/image.jpg"
-            {...register("imageUrl")}
+          <Label>Photo</Label>
+          <Controller
+            name="imageUrl"
+            control={control}
+            render={({ field }) => (
+              <ImageUpload
+                value={field.value}
+                onChange={field.onChange}
+                disabled={isSubmitting}
+              />
+            )}
           />
-          {errors.imageUrl && (
-            <p className="text-label-sm text-error">
-              {errors.imageUrl.message}
-            </p>
-          )}
         </div>
 
         {/* Actions */}

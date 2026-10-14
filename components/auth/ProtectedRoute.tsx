@@ -20,7 +20,7 @@ export function ProtectedRoute({
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      router.replace(ROUTES.LOGIN);
+      router.replace(ROUTES.ITEMS);
       return;
     }
 

@@ -4,7 +4,7 @@
 
 ---
 
-## 📋 Overview
+## Overview
 
 uniShare is a peer-to-peer and platform-owned rental platform designed for university students. Students can:
 
@@ -19,7 +19,7 @@ uniShare is a peer-to-peer and platform-owned rental platform designed for unive
 
 ---
 
-## 🚀 Tech Stack
+## Tech Stack
 
 | Layer | Technology | Version |
 |-------|------------|---------|
@@ -36,7 +36,7 @@ uniShare is a peer-to-peer and platform-owned rental platform designed for unive
 
 ---
 
-## 🏗️ Project Architecture
+## Project Architecture
 
 Since the backend is inside Next.js, the architecture follows a **monolithic approach**:
 
@@ -84,15 +84,15 @@ Since the backend is inside Next.js, the architecture follows a **monolithic app
 
 | Layer | What it checks | Runs On | DB Calls |
 |-------|----------------|---------|----------|
-| **Middleware** | JWT signature (cryptographic) | Edge Runtime | ❌ 0 |
-| **Route Handler** | User exists in DB (when needed) | Node.js | ✅ 1-2 |
-| **Business Logic** | Ownership, verification status, availability | Node.js | ✅ 1-3 |
+| **Middleware** | JWT signature (cryptographic) | Edge Runtime | 0 |
+| **Route Handler** | User exists in DB (when needed) | Node.js | 1-2 |
+| **Business Logic** | Ownership, verification status, availability | Node.js | 1-3 |
 
 **The rule**: Trust the JWT for speed, verify with DB for safety. `GET` requests use headers (fast), `POST/PATCH/DELETE` use `requireAuth()` (fresh data).
 
 ---
 
-## 📁 Complete Project Structure
+## Complete Project Structure
 
 ```
 uniShare/
@@ -196,7 +196,7 @@ uniShare/
 
 ---
 
-## 🗄️ Database Schema (Prisma)
+## Database Schema (Prisma)
 
 ### Enums
 
@@ -223,7 +223,7 @@ uniShare/
 
 ---
 
-## 🔐 Authentication Flow
+## Authentication Flow
 
 ### JWT Architecture
 
@@ -236,11 +236,11 @@ uniShare/
 
 | Method | Route | Public? | Description |
 |--------|-------|---------|-------------|
-| `POST` | `/api/auth/register` | ✅ Yes | Create account, set cookies |
-| `POST` | `/api/auth/login` | ✅ Yes | Login, set cookies |
-| `POST` | `/api/auth/logout` | ❌ No | Logout, revoke refresh token, clear cookies |
-| `POST` | `/api/auth/refresh` | ❌ No | Refresh access token |
-| `GET` | `/api/auth/me` | ❌ No | Get current user |
+| `POST` | `/api/auth/register` | Yes | Create account, set cookies |
+| `POST` | `/api/auth/login` | Yes | Login, set cookies |
+| `POST` | `/api/auth/logout` | No | Logout, revoke refresh token, clear cookies |
+| `POST` | `/api/auth/refresh` | No | Refresh access token |
+| `GET` | `/api/auth/me` | No | Get current user |
 
 ### Security Features
 
@@ -253,21 +253,21 @@ uniShare/
 
 ---
 
-## 📦 Item Management API
+## Item Management API
 
 | Method | Route | Public? | Description |
 |--------|-------|---------|-------------|
-| `GET` | `/api/items` | ✅ Yes | Browse with filters (search, category, price, availability) |
-| `GET` | `/api/items/[id]` | ✅ Yes | Get single item with owner + rental history |
-| `POST` | `/api/items` | ❌ No | List new item (requires `isIdVerified: true`) |
-| `PATCH` | `/api/items/[id]` | ❌ No | Update item (owner or admin only) |
-| `DELETE` | `/api/items/[id]` | ❌ No | Soft delete (owner or admin only) |
+| `GET` | `/api/items` | Yes | Browse with filters (search, category, price, availability) |
+| `GET` | `/api/items/[id]` | Yes | Get single item with owner + rental history |
+| `POST` | `/api/items` | No | List new item (requires `isIdVerified: true`) |
+| `PATCH` | `/api/items/[id]` | No | Update item (owner or admin only) |
+| `DELETE` | `/api/items/[id]` | No | Soft delete (owner or admin only) |
 
 **Filters**: `?search=...&category=...&minPrice=...&maxPrice=...&available=true`
 
 ---
 
-## 📋 Rental Flow API
+## Rental Flow API
 
 ### Lifecycle
 
@@ -288,11 +288,11 @@ CANCELLED (if renter cancels before confirmation)
 
 | Method | Route | Public? | Description |
 |--------|-------|---------|-------------|
-| `POST` | `/api/rentals` | ❌ No | Request rental (checks availability + overlap) |
-| `GET` | `/api/rentals` | ❌ No | List user's rentals (renter + owner) with filters |
-| `GET` | `/api/rentals/[id]` | ❌ No | Get rental details + history timeline |
-| `PATCH` | `/api/rentals/[id]/status` | ❌ No | Transition status (owner/admin/renter) |
-| `DELETE` | `/api/rentals/[id]` | ❌ No | Soft delete (admin only) |
+| `POST` | `/api/rentals` | No | Request rental (checks availability + overlap) |
+| `GET` | `/api/rentals` | No | List user's rentals (renter + owner) with filters |
+| `GET` | `/api/rentals/[id]` | No | Get rental details + history timeline |
+| `PATCH` | `/api/rentals/[id]/status` | No | Transition status (owner/admin/renter) |
+| `DELETE` | `/api/rentals/[id]` | No | Soft delete (admin only) |
 
 **Filters**: `?status=...&startDate=...&endDate=...&category=...&page=1&limit=10&sortBy=createdAt&sortOrder=desc`
 
@@ -309,7 +309,7 @@ CANCELLED (if renter cancels before confirmation)
 
 ---
 
-## 💳 Payment Integration (Chapa v1)
+## Payment Integration (Chapa v1)
 
 ### Flow
 
@@ -333,9 +333,9 @@ CANCELLED (if renter cancels before confirmation)
 
 | Method | Route | Public? | Description |
 |--------|-------|---------|-------------|
-| `POST` | `/api/payments/initialize` | ❌ No | Create Chapa session, return `checkout_url` |
-| `POST` | `/api/payments/webhook` | ✅ Yes | Chapa webhook handler (with verification) |
-| `GET` | `/api/payments/callback` | ✅ Yes | Redirect fallback (UX only – shows "Processing") |
+| `POST` | `/api/payments/initialize` | No | Create Chapa session, return `checkout_url` |
+| `POST` | `/api/payments/webhook` | Yes | Chapa webhook handler (with verification) |
+| `GET` | `/api/payments/callback` | Yes | Redirect fallback (UX only – shows "Processing") |
 
 ### Security Features
 
@@ -347,7 +347,7 @@ CANCELLED (if renter cancels before confirmation)
 
 ---
 
-## 🧪 Testing Strategy
+## Testing Strategy
 
 ### Tools
 
@@ -380,7 +380,7 @@ npm run test:coverage # Coverage report
 
 ---
 
-## 🖥️ Frontend (Predicted Structure)
+## Frontend (Predicted Structure)
 
 ### Pages (Routing)
 
@@ -425,7 +425,7 @@ npm run test:coverage # Coverage report
 
 ---
 
-## 🌐 Environment Variables
+## Environment Variables
 
 ### Required Variables
 
@@ -449,7 +449,7 @@ npm run test:coverage # Coverage report
 
 ---
 
-## 🚀 Deployment (Vercel + GitHub Actions)
+## Deployment (Vercel + GitHub Actions)
 
 ### CI/CD Pipeline (GitHub Actions)
 
@@ -499,7 +499,7 @@ jobs:
 
 ---
 
-## 📝 Commit Convention
+## Commit Convention
 
 We use [Conventional Commits](https://www.conventionalcommits.org/):
 
@@ -514,17 +514,17 @@ We use [Conventional Commits](https://www.conventionalcommits.org/):
 
 ---
 
-## 📄 License
+## License
 
 MIT
 
 ---
 
-**Built with ❤️ by Messi**
+**Built by Messi**
 
 ---
 
-## 🔗 Quick Links
+## Quick Links
 
 - [Next.js Docs](https://nextjs.org/docs)
 - [Prisma Docs](https://www.prisma.io/docs)

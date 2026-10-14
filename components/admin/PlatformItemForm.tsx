@@ -14,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ImageUpload } from "@/components/shared/ImageUpload";
 import { toast } from "sonner";
 import { ITEM_CATEGORIES } from "@/lib/utils/constants";
 
@@ -46,12 +47,16 @@ export function PlatformItemForm() {
         category: form.category,
         pricePerDay: parseFloat(form.pricePerDay),
         deposit: form.deposit ? parseFloat(form.deposit) : 0,
-        imageUrl: form.imageUrl,
+        imageUrl: form.imageUrl || undefined,
       });
       toast.success("Platform item created");
       setForm(EMPTY);
-    } catch {
-      toast.error("Failed to create platform item");
+    } catch (error) {
+      toast.error(
+        error instanceof Error && error.message
+          ? error.message
+          : "Failed to create platform item",
+      );
     }
   };
 
@@ -143,12 +148,11 @@ export function PlatformItemForm() {
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="platform-image">Image URL</Label>
-          <Input
-            id="platform-image"
-            placeholder="https://example.com/image.jpg"
+          <Label>Photo</Label>
+          <ImageUpload
             value={form.imageUrl}
-            onChange={(e) => set("imageUrl", e.target.value)}
+            onChange={(url) => set("imageUrl", url)}
+            disabled={createPlatformItem.isPending}
           />
         </div>
 

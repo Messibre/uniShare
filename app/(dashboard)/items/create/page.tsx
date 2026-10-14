@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Loader2 } from "lucide-react";
 import { useCreateItem } from "@/lib/hooks/useItems";
+import { useUnsavedChanges } from "@/lib/hooks/useUnsavedChanges";
 import { ITEM_CATEGORIES } from "@/lib/utils/constants";
 import { ROUTES } from "@/lib/utils/constants";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ImageUpload } from "@/components/shared/ImageUpload";
 import { toast } from "sonner";
 
 const createItemSchema = z.object({
@@ -27,7 +29,7 @@ const createItemSchema = z.object({
   category: z.string().min(1, "Please select a category"),
   pricePerDay: z.string().min(1, "Price is required"),
   deposit: z.string().optional(),
-  imageUrl: z.string().url("Invalid URL").optional(),
+  imageUrl: z.string().optional(),
 });
 
 type CreateItemFormData = z.infer<typeof createItemSchema>;
@@ -40,7 +42,7 @@ export default function CreateItemPage() {
     register,
     handleSubmit,
     control,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isDirty, isSubmitSuccessful },
   } = useForm<CreateItemFormData>({
     resolver: zodResolver(createItemSchema),
     defaultValues: {
@@ -53,6 +55,8 @@ export default function CreateItemPage() {
     },
   });
 
+  useUnsavedChanges(isDirty && !isSubmitSuccessful);
+
   const onSubmit = async (data: CreateItemFormData) => {
     try {
       await createItem.mutateAsync({
@@ -61,12 +65,16 @@ export default function CreateItemPage() {
         category: data.category,
         pricePerDay: parseFloat(data.pricePerDay),
         deposit: data.deposit ? parseFloat(data.deposit) : 0,
-        imageUrl: data.imageUrl,
+        imageUrl: data.imageUrl || undefined,
       });
       toast.success("Item listed successfully!");
       router.push(ROUTES.DASHBOARD);
     } catch (error) {
-      toast.error("Failed to list item. Please try again.");
+      toast.error(
+        error instanceof Error && error.message
+          ? error.message
+          : "Failed to list item. Please try again.",
+      );
     }
   };
 
@@ -166,17 +174,18 @@ export default function CreateItemPage() {
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="imageUrl">Image URL</Label>
-          <Input
-            id="imageUrl"
-            placeholder="https://example.com/image.jpg"
-            {...register("imageUrl")}
+          <Label>Photo</Label>
+          <Controller
+            name="imageUrl"
+            control={control}
+            render={({ field }) => (
+              <ImageUpload
+                value={field.value}
+                onChange={field.onChange}
+                disabled={isSubmitting}
+              />
+            )}
           />
-          {errors.imageUrl && (
-            <p className="text-label-sm text-error">
-              {errors.imageUrl.message}
-            </p>
-          )}
         </div>
 
         <Button

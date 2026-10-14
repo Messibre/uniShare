@@ -53,7 +53,7 @@ function isPublicPath(path: string): boolean {
 
   if (path.startsWith("/items/")) {
     const rest = path.replace("/items/", "");
-    if (rest === "create" || rest.startsWith("edit")) {
+    if (rest === "create" || rest.startsWith("edit") || rest.endsWith("/edit")) {
       return false;
     }
     return true;

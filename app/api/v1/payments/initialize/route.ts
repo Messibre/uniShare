@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth-guard";
 import { initializePaymentSchema } from "@/lib/validations";
 import { initializeChapaPayment } from "@/lib/chapa";
+import { finalizePayment } from "@/lib/payment-utils";
 import { logger } from "@/lib/logger";
 
 export async function POST(req: NextRequest) {
@@ -51,27 +52,51 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const existingPayment = await prisma.payment.findFirst({
-      where: {
-        rentalId: rental.id,
-        status: { in: ["PENDING", "SUCCESS"] },
-      },
+    const paid = await prisma.payment.findFirst({
+      where: { rentalId: rental.id, status: "SUCCESS" },
+    });
+    if (paid) {
+      return NextResponse.json(
+        { error: "Rental already paid for" },
+        { status: 409 },
+      );
+    }
+
+    // A checkout the user abandoned must not block them from paying again:
+    // reconcile it with Chapa, reuse it if it is still fresh, otherwise expire it.
+    const pendingPayments = await prisma.payment.findMany({
+      where: { rentalId: rental.id, status: "PENDING" },
+      orderBy: { createdAt: "desc" },
     });
 
-    if (existingPayment) {
-      if (existingPayment.status === "SUCCESS") {
+    for (const pending of pendingPayments) {
+      const outcome = await finalizePayment(pending.txRef);
+      if (outcome.state === "success") {
         return NextResponse.json(
           { error: "Rental already paid for" },
           { status: 409 },
         );
       }
-      return NextResponse.json(
-        {
-          error: "Payment already in progress",
-          paymentId: existingPayment.id,
-        },
-        { status: 409 },
-      );
+
+      const checkoutUrl = (pending.metadata as { checkout_url?: string } | null)
+        ?.checkout_url;
+      const isFresh = Date.now() - pending.createdAt.getTime() < 30 * 60 * 1000;
+
+      if (outcome.state === "pending" && checkoutUrl && isFresh) {
+        return NextResponse.json(
+          {
+            checkout_url: checkoutUrl,
+            payment_id: pending.id,
+            tx_ref: pending.txRef,
+          },
+          { status: 200 },
+        );
+      }
+
+      await prisma.payment.updateMany({
+        where: { id: pending.id, status: "PENDING" },
+        data: { status: "FAILED" },
+      });
     }
 
     const txRef = `rental_${rental.id}_${Date.now()}`;
@@ -87,28 +112,60 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    const appUrl = process.env.APP_BASE_URL || "http://localhost:3000";
+    const appUrl = (
+      process.env.APP_BASE_URL ||
+      process.env.NEXT_PUBLIC_APP_BASE_URL ||
+      req.nextUrl.origin
+    ).replace(/\/$/, "");
 
-    const chapaResponse = await initializeChapaPayment({
-      amount: rental.totalPrice,
-      currency: "ETB",
-      tx_ref: txRef,
-      email: user.email,
-      first_name: user.fullName.split(" ")[0],
-      last_name: user.fullName.split(" ").slice(1).join(" ") || "User",
-      phone_number: user.phone || "+251900000000",
-      callback_url: `${appUrl}/api/v1/payments/webhook`,
-      return_url: `${appUrl}/api/v1/payments/callback?tx_ref=${txRef}`,
-      customization: {
-        title: "UniShare",
-        description: `Rental- ${rental.item.name}`,
-      },
-      meta: {
-        rental_id: rental.id,
-        user_id: user.id,
-        payment_id: payment.id,
-      },
-    });
+    // Chapa only accepts letters, numbers, spaces, dots, hyphens and underscores
+    const safeItemName = rental.item.name
+      .replace(/[^A-Za-z0-9 ._-]/g, "")
+      .trim()
+      .slice(0, 40);
+
+    const phone = user.phone?.replace(/\s+/g, "");
+    const validPhone =
+      phone && /^(\+251|0)?[79]\d{8}$/.test(phone) ? phone : undefined;
+
+    let chapaResponse;
+    try {
+      chapaResponse = await initializeChapaPayment({
+        amount: rental.totalPrice,
+        currency: "ETB",
+        tx_ref: txRef,
+        email: user.email,
+        first_name: user.fullName.split(" ")[0] || "UniShare",
+        last_name: user.fullName.split(" ").slice(1).join(" ") || "User",
+        phone_number: validPhone,
+        callback_url: `${appUrl}/api/v1/payments/webhook`,
+        return_url: `${appUrl}/api/v1/payments/callback?tx_ref=${txRef}`,
+        customization: {
+          title: "UniShare",
+          description: `Rental ${safeItemName || "item"}`.slice(0, 50),
+        },
+        meta: {
+          rental_id: rental.id,
+          user_id: user.id,
+          payment_id: payment.id,
+        },
+      });
+    } catch (chapaError) {
+      await prisma.payment.update({
+        where: { id: payment.id },
+        data: { status: "FAILED" },
+      });
+      logger.error({ err: chapaError }, "Chapa initialization failed");
+      return NextResponse.json(
+        {
+          error:
+            chapaError instanceof Error
+              ? chapaError.message
+              : "Payment provider is unavailable",
+        },
+        { status: 502 },
+      );
+    }
 
     await prisma.payment.update({
       where: { id: payment.id },

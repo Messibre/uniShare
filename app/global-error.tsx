@@ -20,10 +20,9 @@ export default function GlobalError({
     <html>
       <body>
         <div className="flex min-h-screen flex-col items-center justify-center px-4 text-center">
-          <h1 className="text-6xl font-bold text-primary">😥</h1>
-          <h2 className="mt-4 text-2xl font-semibold text-on-surface">
+          <h1 className="text-2xl font-semibold text-on-surface">
             Something went wrong
-          </h2>
+          </h1>
           <p className="mt-2 max-w-md text-body-md text-on-surface-variant">
             We're sorry, but something unexpected happened.
           </p>

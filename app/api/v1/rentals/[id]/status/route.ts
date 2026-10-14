@@ -85,8 +85,17 @@ export async function PATCH(
       );
     }
 
-    // CONFIRMED: Check if payment is completed (we'll implement this in Phase 7)
-    // For now, we allow it.
+    if (newStatus === "CONFIRMED") {
+      const paid = await prisma.payment.findFirst({
+        where: { rentalId: rental.id, status: "SUCCESS" },
+      });
+      if (!paid) {
+        return NextResponse.json(
+          { error: "Rental can only be confirmed once payment is completed" },
+          { status: 400 },
+        );
+      }
+    }
 
     if (newStatus === "ACTIVE" && rental.status !== "CONFIRMED") {
       return NextResponse.json(

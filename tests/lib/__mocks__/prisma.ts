@@ -36,8 +36,10 @@ export const prismaMock = {
   payment: {
     findUnique: vi.fn(),
     findFirst: vi.fn(),
+    findMany: vi.fn(),
     create: vi.fn(),
     update: vi.fn(),
+    updateMany: vi.fn(),
   },
   passwordResetToken: {
     deleteMany: vi.fn(),

@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { apiClient } from "@/lib/api-client";
 
 interface InitializePaymentResponse {
@@ -33,6 +34,35 @@ export function useVerifyPayment(txRef: string) {
     staleTime: 30 * 1000,
   });
 }
+/**
+ * Starts a Chapa checkout for a rental and sends the browser to the hosted
+ * payment page. Chapa redirects back through /api/v1/payments/callback.
+ */
+export function usePayNow() {
+  const initialize = useInitializePayment();
+
+  const payNow = async (rentalId: string) => {
+    try {
+      const { checkout_url } = await initialize.mutateAsync(rentalId);
+      if (!checkout_url) throw new Error("Missing checkout URL");
+      // Hosted checkout can't render inside the preview iframe
+      if (window.self !== window.top) {
+        window.open(checkout_url, "_blank", "noopener,noreferrer");
+      } else {
+        window.location.assign(checkout_url);
+      }
+    } catch (error) {
+      toast.error(
+        error instanceof Error && error.message
+          ? error.message
+          : "Could not start payment. Please try again.",
+      );
+    }
+  };
+
+  return { payNow, isPaying: initialize.isPending };
+}
+
 export function useInitializePayment() {
   return useMutation({
     mutationFn: async (rentalId: string) => {

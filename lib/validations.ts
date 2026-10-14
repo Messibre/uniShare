@@ -18,6 +18,11 @@ const imageUrlSchema = z
     }
   }, "Image URL must be an https URL from an allowed host");
 
+// Forms submit "" when no photo was chosen; treat that as "no image"
+const optionalImageUrlSchema = z
+  .union([z.literal("").transform(() => undefined), imageUrlSchema])
+  .optional();
+
 // Password regex: at least 8 characters, at least one letter and one number
 const passwordSchema = z
   .string()
@@ -45,7 +50,7 @@ export const createItemSchema = z.object({
   category: z.string().min(1, "Category is required"),
   pricePerDay: z.number().positive("Price must be greater than 0"),
   deposit: z.number().optional(),
-  imageUrl: imageUrlSchema.optional(),
+  imageUrl: optionalImageUrlSchema,
   ownerType: z.enum(["PLATFORM", "USER"]).default("USER"),
 });
 
@@ -55,7 +60,7 @@ export const updateItemSchema = z.object({
   category: z.string().optional(),
   pricePerDay: z.number().positive().optional(),
   deposit: z.number().optional(),
-  imageUrl: imageUrlSchema.optional(),
+  imageUrl: optionalImageUrlSchema,
   status: z.enum(["AVAILABLE", "MAINTENANCE", "REMOVED"]).optional(),
 });
 

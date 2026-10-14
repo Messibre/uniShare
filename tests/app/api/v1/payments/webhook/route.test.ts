@@ -10,7 +10,7 @@ vi.mock("@/lib/chapa", () => ({
   verifyWebhookSignature: vi.fn(() => true),
 }));
 vi.mock("@/lib/payment-utils", () => ({
-  handleSuccessfulPayment: vi.fn(),
+  markPaymentSuccessful: vi.fn(),
 }));
 vi.mock("@/lib/email", () => ({
   sendPaymentConfirmationEmail: vi.fn(),
@@ -18,7 +18,7 @@ vi.mock("@/lib/email", () => ({
 
 import prisma from "@/lib/prisma";
 import { verifyChapaPayment, isPaymentValid } from "@/lib/chapa";
-import { handleSuccessfulPayment } from "@/lib/payment-utils";
+import { markPaymentSuccessful } from "@/lib/payment-utils";
 import { sendPaymentConfirmationEmail } from "@/lib/email";
 import { POST } from "@/app/api/v1/payments/webhook/route";
 import { makeRequest } from "@/tests/test/helpers";
@@ -26,7 +26,7 @@ import { makeRequest } from "@/tests/test/helpers";
 const mockedPaymentFindUnique = vi.mocked(prisma.payment.findUnique);
 const mockedVerify = vi.mocked(verifyChapaPayment);
 const mockedIsValid = vi.mocked(isPaymentValid);
-const mockedHandleSuccess = vi.mocked(handleSuccessfulPayment);
+const mockedHandleSuccess = vi.mocked(markPaymentSuccessful);
 const mockedSendEmail = vi.mocked(sendPaymentConfirmationEmail);
 
 const foundPayment = {
@@ -145,7 +145,7 @@ describe("POST /api/payments/webhook", () => {
       tx_ref: "tx_1",
     });
     mockedIsValid.mockReturnValue(true);
-    mockedHandleSuccess.mockResolvedValue({} as any);
+    mockedHandleSuccess.mockResolvedValue({ claimed: true } as any);
 
     const res = await POST(
       makeRequest("/api/payments/webhook", {
@@ -177,7 +177,7 @@ describe("POST /api/payments/webhook", () => {
       tx_ref: "tx_1",
     });
     mockedIsValid.mockReturnValue(true);
-    mockedHandleSuccess.mockResolvedValue({} as any);
+    mockedHandleSuccess.mockResolvedValue({ claimed: true } as any);
 
     await POST(
       makeRequest("/api/payments/webhook", {
@@ -201,7 +201,7 @@ describe("POST /api/payments/webhook", () => {
       tx_ref: "tx_1",
     });
     mockedIsValid.mockReturnValue(true);
-    mockedHandleSuccess.mockResolvedValue({} as any);
+    mockedHandleSuccess.mockResolvedValue({ claimed: true } as any);
 
     await POST(
       makeRequest("/api/payments/webhook", {

@@ -1,11 +1,19 @@
 import { Resend } from "resend";
 import { logger } from "./logger";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+let resendClient: Resend | null = null;
+
+// Created on first send so importing this module never requires the API key
+function getResend() {
+  if (!resendClient) resendClient = new Resend(process.env.RESEND_API_KEY);
+  return resendClient;
+}
 
 const FROM_EMAIL = process.env.EMAIL_FROM || "noreply@unishare.com";
 
-const isDev = process.env.NODE_ENV === "development";
+// Only skip real delivery when there is no API key to send with
+const isDev =
+  process.env.NODE_ENV === "development" && !process.env.RESEND_API_KEY;
 
 interface EmailParams {
   to: string;
@@ -23,12 +31,13 @@ async function sendEmail({ to, subject, html }: EmailParams) {
   }
 
   try {
-    await resend.emails.send({
+    const { error } = await getResend().emails.send({
       from: FROM_EMAIL,
       to,
       subject,
       html,
     });
+    if (error) throw new Error(error.message);
   } catch (error) {
     logger.error({ err: error, to, subject }, "Failed to send email");
     throw error;

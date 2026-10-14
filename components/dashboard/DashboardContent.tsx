@@ -175,6 +175,7 @@ export function DashboardContent() {
                   endDate={rental.endDate}
                   totalPrice={rental.totalPrice}
                   item={rental.item}
+                  canPay={rental.renterId === user?.id}
                 />
               ))}
             </div>

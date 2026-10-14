@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import { Package } from "lucide-react";
+import { usePayNow } from "@/lib/hooks/usePayments";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatCurrency, formatDateRange } from "@/lib/utils/format";
@@ -17,6 +20,7 @@ interface RentalCardProps {
   endDate: string;
   totalPrice: number;
   item?: RentalCardItem;
+  canPay?: boolean;
 }
 
 export function RentalCard({
@@ -26,7 +30,10 @@ export function RentalCard({
   endDate,
   totalPrice,
   item,
+  canPay = true,
 }: RentalCardProps) {
+  const { payNow, isPaying } = usePayNow();
+
   return (
     <article className="group flex flex-col overflow-hidden rounded-xl border border-outline bg-surface shadow-[var(--shadow-level-1)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-level-2)]">
       <div className="flex gap-4 p-4">
@@ -65,20 +72,24 @@ export function RentalCard({
         <span className="text-body-lg font-semibold text-primary">
           {formatCurrency(totalPrice)}
         </span>
-        {status === "PENDING" ? (
-          <Button
-            size="sm"
-            render={<Link href={`/rentals/${id}`}>Pay now</Link>}
-            className="bg-primary-container text-on-primary-container hover:bg-primary-container/90"
-          />
-        ) : (
+        <div className="flex items-center gap-2">
+          {status === "PENDING" && canPay ? (
+            <Button
+              size="sm"
+              onClick={() => payNow(id)}
+              disabled={isPaying}
+              className="bg-primary-container text-on-primary-container hover:bg-primary-container/90"
+            >
+              {isPaying ? "Redirecting..." : "Pay now"}
+            </Button>
+          ) : null}
           <Button
             size="sm"
             variant="outline"
             render={<Link href={`/rentals/${id}`}>View</Link>}
             className="border-outline-variant text-on-surface hover:bg-surface-container"
           />
-        )}
+        </div>
       </div>
     </article>
   );

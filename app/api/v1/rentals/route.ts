@@ -99,11 +99,29 @@ export async function POST(req: NextRequest) {
     );
     const totalPrice = days * item.pricePerDay + (item.deposit || 0);
 
+    // Platform items have no owner; an admin acts as the owner so the rental
+    // can be activated and returned from the admin side.
+    let rentalOwnerId = item.ownerId;
+    if (!rentalOwnerId) {
+      const admin = await prisma.endUser.findFirst({
+        where: { role: "ADMIN" },
+        select: { id: true },
+        orderBy: { createdAt: "asc" },
+      });
+      if (!admin) {
+        return NextResponse.json(
+          { error: "This item cannot be rented right now" },
+          { status: 409 },
+        );
+      }
+      rentalOwnerId = admin.id;
+    }
+
     const rental = await prisma.rental.create({
       data: {
         itemId: item.id,
         renterId: user.id,
-        ownerId: item.ownerId!, // Should exist since ownerType = USER
+        ownerId: rentalOwnerId,
         startDate: start,
         endDate: end,
         totalPrice,

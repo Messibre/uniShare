@@ -3,6 +3,7 @@
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useRental, useUpdateRentalStatus } from "@/lib/hooks/useRentals";
+import { usePayNow } from "@/lib/hooks/usePayments";
 import { useAuthStore } from "@/lib/stores/auth-store";
 import { formatDate, formatCurrency } from "@/lib/utils/format";
 import { ROUTES } from "@/lib/utils/constants";
@@ -30,7 +31,6 @@ const STATUS_ACTIONS: Record<
   }>
 > = {
   PENDING: [
-    { label: "Confirm", value: "CONFIRMED", allowed: ["owner", "admin"] },
     {
       label: "Cancel",
       value: "CANCELLED",
@@ -78,6 +78,7 @@ export default function RentalDetailPage() {
   const { user } = useAuthStore();
   const { data: rental, isLoading } = useRental(id);
   const updateStatus = useUpdateRentalStatus();
+  const { payNow, isPaying } = usePayNow();
 
   const handleStatusChange = async (newStatus: string) => {
     try {
@@ -87,7 +88,11 @@ export default function RentalDetailPage() {
       });
       toast.success(`Rental ${newStatus.toLowerCase()}`);
     } catch (error) {
-      toast.error("Failed to update status. Please try again.");
+      toast.error(
+        error instanceof Error && error.message
+          ? error.message
+          : "Failed to update status. Please try again.",
+      );
     }
   };
 
@@ -116,6 +121,7 @@ export default function RentalDetailPage() {
 
   const isOwner = user?.id === rental.ownerId;
   const isRenter = user?.id === rental.renterId;
+  const showPay = isRenter && rental.status === "PENDING";
 
   const actions = STATUS_ACTIONS[rental.status] || [];
   const availableActions = actions.filter(
@@ -212,8 +218,19 @@ export default function RentalDetailPage() {
             </Field>
           </div>
 
-          {availableActions.length > 0 && (
+          {(availableActions.length > 0 || showPay) && (
             <div className="mt-auto flex flex-wrap gap-3 border-t border-outline/60 pt-4">
+              {showPay && (
+                <Button
+                  onClick={() => payNow(rental.id)}
+                  disabled={isPaying}
+                  className="bg-primary-container text-on-primary-container hover:bg-primary-container/90"
+                >
+                  {isPaying
+                    ? "Redirecting..."
+                    : `Pay ${formatCurrency(rental.totalPrice)}`}
+                </Button>
+              )}
               {availableActions.map((action) => (
                 <Button
                   key={action.value}

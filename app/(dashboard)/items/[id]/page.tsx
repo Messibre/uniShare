@@ -22,6 +22,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
+import { SafeImage } from "@/components/shared/SafeImage";
 
 export default function ItemDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -176,8 +177,7 @@ export default function ItemDetailPage() {
       {/* Image: fills the available height instead of dictating it */}
       <div className="relative h-64 overflow-hidden rounded-xl border border-outline bg-surface-container-high sm:h-80 lg:h-full">
         {item.imageUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <SafeImage
             src={item.imageUrl}
             alt={item.name}
             className="h-full w-full object-cover"

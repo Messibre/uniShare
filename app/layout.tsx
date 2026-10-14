@@ -4,6 +4,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import { Providers } from "./providers";
+import { SkipLink } from "@/components/shared/SkipLink";
 import "sonner/dist/styles.css";
 
 const inter = Inter({
@@ -93,6 +94,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className={inter.variable}>
       <body className="font-sans">
+        <SkipLink />
         <Providers>{children}</Providers>
         <Analytics />
         <SpeedInsights />

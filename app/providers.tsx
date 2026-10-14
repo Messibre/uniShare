@@ -5,6 +5,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/components/providers/AuthProvider";
+import { NetworkStatus } from "@/components/shared/NetworkStatus";
 import { useState } from "react";
 
 export function Providers({ children }: { children: React.ReactNode }) {
@@ -35,6 +36,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       >
         <AuthProvider>
           {children}
+          <NetworkStatus />
           <Toaster position="bottom-right" richColors closeButton />
           <ReactQueryDevtools initialIsOpen={false} />
         </AuthProvider>

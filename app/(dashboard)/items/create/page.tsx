@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Loader2 } from "lucide-react";
 import { useCreateItem } from "@/lib/hooks/useItems";
+import { useUnsavedChanges } from "@/lib/hooks/useUnsavedChanges";
 import { ITEM_CATEGORIES } from "@/lib/utils/constants";
 import { ROUTES } from "@/lib/utils/constants";
 import { Button } from "@/components/ui/button";
@@ -41,7 +42,7 @@ export default function CreateItemPage() {
     register,
     handleSubmit,
     control,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isDirty, isSubmitSuccessful },
   } = useForm<CreateItemFormData>({
     resolver: zodResolver(createItemSchema),
     defaultValues: {
@@ -53,6 +54,8 @@ export default function CreateItemPage() {
       imageUrl: "",
     },
   });
+
+  useUnsavedChanges(isDirty && !isSubmitSuccessful);
 
   const onSubmit = async (data: CreateItemFormData) => {
     try {

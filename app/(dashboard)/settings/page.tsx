@@ -23,6 +23,7 @@ import {
   useChangePassword,
   useLogout,
 } from "@/lib/hooks/useAuth";
+import { useUnsavedChanges } from "@/lib/hooks/useUnsavedChanges";
 import { formatDate } from "@/lib/utils/format";
 import { ROUTES } from "@/lib/utils/constants";
 import { Badge } from "@/components/ui/badge";
@@ -135,6 +136,10 @@ export default function SettingsPage() {
       confirmPassword: "",
     },
   });
+
+  useUnsavedChanges(
+    profileForm.formState.isDirty || passwordForm.formState.isDirty,
+  );
 
   const onProfileSubmit = async (data: ProfileFormData) => {
     try {

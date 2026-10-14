@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Search, X, ChevronLeft, ChevronRight } from "lucide-react";
@@ -8,6 +8,7 @@ import { useItems } from "@/lib/hooks/useItems";
 import { ITEM_CATEGORIES } from "@/lib/utils/constants";
 import { formatCurrency } from "@/lib/utils/format";
 import { Badge } from "@/components/ui/badge";
+import { SafeImage } from "@/components/shared/SafeImage";
 
 interface ItemsListProps {
   initialData: {
@@ -32,7 +33,14 @@ export function ItemsList({ initialData }: ItemsListProps) {
   // Controlled search field, kept in sync with the URL so browser back/forward
   // and filter chips stay consistent with what's typed.
   const [searchInput, setSearchInput] = useState(search);
+  const inputRef = useRef<HTMLInputElement>(null);
+  // Last search value this component pushed to (or read from) the URL, so the
+  // URL -> input sync never overwrites text typed while a debounce is pending.
+  const lastPushed = useRef(search);
+
   useEffect(() => {
+    if (search === lastPushed.current) return;
+    lastPushed.current = search;
     setSearchInput(search);
   }, [search]);
 
@@ -58,6 +66,7 @@ export function ItemsList({ initialData }: ItemsListProps) {
 
   const updateFilters = (
     updates: Record<string, string | number | undefined>,
+    options: { replace?: boolean; scrollTop?: boolean } = {},
   ) => {
     const params = new URLSearchParams(searchParams.toString());
     Object.entries(updates).forEach(([key, value]) => {
@@ -67,13 +76,64 @@ export function ItemsList({ initialData }: ItemsListProps) {
         params.delete(key);
       }
     });
-    router.push(`/items${params.toString() ? `?${params.toString()}` : ""}`);
+    const href = `/items${params.toString() ? `?${params.toString()}` : ""}`;
+    if (options.replace) {
+      router.replace(href, { scroll: false });
+    } else {
+      router.push(href);
+    }
+    if (options.scrollTop) window.scrollTo({ top: 0 });
   };
 
-  const submitSearch = () => updateFilters({ search: searchInput.trim(), page: 1 });
+  const updateFiltersRef = useRef(updateFilters);
+  useEffect(() => {
+    updateFiltersRef.current = updateFilters;
+  });
+
+  // Search as you type, debounced so each keystroke doesn't hit the API.
+  useEffect(() => {
+    const trimmed = searchInput.trim();
+    if (trimmed === lastPushed.current) return;
+
+    const timeout = setTimeout(() => {
+      lastPushed.current = trimmed;
+      updateFiltersRef.current(
+        { search: trimmed || undefined, page: 1 },
+        { replace: true },
+      );
+    }, 400);
+    return () => clearTimeout(timeout);
+  }, [searchInput]);
+
+  // Ctrl/Cmd+K focuses the search field from anywhere on the page.
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key.toLowerCase() === "k" && (event.metaKey || event.ctrlKey)) {
+        event.preventDefault();
+        inputRef.current?.focus();
+        inputRef.current?.select();
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
+
+  const submitSearch = () => {
+    const trimmed = searchInput.trim();
+    lastPushed.current = trimmed;
+    updateFilters({ search: trimmed || undefined, page: 1 });
+  };
+
+  const clearSearch = () => {
+    setSearchInput("");
+    lastPushed.current = "";
+    if (search) updateFilters({ search: undefined, page: 1 });
+    inputRef.current?.focus();
+  };
 
   const clearAll = () => {
     setSearchInput("");
+    lastPushed.current = "";
     router.push("/items");
   };
 
@@ -89,26 +149,29 @@ export function ItemsList({ initialData }: ItemsListProps) {
           Search items
         </label>
         <input
+          ref={inputRef}
           id="item-search"
           type="search"
           enterKeyHint="search"
-          placeholder="Search items by name…"
+          autoComplete="off"
+          aria-keyshortcuts="Control+K Meta+K"
+          placeholder="Search items by name…  (Ctrl K)"
           className="w-full rounded-full border border-outline bg-surface-container-low py-2.5 pl-10 pr-10 text-body-md text-on-surface outline-none transition-colors placeholder:text-on-surface-variant focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/40"
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.nativeEvent.isComposing) {
+            if (e.nativeEvent.isComposing) return;
+            if (e.key === "Enter") {
               submitSearch();
+            } else if (e.key === "Escape" && searchInput) {
+              clearSearch();
             }
           }}
         />
         {searchInput && (
           <button
             type="button"
-            onClick={() => {
-              setSearchInput("");
-              if (search) updateFilters({ search: undefined, page: 1 });
-            }}
+            onClick={clearSearch}
             className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-full p-1 text-on-surface-variant transition-colors hover:bg-surface-container-high hover:text-on-surface focus-visible:ring-2 focus-visible:ring-primary/40"
             aria-label="Clear search"
           >
@@ -209,7 +272,12 @@ export function ItemsList({ initialData }: ItemsListProps) {
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div
+          aria-busy={isFetching}
+          className={`grid grid-cols-1 gap-4 transition-opacity sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${
+            isFetching ? "opacity-60" : ""
+          }`}
+        >
           {items.map((item) => (
             <Link
               key={item.id}
@@ -218,8 +286,8 @@ export function ItemsList({ initialData }: ItemsListProps) {
             >
               <div className="relative h-48 bg-surface-container-high">
                 {item.imageUrl ? (
-                  <img
-                    src={item.imageUrl || "/placeholder.svg"}
+                  <SafeImage
+                    src={item.imageUrl}
                     alt={item.name}
                     className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                   />
@@ -277,8 +345,11 @@ export function ItemsList({ initialData }: ItemsListProps) {
         >
           <button
             className="inline-flex items-center gap-1 rounded-full border border-outline px-4 py-2 text-label-md text-on-surface-variant transition-colors hover:bg-surface-container disabled:cursor-not-allowed disabled:opacity-50"
+            aria-label="Previous page"
             disabled={pagination.page <= 1}
-            onClick={() => updateFilters({ page: pagination.page - 1 })}
+            onClick={() =>
+              updateFilters({ page: pagination.page - 1 }, { scrollTop: true })
+            }
           >
             <ChevronLeft className="h-4 w-4" />
             Previous
@@ -288,8 +359,11 @@ export function ItemsList({ initialData }: ItemsListProps) {
           </span>
           <button
             className="inline-flex items-center gap-1 rounded-full border border-outline px-4 py-2 text-label-md text-on-surface-variant transition-colors hover:bg-surface-container disabled:cursor-not-allowed disabled:opacity-50"
+            aria-label="Next page"
             disabled={pagination.page >= pagination.totalPages}
-            onClick={() => updateFilters({ page: pagination.page + 1 })}
+            onClick={() =>
+              updateFilters({ page: pagination.page + 1 }, { scrollTop: true })
+            }
           >
             Next
             <ChevronRight className="h-4 w-4" />

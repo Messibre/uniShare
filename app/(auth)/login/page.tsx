@@ -81,6 +81,15 @@ export default function LoginPage() {
           </p>
         </div>
 
+        {searchParams.get("expired") === "1" && (
+          <p
+            role="status"
+            className="rounded-lg border border-warning/30 bg-warning/15 px-3 py-2 text-body-sm text-on-surface"
+          >
+            Your session expired. Sign in again to pick up where you left off.
+          </p>
+        )}
+
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {/* Email */}
           <div className="space-y-1.5">

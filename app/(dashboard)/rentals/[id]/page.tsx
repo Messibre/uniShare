@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useRental, useUpdateRentalStatus } from "@/lib/hooks/useRentals";
@@ -10,6 +11,17 @@ import { ROUTES } from "@/lib/utils/constants";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { SafeImage } from "@/components/shared/SafeImage";
 import { ArrowLeft, Package } from "lucide-react";
 import { toast } from "sonner";
 
@@ -79,6 +91,7 @@ export default function RentalDetailPage() {
   const { data: rental, isLoading } = useRental(id);
   const updateStatus = useUpdateRentalStatus();
   const { payNow, isPaying } = usePayNow();
+  const [confirmCancel, setConfirmCancel] = useState(false);
 
   const handleStatusChange = async (newStatus: string) => {
     try {
@@ -173,8 +186,7 @@ export default function RentalDetailPage() {
           <div className="flex items-center gap-4">
             <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-outline bg-surface-container-high">
               {rental.item?.imageUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
+                <SafeImage
                   src={rental.item.imageUrl}
                   alt={rental.item.name}
                   className="h-full w-full object-cover"
@@ -234,7 +246,11 @@ export default function RentalDetailPage() {
               {availableActions.map((action) => (
                 <Button
                   key={action.value}
-                  onClick={() => handleStatusChange(action.value)}
+                  onClick={() =>
+                    action.value === "CANCELLED"
+                      ? setConfirmCancel(true)
+                      : handleStatusChange(action.value)
+                  }
                   disabled={updateStatus.isPending}
                   className={
                     action.value === "CANCELLED"
@@ -254,6 +270,27 @@ export default function RentalDetailPage() {
               ))}
             </div>
           )}
+
+          <AlertDialog open={confirmCancel} onOpenChange={setConfirmCancel}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Cancel this rental?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This can&apos;t be undone. The booking will be closed for
+                  both the owner and the renter.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Keep rental</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => handleStatusChange("CANCELLED")}
+                  className="bg-error text-on-error hover:bg-error/90"
+                >
+                  Cancel rental
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </section>
 
         {/* Timeline: scrolls internally so the page itself never has to */}

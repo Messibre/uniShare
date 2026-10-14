@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatCurrency, formatDateRange } from "@/lib/utils/format";
 import { getRentalStatusColor } from "@/lib/utils/status";
+import { SafeImage } from "@/components/shared/SafeImage";
 
 interface RentalCardItem {
   name?: string;
@@ -39,8 +40,7 @@ export function RentalCard({
       <div className="flex gap-4 p-4">
         <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-surface-container">
           {item?.imageUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <SafeImage
               src={item.imageUrl || "/placeholder.svg"}
               alt=""
               className="h-full w-full object-cover"

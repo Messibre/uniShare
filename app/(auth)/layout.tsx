@@ -78,7 +78,11 @@ export default function AuthLayout({
       </aside>
 
       {/* Form panel */}
-      <div className="flex min-h-screen flex-col items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
+      <div
+        id="main"
+        tabIndex={-1}
+        className="flex min-h-screen flex-col items-center justify-center px-4 py-12 outline-none sm:px-6 lg:px-8"
+      >
         <div className="w-full max-w-[26rem]">
           <Link
             href={ROUTES.HOME}

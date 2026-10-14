@@ -8,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Loader2 } from "lucide-react";
 import { useItem, useUpdateItem } from "@/lib/hooks/useItems";
+import { useUnsavedChanges } from "@/lib/hooks/useUnsavedChanges";
 import { ITEM_CATEGORIES, ITEM_STATUSES } from "@/lib/utils/constants";
 import { ROUTES } from "@/lib/utils/constants";
 import { Button } from "@/components/ui/button";
@@ -49,7 +50,7 @@ export default function EditItemPage() {
     handleSubmit,
     control,
     setValue,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = useForm<EditItemFormData>({
     resolver: zodResolver(editItemSchema),
     defaultValues: {
@@ -62,6 +63,8 @@ export default function EditItemPage() {
       status: "AVAILABLE",
     },
   });
+
+  useUnsavedChanges(isDirty && !isSubmitting);
 
   // Populate form when item loads
   useEffect(() => {

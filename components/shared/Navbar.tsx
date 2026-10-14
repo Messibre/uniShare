@@ -68,8 +68,16 @@ export function Navbar() {
         {/* Logo */}
         <Link
           href={ROUTES.HOME}
-          className="text-h3 font-bold tracking-tight text-on-surface hover:no-underline"
+          className="flex items-center gap-2 text-h3 font-bold tracking-tight text-on-surface hover:no-underline"
         >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/icon-192.png"
+            alt=""
+            width={28}
+            height={28}
+            className="h-7 w-7 rounded-md"
+          />
           UniShare
         </Link>
 

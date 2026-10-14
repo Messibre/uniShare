@@ -36,20 +36,25 @@ export function ItemsList({ initialData }: ItemsListProps) {
     setSearchInput(search);
   }, [search]);
 
+  const hasFilters = Boolean(search || category);
+
+  // The server-rendered payload only describes the unfiltered first page.
+  // Seeding it into every query key would mark filtered results as fresh and
+  // skip the network fetch, so search/category changes would never update.
+  const isDefaultQuery = !hasFilters && page === 1;
+
   const { data, isFetching } = useItems(
     {
       search: search || undefined,
       category: category || undefined,
       page,
       limit: 12,
-      available: true,
     },
-    { initialData },
+    { initialData: isDefaultQuery ? initialData : undefined },
   );
 
   const items = data?.items || [];
   const pagination = data?.pagination;
-  const hasFilters = Boolean(search || category);
 
   const updateFilters = (
     updates: Record<string, string | number | undefined>,

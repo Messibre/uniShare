@@ -28,7 +28,7 @@ export function RentalCard({
   item,
 }: RentalCardProps) {
   return (
-    <article className="group flex flex-col overflow-hidden rounded-xl border border-outline-variant bg-surface transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-level-2)]">
+    <article className="group flex flex-col overflow-hidden rounded-xl border border-outline bg-surface shadow-[var(--shadow-level-1)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-level-2)]">
       <div className="flex gap-4 p-4">
         <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-surface-container">
           {item?.imageUrl ? (
@@ -61,7 +61,7 @@ export function RentalCard({
           </p>
         </div>
       </div>
-      <div className="mt-auto flex items-center justify-between border-t border-outline-variant px-4 py-3">
+      <div className="mt-auto flex items-center justify-between border-t border-outline/60 px-4 py-3">
         <span className="text-body-lg font-semibold text-primary">
           {formatCurrency(totalPrice)}
         </span>

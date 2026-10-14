@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Sparkles, ShieldCheck, Star, Quote } from "lucide-react";
+import { ShieldCheck, Star, Quote } from "lucide-react";
 import { ROUTES } from "@/lib/utils/constants";
 
 export default function AuthLayout({
@@ -27,9 +27,14 @@ export default function AuthLayout({
             href={ROUTES.HOME}
             className="inline-flex w-fit items-center gap-2 no-underline hover:no-underline"
           >
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary-container text-on-primary-container">
-              <Sparkles className="h-4 w-4" aria-hidden="true" />
-            </span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/icon-192.png"
+              alt=""
+              width={36}
+              height={36}
+              className="h-9 w-9 rounded-lg"
+            />
             <span className="text-body-lg font-semibold tracking-tight text-white">
               UniShare
             </span>
@@ -79,9 +84,14 @@ export default function AuthLayout({
             href={ROUTES.HOME}
             className="mb-8 flex items-center justify-center gap-2 no-underline hover:no-underline lg:hidden"
           >
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary-container text-on-primary-container">
-              <Sparkles className="h-4 w-4" aria-hidden="true" />
-            </span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/icon-192.png"
+              alt=""
+              width={36}
+              height={36}
+              className="h-9 w-9 rounded-lg"
+            />
             <span className="text-h3 font-semibold tracking-tight text-on-surface">
               UniShare
             </span>

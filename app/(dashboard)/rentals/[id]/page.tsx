@@ -8,9 +8,8 @@ import { formatDate, formatCurrency } from "@/lib/utils/format";
 import { ROUTES } from "@/lib/utils/constants";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Package } from "lucide-react";
+import { ArrowLeft, Package } from "lucide-react";
 import { toast } from "sonner";
 
 const STATUS_COLORS: Record<string, string> = {
@@ -58,6 +57,21 @@ const STATUS_ACTIONS: Record<
   CANCELLED: [],
 };
 
+function Field({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <p className="text-label-sm text-on-surface-variant">{label}</p>
+      <div className="text-body-md font-medium text-on-surface">{children}</div>
+    </div>
+  );
+}
+
 export default function RentalDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
@@ -79,20 +93,20 @@ export default function RentalDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="max-w-3xl mx-auto space-y-6">
-        <Skeleton className="h-8 w-48" />
-        <Skeleton className="h-64 w-full rounded-xl" />
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Skeleton className="h-72 w-full rounded-xl" />
+        <Skeleton className="h-72 w-full rounded-xl" />
       </div>
     );
   }
 
   if (!rental) {
     return (
-      <div className="text-center py-12">
+      <div className="py-12 text-center">
         <h2 className="text-h2 font-h2 text-on-surface">Rental not found</h2>
         <Link
           href={ROUTES.DASHBOARD}
-          className="text-primary hover:underline mt-4 inline-block"
+          className="mt-4 inline-block text-primary hover:underline"
         >
           ← Back to Dashboard
         </Link>
@@ -102,7 +116,6 @@ export default function RentalDetailPage() {
 
   const isOwner = user?.id === rental.ownerId;
   const isRenter = user?.id === rental.renterId;
-  const isAdmin = user?.role === "ADMIN";
 
   const actions = STATUS_ACTIONS[rental.status] || [];
   const availableActions = actions.filter(
@@ -112,47 +125,64 @@ export default function RentalDetailPage() {
       (action.allowed.includes("renter") && isRenter),
   );
 
+  const statusClass =
+    STATUS_COLORS[rental.status] ||
+    "bg-surface-container-high text-on-surface-variant";
+  const logs = rental.statusLogs ?? [];
+  const roleLabel = isOwner ? "Owner" : isRenter ? "Renter" : null;
+
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="space-y-2">
-          <span className="inline-flex w-fit items-center gap-2 rounded-full border border-outline-variant bg-surface-container-low px-3 py-1 text-label-sm font-medium text-on-surface-variant">
-            Rental
-          </span>
+    <div className="flex flex-col gap-5 lg:h-[calc(100dvh-15rem)] lg:min-h-[28rem]">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => router.back()}
+            className="-ml-2 gap-1.5 text-on-surface-variant hover:text-primary"
+          >
+            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+            Back
+          </Button>
           <h1 className="text-h2 font-semibold text-on-surface">
-            Rental Details
+            Rental details
           </h1>
         </div>
-        <Badge
-          className={
-            STATUS_COLORS[rental.status] || "bg-surface-container-high text-on-surface-variant"
-          }
-        >
-          {rental.status}
-        </Badge>
+        <div className="flex items-center gap-2">
+          {roleLabel && (
+            <Badge variant="outline" className="border-outline">
+              You are the {roleLabel.toLowerCase()}
+            </Badge>
+          )}
+          <Badge className={statusClass}>{rental.status}</Badge>
+        </div>
       </div>
 
-      {/* Item Info */}
-      <Card className="bg-surface border-outline-variant rounded-xl shadow-[var(--shadow-level-1)]">
-        <CardContent className="p-6 space-y-4">
+      <div className="grid min-h-0 flex-1 gap-5 lg:grid-cols-2">
+        {/* Item + booking facts */}
+        <section
+          aria-label="Booking"
+          className="flex min-h-0 flex-col gap-5 rounded-xl border border-outline bg-surface p-5 shadow-[var(--shadow-level-1)]"
+        >
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-xl bg-surface-container-high overflow-hidden border border-outline-variant">
+            <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-outline bg-surface-container-high">
               {rental.item?.imageUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={rental.item.imageUrl}
                   alt={rental.item.name}
-                  className="w-full h-full object-cover"
+                  className="h-full w-full object-cover"
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-on-surface-variant">
+                <div className="flex h-full w-full items-center justify-center text-on-surface-variant">
                   <Package className="h-6 w-6" aria-hidden="true" />
                 </div>
               )}
             </div>
-            <div>
+            <div className="min-w-0">
               <Link
                 href={`/items/${rental.itemId}`}
-                className="text-body-lg font-semibold text-on-surface hover:text-primary"
+                className="block truncate text-body-lg font-semibold text-on-surface hover:text-primary"
               >
                 {rental.item?.name || "Unknown Item"}
               </Link>
@@ -161,95 +191,81 @@ export default function RentalDetailPage() {
               </p>
             </div>
           </div>
-        </CardContent>
-      </Card>
 
-      {/* Rental Info */}
-      <Card className="bg-surface border-outline-variant rounded-xl shadow-[var(--shadow-level-1)]">
-        <CardContent className="p-6 space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <p className="text-label-sm text-on-surface-variant">
-                Start Date
-              </p>
-              <p className="text-body-md font-medium text-on-surface">
-                {formatDate(rental.startDate)}
-              </p>
-            </div>
-            <div>
-              <p className="text-label-sm text-on-surface-variant">End Date</p>
-              <p className="text-body-md font-medium text-on-surface">
-                {formatDate(rental.endDate)}
-              </p>
-            </div>
-            <div>
-              <p className="text-label-sm text-on-surface-variant">
-                Total Price
-              </p>
-              <p className="text-body-lg font-bold text-primary">
+          <div className="grid grid-cols-2 gap-4 border-t border-outline/60 pt-4">
+            <Field label="Start date">{formatDate(rental.startDate)}</Field>
+            <Field label="End date">{formatDate(rental.endDate)}</Field>
+            <Field label="Total price">
+              <span className="text-body-lg font-bold text-primary">
                 {formatCurrency(rental.totalPrice)}
-              </p>
-            </div>
-            <div>
-              <p className="text-label-sm text-on-surface-variant">Status</p>
-              <Badge
-                className={
-                  STATUS_COLORS[rental.status] || "bg-surface-container-high text-on-surface-variant"
-                }
-              >
-                {rental.status}
-              </Badge>
-            </div>
+              </span>
+            </Field>
+            <Field label="Renter">
+              <span className="block truncate">
+                {rental.renter?.fullName || "Unknown"}
+              </span>
+              {rental.renter?.email && (
+                <span className="block truncate text-label-sm font-normal text-on-surface-variant">
+                  {rental.renter.email}
+                </span>
+              )}
+            </Field>
           </div>
 
-          <div className="pt-4 border-t border-outline-variant">
-            <p className="text-label-sm text-on-surface-variant">Renter</p>
-            <p className="text-body-md text-on-surface">
-              {rental.renter?.fullName || "Unknown"}
-            </p>
-            <p className="text-label-sm text-on-surface-variant">
-              {rental.renter?.email || ""}
-            </p>
-          </div>
-
-          {isOwner && (
-            <div className="pt-4 border-t border-outline-variant">
-              <p className="text-label-sm text-on-surface-variant">
-                You are the owner
-              </p>
+          {availableActions.length > 0 && (
+            <div className="mt-auto flex flex-wrap gap-3 border-t border-outline/60 pt-4">
+              {availableActions.map((action) => (
+                <Button
+                  key={action.value}
+                  onClick={() => handleStatusChange(action.value)}
+                  disabled={updateStatus.isPending}
+                  className={
+                    action.value === "CANCELLED"
+                      ? "bg-error text-on-error hover:bg-error/90"
+                      : "bg-primary-container text-on-primary-container hover:bg-primary-container/90"
+                  }
+                >
+                  {updateStatus.isPending ? (
+                    <span className="flex items-center gap-2">
+                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                      Processing...
+                    </span>
+                  ) : (
+                    action.label
+                  )}
+                </Button>
+              ))}
             </div>
           )}
-          {isRenter && (
-            <div className="pt-4 border-t border-outline-variant">
-              <p className="text-label-sm text-on-surface-variant">
-                You are the renter
-              </p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+        </section>
 
-      {/* Status Timeline */}
-      {rental.statusLogs && rental.statusLogs.length > 0 && (
-        <Card className="bg-surface border-outline-variant rounded-xl shadow-[var(--shadow-level-1)]">
-          <CardContent className="p-6">
-            <h3 className="text-h3 font-semibold text-on-surface mb-4">
-              Timeline
-            </h3>
-            <div className="space-y-3">
-              {rental.statusLogs.map((log, index) => (
-                <div key={log.id} className="flex items-start gap-3">
+        {/* Timeline: scrolls internally so the page itself never has to */}
+        <section
+          aria-label="Timeline"
+          className="flex min-h-0 flex-col rounded-xl border border-outline bg-surface p-5 shadow-[var(--shadow-level-1)]"
+        >
+          <h2 className="mb-4 text-body-lg font-semibold text-on-surface">
+            Timeline
+          </h2>
+          {logs.length === 0 ? (
+            <p className="text-body-sm text-on-surface-variant">
+              No status changes yet.
+            </p>
+          ) : (
+            <ol className="min-h-0 flex-1 space-y-3 overflow-y-auto pr-1">
+              {logs.map((log, index) => (
+                <li key={log.id} className="flex items-start gap-3">
                   <div className="flex flex-col items-center">
-                    <div className="w-3 h-3 rounded-full bg-primary-container" />
-                    {index < rental.statusLogs!.length - 1 && (
-                      <div className="w-0.5 h-6 bg-outline-variant" />
+                    <div className="h-3 w-3 rounded-full bg-primary-container" />
+                    {index < logs.length - 1 && (
+                      <div className="h-6 w-0.5 bg-outline" />
                     )}
                   </div>
                   <div>
                     <p className="text-body-sm font-medium text-on-surface">
                       {log.newStatus}
                       {log.oldStatus && (
-                        <span className="text-label-sm text-on-surface-variant font-normal">
+                        <span className="text-label-sm font-normal text-on-surface-variant">
                           {" "}
                           (from {log.oldStatus})
                         </span>
@@ -260,47 +276,12 @@ export default function RentalDetailPage() {
                       {log.note && ` — ${log.note}`}
                     </p>
                   </div>
-                </div>
+                </li>
               ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Actions */}
-      {availableActions.length > 0 && (
-        <div className="flex flex-wrap gap-3 pt-4">
-          {availableActions.map((action) => (
-            <Button
-              key={action.value}
-              onClick={() => handleStatusChange(action.value)}
-              disabled={updateStatus.isPending}
-              className={`${
-                action.value === "CANCELLED"
-                  ? "bg-error text-on-error hover:bg-error/90"
-                  : "bg-primary-container text-on-primary-container hover:bg-primary-container/90"
-              }`}
-            >
-              {updateStatus.isPending ? (
-                <span className="flex items-center gap-2">
-                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                  Processing...
-                </span>
-              ) : (
-                action.label
-              )}
-            </Button>
-          ))}
-        </div>
-      )}
-
-      <Button
-        variant="outline"
-        onClick={() => router.back()}
-        className="border-outline text-on-surface hover:bg-surface-container"
-      >
-        ← Back
-      </Button>
+            </ol>
+          )}
+        </section>
+      </div>
     </div>
   );
 }

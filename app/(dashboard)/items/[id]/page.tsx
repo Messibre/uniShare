@@ -25,7 +25,7 @@ import { toast } from "sonner";
 import { SafeImage } from "@/components/shared/SafeImage";
 
 export default function ItemDetailPage() {
-  const { id } = useParams<{ id: string }>();
+  const id = useParams<{ id: string }>()?.id ?? "";
   const router = useRouter();
   const { isAuthenticated, user } = useAuthStore();
   const [startDate, setStartDate] = useState<string>("");

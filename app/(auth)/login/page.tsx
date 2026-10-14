@@ -27,7 +27,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirect = searchParams.get("redirect") || ROUTES.DASHBOARD;
+  const redirect = searchParams?.get("redirect") || ROUTES.DASHBOARD;
   const { isAuthenticated } = useAuthStore();
   const [showPassword, setShowPassword] = useState(false);
 
@@ -81,7 +81,7 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {searchParams.get("expired") === "1" && (
+        {searchParams?.get("expired") === "1" && (
           <p
             role="status"
             className="rounded-lg border border-warning/30 bg-warning/15 px-3 py-2 text-body-sm text-on-surface"

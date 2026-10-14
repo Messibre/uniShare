@@ -85,7 +85,7 @@ function Field({
 }
 
 export default function RentalDetailPage() {
-  const { id } = useParams<{ id: string }>();
+  const id = useParams<{ id: string }>()?.id ?? "";
   const router = useRouter();
   const { user } = useAuthStore();
   const { data: rental, isLoading } = useRental(id);

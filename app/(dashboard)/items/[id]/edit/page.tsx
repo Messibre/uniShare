@@ -40,7 +40,7 @@ type EditItemFormData = z.infer<typeof editItemSchema>;
 
 export default function EditItemPage() {
   const router = useRouter();
-  const { id } = useParams<{ id: string }>();
+  const id = useParams<{ id: string }>()?.id ?? "";
   const { data: item, isLoading } = useItem(id);
   const updateItem = useUpdateItem();
   const [isSubmitting, setIsSubmitting] = useState(false);

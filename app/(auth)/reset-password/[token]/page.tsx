@@ -51,7 +51,7 @@ export default function ResetPasswordPage() {
   const onSubmit = async (data: ResetPasswordFormData) => {
     try {
       await resetPasswordMutation.mutateAsync({
-        token: params.token,
+        token: params?.token ?? "",
         password: data.password,
       });
       setIsSuccess(true);

@@ -38,7 +38,7 @@ import { ROUTES } from "@/lib/utils/constants";
 import { getInitials } from "@/lib/utils/format";
 
 export function Navbar() {
-  const pathname = usePathname();
+  const pathname = usePathname() ?? "";
   const router = useRouter();
   const { user, isAuthenticated } = useAuthStore();
   const { mutate: logout } = useLogout();

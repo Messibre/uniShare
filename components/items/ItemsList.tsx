@@ -26,9 +26,9 @@ export function ItemsList({ initialData }: ItemsListProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const page = parseInt(searchParams.get("page") || "1");
-  const search = searchParams.get("search") || "";
-  const category = searchParams.get("category") || "";
+  const page = parseInt(searchParams?.get("page") || "1");
+  const search = searchParams?.get("search") || "";
+  const category = searchParams?.get("category") || "";
 
   // Controlled search field, kept in sync with the URL so browser back/forward
   // and filter chips stay consistent with what's typed.
@@ -68,7 +68,7 @@ export function ItemsList({ initialData }: ItemsListProps) {
     updates: Record<string, string | number | undefined>,
     options: { replace?: boolean; scrollTop?: boolean } = {},
   ) => {
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(searchParams?.toString() ?? "");
     Object.entries(updates).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== "") {
         params.set(key, String(value));

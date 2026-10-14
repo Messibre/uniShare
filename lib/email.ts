@@ -61,7 +61,7 @@ export async function sendPaymentConfirmationEmail({
   endDate: Date;
   amount: number;
 }) {
-  const subject = `✅ UniShare – Rental Confirmed: ${itemName}`;
+  const subject = `UniShare - Rental Confirmed: ${itemName}`;
 
   const startFormatted = startDate.toLocaleDateString("en-US", {
     year: "numeric",
@@ -86,23 +86,23 @@ export async function sendPaymentConfirmationEmail({
         </style>
       </head>
       <body>
-        <h1>✅ Payment Confirmed!</h1>
+        <h1>Payment Confirmed</h1>
         <p>Hi ${fullName},</p>
         <p>Your payment has been successfully processed. Your rental is now <strong>CONFIRMED</strong>!</p>
 
         <div class="card">
-          <h3>📦 Rental Details</h3>
+          <h3>Rental Details</h3>
           <p><strong>Item:</strong> ${itemName}</p>
           <p><strong>Dates:</strong> ${startFormatted} → ${endFormatted}</p>
           <p><strong>Total Paid:</strong> ${amount} ETB</p>
           <p><strong>Rental ID:</strong> ${rentalId}</p>
         </div>
 
-        <h3>📋 What's Next?</h3>
+        <h3>What's Next?</h3>
         <ol>
           <li>The owner will prepare your item for pickup.</li>
           <li>Coordinate with the owner for pickup/delivery.</li>
-          <li>Enjoy your rental! 🎉</li>
+          <li>Enjoy your rental!</li>
         </ol>
 
         <p>
@@ -136,7 +136,7 @@ export async function sendPaymentFailedEmail({
   itemName: string;
   reason?: string;
 }) {
-  const subject = `❌ UniShare – Payment Failed: ${itemName}`;
+  const subject = `UniShare - Payment Failed: ${itemName}`;
 
   const html = `
     <!DOCTYPE html>
@@ -149,7 +149,7 @@ export async function sendPaymentFailedEmail({
         </style>
       </head>
       <body>
-        <h1>❌ Payment Failed</h1>
+        <h1>Payment Failed</h1>
         <p>Hi ${fullName},</p>
         <p>Your payment for <strong>${itemName}</strong> was not successful.</p>
 
@@ -196,7 +196,7 @@ export async function sendPasswordResetEmail({
         </style>
       </head>
       <body>
-        <h1> Reset Your Password</h1>
+        <h1>Reset Your Password</h1>
         <p>Hi ${fullName},</p>
         <p>We received a request to reset your password for your UniShare account.</p>
         <div class="card">

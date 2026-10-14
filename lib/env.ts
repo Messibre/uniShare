@@ -81,8 +81,10 @@ export function hasEnvVar(key: keyof EnvConfig): boolean {
   return !!env[key];
 }
 
-export function getEnvStatus(): Record<string, "✅" | "❌" | "🔒"> {
-  const status: Record<string, "✅" | "❌" | "🔒"> = {};
+type EnvStatus = "set" | "missing" | "set (hidden)";
+
+export function getEnvStatus(): Record<string, EnvStatus> {
+  const status: Record<string, EnvStatus> = {};
   const sensitive = [
     "DATABASE_URL",
     "JWT_ACCESS_SECRET",
@@ -92,10 +94,10 @@ export function getEnvStatus(): Record<string, "✅" | "❌" | "🔒"> {
   ];
 
   for (const key of [...REQUIRED_ENV_VARS, ...OPTIONAL_ENV_VARS]) {
-    if (sensitive.includes(key)) {
-      status[key] = env[key] ? "🔒" : "❌";
+    if (!env[key]) {
+      status[key] = "missing";
     } else {
-      status[key] = env[key] ? "✅" : "❌";
+      status[key] = sensitive.includes(key) ? "set (hidden)" : "set";
     }
   }
 
@@ -104,11 +106,10 @@ export function getEnvStatus(): Record<string, "✅" | "❌" | "🔒"> {
 
 export function printEnvStatus(): void {
   const status = getEnvStatus();
-  console.log("📋 Environment Variables Status:");
+  console.log("Environment Variables Status:");
   console.log("─".repeat(40));
   for (const [key, value] of Object.entries(status)) {
-    const label = value === "🔒" ? "🔒 (set)" : value;
-    console.log(`  ${key}: ${label}`);
+    console.log(`  ${key}: ${value}`);
   }
   console.log("─".repeat(40));
 }
